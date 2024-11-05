@@ -1,0 +1,12 @@
+{
+  "domain": "askoheat",
+  "name": "Askoheat+",
+  "codeowners": [
+    "@toggm"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/toggm/askoheat",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/toggm/askoheat/issues",
+  "version": "0.0.0"
+}

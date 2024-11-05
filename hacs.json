@@ -1,6 +1,6 @@
 {
-    "name": "Integration blueprint",
+    "name": "Askoheat",
     "hide_default_branch": true,
-    "homeassistant": "2024.6.0",
+    "homeassistant": "2024.10.3",
     "render_readme": true
 }
