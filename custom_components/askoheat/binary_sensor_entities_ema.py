@@ -1,0 +1,83 @@
+"""Predefined energy managementt askoheat sensors."""
+
+from custom_components.askoheat.const import BinarySensorEMAAttrKey
+from custom_components.askoheat.model import AskoheatBinarySensorEntityDescription
+
+EMA_BINARY_SENSOR_ENTITY_DESCRIPTIONS = (
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.HEATER1_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.HEATER1_ACTIVE,
+        icon="mdi:power-plug",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.HEATER2_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.HEATER2_ACTIVE,
+        icon="mdi:power-plug",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.HEATER3_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.HEATER3_ACTIVE,
+        icon="mdi:power-plug",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.PUMP_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.PUMP_ACTIVE,
+        icon="mdi:pump",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.RELAY_BOARD_CONNECTED,
+        translation_key=BinarySensorEMAAttrKey.RELAY_BOARD_CONNECTED,
+        icon="mdi:connection",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.HEAT_PUMP_REQUEST_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.HEAT_PUMP_REQUEST_ACTIVE,
+        icon="mdi:heat_pump",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.EMERGENCY_MODE_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.EMERGENCY_MODE_ACTIVE,
+        icon="mdi:car-emergency",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.LEGIONELLA_PROTECTION_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.LEGIONELLA_PROTECTION_ACTIVE,
+        icon="mdi:shield-sun",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.ANALOG_INPUT_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.ANALOG_INPUT_ACTIVE,
+        icon="mdi:sine-wave",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.SETPOINT_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.SETPOINT_ACTIVE,
+        icon="mdi:finance",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.LOAD_FEEDIN_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.LOAD_FEEDIN_ACTIVE,
+        icon="mdi:solar-power",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.AUTOHEATER_OFF_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.AUTOHEATER_OFF_ACTIVE,
+        icon="mdi:water-boiler-auto",
+        inverted=True,
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE,
+        translation_key=BinarySensorEMAAttrKey.PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE,
+        icon="mdi:water-boiler-auto",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.TEMP_LIMIT_REACHED,
+        translation_key=BinarySensorEMAAttrKey.TEMP_LIMIT_REACHED,
+        icon="mdi:water-boiler-auto",
+    ),
+    AskoheatBinarySensorEntityDescription(
+        key=BinarySensorEMAAttrKey.ERROR_OCCURED,
+        translation_key=BinarySensorEMAAttrKey.ERROR_OCCURED,
+        icon="mdi:water-thermometer",
+    ),
+)

@@ -2,47 +2,70 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
-from homeassistant.exceptions import ConfigEntryAuthFailed
+import async_timeout
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import (
-    IntegrationBlueprintApiClientAuthenticationError,
-    IntegrationBlueprintApiClientError,
+    AskoheatModbusApiClientError,
 )
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN, LOGGER, SCAN_INTERVAL_EMA
 
 if TYPE_CHECKING:
+    from datetime import timedelta
+
     from homeassistant.core import HomeAssistant
 
-    from .data import IntegrationBlueprintConfigEntry
+    from custom_components.askoheat.data import AskoheatEMAData
+
+    from .data import AskoheatConfigEntry
 
 
 # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
-class BlueprintDataUpdateCoordinator(DataUpdateCoordinator):
-    """Class to manage fetching data from the API."""
+class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
+    """Class to manage fetching state of askoheat through a single API call."""
 
-    config_entry: IntegrationBlueprintConfigEntry
+    config_entry: AskoheatConfigEntry
 
-    def __init__(
-        self,
-        hass: HomeAssistant,
-    ) -> None:
+    def __init__(self, hass: HomeAssistant, scan_interval: timedelta) -> None:
         """Initialize."""
         super().__init__(
             hass=hass,
             logger=LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(hours=1),
+            update_interval=scan_interval,
+            # Set always_update to `False` if the data returned from the
+            # api can be compared via `__eq__` to avoid duplicate updates
+            # being dispatched to listeners
+            always_update=True,
         )
 
-    async def _async_update_data(self) -> Any:
-        """Update data via library."""
+
+class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
+    """Class to manage fetching askoheat energymanager states."""
+
+    config_entry: AskoheatConfigEntry
+    data: AskoheatEMAData
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        """Initialize."""
+        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_EMA)
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Update ema data via library."""
         try:
-            return await self.config_entry.runtime_data.client.async_get_data()
-        except IntegrationBlueprintApiClientAuthenticationError as exception:
-            raise ConfigEntryAuthFailed(exception) from exception
-        except IntegrationBlueprintApiClientError as exception:
+            async with async_timeout.timeout(10):
+                data = await self.config_entry.runtime_data.client.async_read_ema_data()
+                result: dict[str, Any] = {}
+                result.update(
+                    {
+                        f"binary_sensor.{k}": data.binary_sensors[k]
+                        for k in data.binary_sensors
+                    }
+                )
+                result.update({f"sensor.{k}": data.sensors[k] for k in data.sensors})
+                result.update({f"switch.{k}": data.switches[k] for k in data.switches})
+                return result
+        except AskoheatModbusApiClientError as exception:
             raise UpdateFailed(exception) from exception
