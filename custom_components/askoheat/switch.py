@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 
+from custom_components.askoheat.model import AskoheatSwitchEntityDescription
+
 from .entity import AskoheatEntity
 
 if TYPE_CHECKING:
@@ -39,13 +41,15 @@ async def async_setup_entry(
     # )
 
 
-class IntegrationBlueprintSwitch(AskoheatEntity, SwitchEntity):
+class AskoHeatSwitch(AskoheatEntity, SwitchEntity):
     """askoheat switch class."""
+
+    entity_description: AskoheatSwitchEntityDescription
 
     def __init__(
         self,
         coordinator: AskoheatDataUpdateCoordinator,
-        entity_description: SwitchEntityDescription,
+        entity_description: AskoheatSwitchEntityDescription,
     ) -> None:
         """Initialize the switch class."""
         super().__init__(coordinator)

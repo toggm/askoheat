@@ -1,83 +1,101 @@
 """Predefined energy managementt askoheat sensors."""
 
-from custom_components.askoheat.const import BinarySensorEMAAttrKey
+from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+
+
+from custom_components.askoheat.const import BinarySensorAttrKey
 from custom_components.askoheat.model import AskoheatBinarySensorEntityDescription
 
 EMA_BINARY_SENSOR_ENTITY_DESCRIPTIONS = (
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.HEATER1_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.HEATER1_ACTIVE,
+        key=BinarySensorAttrKey.HEATER1_ACTIVE,
+        translation_key=BinarySensorAttrKey.HEATER1_ACTIVE,
         icon="mdi:power-plug",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.HEATER2_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.HEATER2_ACTIVE,
+        key=BinarySensorAttrKey.HEATER2_ACTIVE,
+        translation_key=BinarySensorAttrKey.HEATER2_ACTIVE,
         icon="mdi:power-plug",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.HEATER3_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.HEATER3_ACTIVE,
+        key=BinarySensorAttrKey.HEATER3_ACTIVE,
+        translation_key=BinarySensorAttrKey.HEATER3_ACTIVE,
         icon="mdi:power-plug",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.PUMP_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.PUMP_ACTIVE,
+        key=BinarySensorAttrKey.PUMP_ACTIVE,
+        translation_key=BinarySensorAttrKey.PUMP_ACTIVE,
         icon="mdi:pump",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.RELAY_BOARD_CONNECTED,
-        translation_key=BinarySensorEMAAttrKey.RELAY_BOARD_CONNECTED,
+        key=BinarySensorAttrKey.RELAY_BOARD_CONNECTED,
+        translation_key=BinarySensorAttrKey.RELAY_BOARD_CONNECTED,
         icon="mdi:connection",
+        device_class=BinarySensorDeviceClass.PROBLEM,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.HEAT_PUMP_REQUEST_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.HEAT_PUMP_REQUEST_ACTIVE,
+        key=BinarySensorAttrKey.HEAT_PUMP_REQUEST_ACTIVE,
+        translation_key=BinarySensorAttrKey.HEAT_PUMP_REQUEST_ACTIVE,
         icon="mdi:heat_pump",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.EMERGENCY_MODE_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.EMERGENCY_MODE_ACTIVE,
+        key=BinarySensorAttrKey.EMERGENCY_MODE_ACTIVE,
+        translation_key=BinarySensorAttrKey.EMERGENCY_MODE_ACTIVE,
         icon="mdi:car-emergency",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.LEGIONELLA_PROTECTION_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.LEGIONELLA_PROTECTION_ACTIVE,
+        key=BinarySensorAttrKey.LEGIONELLA_PROTECTION_ACTIVE,
+        translation_key=BinarySensorAttrKey.LEGIONELLA_PROTECTION_ACTIVE,
         icon="mdi:shield-sun",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.ANALOG_INPUT_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.ANALOG_INPUT_ACTIVE,
+        key=BinarySensorAttrKey.ANALOG_INPUT_ACTIVE,
+        translation_key=BinarySensorAttrKey.ANALOG_INPUT_ACTIVE,
         icon="mdi:sine-wave",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.SETPOINT_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.SETPOINT_ACTIVE,
+        key=BinarySensorAttrKey.SETPOINT_ACTIVE,
+        translation_key=BinarySensorAttrKey.SETPOINT_ACTIVE,
         icon="mdi:finance",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.LOAD_FEEDIN_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.LOAD_FEEDIN_ACTIVE,
+        key=BinarySensorAttrKey.LOAD_FEEDIN_ACTIVE,
+        translation_key=BinarySensorAttrKey.LOAD_FEEDIN_ACTIVE,
         icon="mdi:solar-power",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.AUTOHEATER_OFF_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.AUTOHEATER_OFF_ACTIVE,
+        key=BinarySensorAttrKey.AUTOHEATER_ACTIVE,
+        translation_key=BinarySensorAttrKey.AUTOHEATER_ACTIVE,
         icon="mdi:water-boiler-auto",
         inverted=True,
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE,
-        translation_key=BinarySensorEMAAttrKey.PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE,
+        key=BinarySensorAttrKey.PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE,
+        translation_key=BinarySensorAttrKey.PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE,
         icon="mdi:water-boiler-auto",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.TEMP_LIMIT_REACHED,
-        translation_key=BinarySensorEMAAttrKey.TEMP_LIMIT_REACHED,
+        key=BinarySensorAttrKey.TEMP_LIMIT_REACHED,
+        translation_key=BinarySensorAttrKey.TEMP_LIMIT_REACHED,
         icon="mdi:water-boiler-auto",
+        device_class=BinarySensorDeviceClass.RUNNING,
     ),
     AskoheatBinarySensorEntityDescription(
-        key=BinarySensorEMAAttrKey.ERROR_OCCURED,
-        translation_key=BinarySensorEMAAttrKey.ERROR_OCCURED,
+        key=BinarySensorAttrKey.ERROR_OCCURED,
+        translation_key=BinarySensorAttrKey.ERROR_OCCURED,
         icon="mdi:water-thermometer",
+        device_class=BinarySensorDeviceClass.PROBLEM,
     ),
 )

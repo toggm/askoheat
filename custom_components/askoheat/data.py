@@ -5,16 +5,23 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from custom_components.askoheat.const import (
-    BinarySensorEMAAttrKey,
-    SensorEMAAttrKey,
-    SwitchEMAAttrKey,
-)
-
 if TYPE_CHECKING:
+    from datetime import time
+    from enum import ReprEnum
+
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.loader import Integration
+    from numpy import number
 
+    from custom_components.askoheat.const import (
+        BinarySensorAttrKey,
+        NumberAttrKey,
+        SelectAttrKey,
+        SensorAttrKey,
+        SwitchAttrKey,
+        TextAttrKey,
+        TimeAttrKey,
+    )
     from custom_components.askoheat.coordinator import AskoheatEMADataUpdateCoordinator
 
     from .api import AskoHeatModbusApiClient
@@ -33,9 +40,13 @@ class AskoheatData:
 
 
 @dataclass
-class AskoheatEMAData:
+class AskoheatDataBlock:
     """Data returnes when querying EMA attributes of askoheat."""
 
-    binary_sensors: dict[BinarySensorEMAAttrKey, bool]
-    sensors: dict[SensorEMAAttrKey, object]
-    switches: dict[SwitchEMAAttrKey, bool]
+    binary_sensors: dict[BinarySensorAttrKey, bool] | None = None
+    sensors: dict[SensorAttrKey, object] | None = None
+    switches: dict[SwitchAttrKey, bool] | None = None
+    text_intputs: dict[TextAttrKey, str] | None = None
+    select_inputs: dict[SelectAttrKey, ReprEnum] | None = None
+    number_inputs: dict[NumberAttrKey, number] | None = None
+    time_inputs: dict[TimeAttrKey, time | None] | None = None

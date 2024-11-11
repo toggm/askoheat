@@ -83,3 +83,4 @@ class AskoheatSensor(AskoheatEntity, SensorEntity):
             self._attr_native_value = float_value
 
         self.async_write_ha_state()
+        super()._handle_coordinator_update()
