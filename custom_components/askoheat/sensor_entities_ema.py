@@ -5,7 +5,6 @@ from homeassistant.components.sensor.const import (
     SensorStateClass,
 )
 from homeassistant.const import (
-    EntityCategory,
     UnitOfElectricPotential,
     UnitOfPower,
     UnitOfTemperature,
@@ -17,7 +16,6 @@ from custom_components.askoheat.model import AskoheatSensorEntityDescription
 EMA_SENSOR_ENTITY_DESCRIPTIONS = (
     AskoheatSensorEntityDescription(
         key=SensorAttrKey.ANALOG_INPUT_VALUE,
-        translation_key=SensorAttrKey.ANALOG_INPUT_VALUE,
         icon="mdi:gauge",
         native_precision=0,
         state_class=SensorStateClass.MEASUREMENT,
@@ -27,8 +25,7 @@ EMA_SENSOR_ENTITY_DESCRIPTIONS = (
     ),
     AskoheatSensorEntityDescription(
         key=SensorAttrKey.HEATER_LOAD,
-        translation_key=SensorAttrKey.HEATER_LOAD,
-        icon="mdi:lightning-bold",
+        icon="mdi:lightning-bolt",
         state_class=SensorStateClass.MEASUREMENT,
         device_class=SensorDeviceClass.POWER,
         native_unit_of_measurement=UnitOfPower.WATT,
@@ -36,7 +33,6 @@ EMA_SENSOR_ENTITY_DESCRIPTIONS = (
     ),
     AskoheatSensorEntityDescription(
         key=SensorAttrKey.LOAD_FEEDIN_VALUE,
-        translation_key=SensorAttrKey.LOAD_FEEDIN_VALUE,
         icon="mdi:solar-power",
         native_precision=0,
         state_class=SensorStateClass.MEASUREMENT,
@@ -46,7 +42,6 @@ EMA_SENSOR_ENTITY_DESCRIPTIONS = (
     ),
     AskoheatSensorEntityDescription(
         key=SensorAttrKey.LOAD_SETPOINT_VALUE,
-        translation_key=SensorAttrKey.LOAD_SETPOINT_VALUE,
         icon="mdi:lightning-bolt",
         native_precision=0,
         state_class=SensorStateClass.MEASUREMENT,
@@ -56,7 +51,6 @@ EMA_SENSOR_ENTITY_DESCRIPTIONS = (
     ),
     AskoheatSensorEntityDescription(
         key=SensorAttrKey.INTERNAL_TEMPERATUR_SENSOR_VALUE,
-        translation_key=SensorAttrKey.INTERNAL_TEMPERATUR_SENSOR_VALUE,
         icon="mdi:thermometer",
         native_precision=1,
         state_class=SensorStateClass.MEASUREMENT,
@@ -66,7 +60,6 @@ EMA_SENSOR_ENTITY_DESCRIPTIONS = (
     ),
     AskoheatSensorEntityDescription(
         key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR1_VALUE,
-        translation_key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR1_VALUE,
         icon="mdi:thermometer",
         native_precision=1,
         state_class=SensorStateClass.MEASUREMENT,
@@ -76,7 +69,6 @@ EMA_SENSOR_ENTITY_DESCRIPTIONS = (
     ),
     AskoheatSensorEntityDescription(
         key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR2_VALUE,
-        translation_key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR2_VALUE,
         icon="mdi:thermometer",
         native_precision=1,
         state_class=SensorStateClass.MEASUREMENT,
@@ -86,7 +78,6 @@ EMA_SENSOR_ENTITY_DESCRIPTIONS = (
     ),
     AskoheatSensorEntityDescription(
         key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR3_VALUE,
-        translation_key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR3_VALUE,
         icon="mdi:thermometer",
         native_precision=1,
         state_class=SensorStateClass.MEASUREMENT,
@@ -96,7 +87,6 @@ EMA_SENSOR_ENTITY_DESCRIPTIONS = (
     ),
     AskoheatSensorEntityDescription(
         key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR4_VALUE,
-        translation_key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR4_VALUE,
         icon="mdi:thermometer",
         native_precision=1,
         state_class=SensorStateClass.MEASUREMENT,

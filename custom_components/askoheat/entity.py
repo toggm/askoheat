@@ -2,24 +2,30 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
+from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from custom_components.askoheat.model import AdkoheatEntityDescription
-
-from .const import ATTRIBUTION, LOGGER
+from .const import ATTRIBUTION
 from .coordinator import AskoheatDataUpdateCoordinator
 
-from homeassistant.core import callback
+if TYPE_CHECKING:
+    from custom_components.askoheat.model import AskoheatEntityDescription
 
 
 class AskoheatEntity(CoordinatorEntity[AskoheatDataUpdateCoordinator]):
     """AskoheatEntity class."""
 
     _attr_attribution = ATTRIBUTION
-    entity_description: AdkoheatEntityDescription
+    entity_description: AskoheatEntityDescription
 
-    def __init__(self, coordinator: AskoheatDataUpdateCoordinator) -> None:
+    def __init__(
+        self,
+        coordinator: AskoheatDataUpdateCoordinator,
+        entity_description: AskoheatEntityDescription,
+    ) -> None:
         """Initialize."""
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id
@@ -31,6 +37,19 @@ class AskoheatEntity(CoordinatorEntity[AskoheatDataUpdateCoordinator]):
                 ),
             },
         )
+        self.entity_description = entity_description
+        self.translation_key = (
+            entity_description.translation_key or entity_description.key.value
+        )
+
+    async def async_added_to_hass(self) -> None:
+        """When entity is added to hass."""
+        await super().async_added_to_hass()
+        # initially initialize values
+        self._handle_coordinator_update()
+
+    async def _data_update(self) -> None:
+        self._handle_coordinator_update()
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -47,3 +66,4 @@ class AskoheatEntity(CoordinatorEntity[AskoheatDataUpdateCoordinator]):
             self._attr_icon = descr.icon
 
         super()._handle_coordinator_update()
+        self.async_write_ha_state()

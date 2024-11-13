@@ -1,11 +1,9 @@
-"""Sample API Client."""
+"""Modbus API Client."""
 
 from __future__ import annotations
 
-from ast import Num
-from datetime import datetime, time
-from numbers import Number
-from typing import TYPE_CHECKING, Any
+from datetime import time
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import numpy as np
 from pymodbus.client import AsyncModbusTcpClient as ModbusClient
@@ -25,6 +23,8 @@ from custom_components.askoheat.const import (
 from custom_components.askoheat.data import AskoheatDataBlock
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
     from pymodbus.pdu import ModbusPDU
 
 
@@ -65,9 +65,9 @@ class AskoHeatModbusApiClient:
     async def async_read_config_data(self) -> AskoheatDataBlock:
         """Read EMA states."""
         # http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Configuration_Block
-        data = await self.async_read_input_registers_data(500, 100)
+        data = await self.async_read_holding_registers_data(500, 100)
         LOGGER.debug("async_read_config_data %s", data)
-        return self._map_ema_data(data)
+        return self._map_config_data(data)
 
     async def async_read_input_registers_data(
         self, address: int, count: int
@@ -156,7 +156,9 @@ class AskoHeatModbusApiClient:
                 NumberAttrKey.CON_ANALOG_INPUT_0_THRESHOLD: _read_float32(
                     data.registers[58:60]
                 ),
-                NumberAttrKey.CON_ANALOG_INPUT_0_STEP: _read_byte(data.registers[60]),
+                NumberAttrKey.CON_ANALOG_INPUT_0_THRESHOLD_STEP: _read_byte(
+                    data.registers[60]
+                ),
                 NumberAttrKey.CON_ANALOG_INPUT_0_THRESHOLD_TEMPERATURE: _read_byte(
                     data.registers[61]
                 ),
@@ -164,7 +166,9 @@ class AskoHeatModbusApiClient:
                 NumberAttrKey.CON_ANALOG_INPUT_1_THRESHOLD: _read_float32(
                     data.registers[62:64]
                 ),
-                NumberAttrKey.CON_ANALOG_INPUT_1_STEP: _read_byte(data.registers[64]),
+                NumberAttrKey.CON_ANALOG_INPUT_1_THRESHOLD_STEP: _read_byte(
+                    data.registers[64]
+                ),
                 NumberAttrKey.CON_ANALOG_INPUT_1_THRESHOLD_TEMPERATURE: _read_byte(
                     data.registers[65]
                 ),
@@ -172,7 +176,9 @@ class AskoHeatModbusApiClient:
                 NumberAttrKey.CON_ANALOG_INPUT_2_THRESHOLD: _read_float32(
                     data.registers[66:68]
                 ),
-                NumberAttrKey.CON_ANALOG_INPUT_2_STEP: _read_byte(data.registers[68]),
+                NumberAttrKey.CON_ANALOG_INPUT_2_THRESHOLD_STEP: _read_byte(
+                    data.registers[68]
+                ),
                 NumberAttrKey.CON_ANALOG_INPUT_2_THRESHOLD_TEMPERATURE: _read_byte(
                     data.registers[69]
                 ),
@@ -180,7 +186,9 @@ class AskoHeatModbusApiClient:
                 NumberAttrKey.CON_ANALOG_INPUT_3_THRESHOLD: _read_float32(
                     data.registers[70:72]
                 ),
-                NumberAttrKey.CON_ANALOG_INPUT_3_STEP: _read_byte(data.registers[72]),
+                NumberAttrKey.CON_ANALOG_INPUT_3_THRESHOLD_STEP: _read_byte(
+                    data.registers[72]
+                ),
                 NumberAttrKey.CON_ANALOG_INPUT_3_THRESHOLD_TEMPERATURE: _read_byte(
                     data.registers[73]
                 ),
@@ -188,7 +196,9 @@ class AskoHeatModbusApiClient:
                 NumberAttrKey.CON_ANALOG_INPUT_4_THRESHOLD: _read_float32(
                     data.registers[74:76]
                 ),
-                NumberAttrKey.CON_ANALOG_INPUT_4_STEP: _read_byte(data.registers[76]),
+                NumberAttrKey.CON_ANALOG_INPUT_4_THRESHOLD_STEP: _read_byte(
+                    data.registers[76]
+                ),
                 NumberAttrKey.CON_ANALOG_INPUT_4_THRESHOLD_TEMPERATURE: _read_byte(
                     data.registers[77]
                 ),
@@ -196,7 +206,9 @@ class AskoHeatModbusApiClient:
                 NumberAttrKey.CON_ANALOG_INPUT_5_THRESHOLD: _read_float32(
                     data.registers[78:80]
                 ),
-                NumberAttrKey.CON_ANALOG_INPUT_5_STEP: _read_byte(data.registers[80]),
+                NumberAttrKey.CON_ANALOG_INPUT_5_THRESHOLD_STEP: _read_byte(
+                    data.registers[80]
+                ),
                 NumberAttrKey.CON_ANALOG_INPUT_5_THRESHOLD_TEMPERATURE: _read_byte(
                     data.registers[81]
                 ),
@@ -204,7 +216,9 @@ class AskoHeatModbusApiClient:
                 NumberAttrKey.CON_ANALOG_INPUT_6_THRESHOLD: _read_float32(
                     data.registers[82:84]
                 ),
-                NumberAttrKey.CON_ANALOG_INPUT_6_STEP: _read_byte(data.registers[84]),
+                NumberAttrKey.CON_ANALOG_INPUT_6_THRESHOLD_STEP: _read_byte(
+                    data.registers[84]
+                ),
                 NumberAttrKey.CON_ANALOG_INPUT_6_THRESHOLD_TEMPERATURE: _read_byte(
                     data.registers[65]
                 ),
@@ -212,7 +226,9 @@ class AskoHeatModbusApiClient:
                 NumberAttrKey.CON_ANALOG_INPUT_7_THRESHOLD: _read_float32(
                     data.registers[86:88]
                 ),
-                NumberAttrKey.CON_ANALOG_INPUT_7_STEP: _read_byte(data.registers[88]),
+                NumberAttrKey.CON_ANALOG_INPUT_7_THRESHOLD_STEP: _read_byte(
+                    data.registers[88]
+                ),
                 NumberAttrKey.CON_ANALOG_INPUT_7_THRESHOLD_TEMPERATURE: _read_byte(
                     data.registers[89]
                 ),
@@ -426,7 +442,8 @@ class AskoHeatModbusApiClient:
             },
             time_inputs={
                 TimeAttrKey.CON_LEGIO_PROTECTION_PREFERRED_START_TIME: _read_time(
-                    data.registers[12:16]
+                    register_value_hours=data.registers[12],
+                    register_value_minutes=data.registers[13],
                 ),
                 TimeAttrKey.CON_LOW_TARIFF_START_TIME: time(
                     hour=_read_byte(data.registers[52]),
@@ -438,12 +455,11 @@ class AskoHeatModbusApiClient:
                 ),
             },
             text_intputs={
-                TextAttrKey.CON_WATER_HARDNESS: _read_str(data.registers[16:20]),
                 TextAttrKey.CON_INFO_STRING: _read_str(data.registers[22:38]),
             },
             select_inputs={
-                SelectAttrKey.CON_RTU_BAUDRATE: Baurate(
-                    _read_str(data.registers[46:49])
+                SelectAttrKey.CON_RTU_BAUDRATE: _read_enum(
+                    data.registers[46:49], Baurate
                 ),
                 SelectAttrKey.CON_ENERGY_METER_TYPE: EnergyMeterType(
                     _read_byte(data.registers[51])
@@ -491,22 +507,31 @@ class AskoHeatModbusApiClient:
         }
 
 
-def _read_time(register_values: list[int]) -> time | None:
+def _read_time(register_value_hours: int, register_value_minutes: int) -> time | None:
     """Read register values as string and parse as time."""
-    time_string = _read_str(register_values)
-    try:
-        return datetime.strptime(time_string, "%H:%M %p").time  # type: ignore  # noqa: DTZ007, PGH003
-    except Exception as err:  # noqa: BLE001
-        LOGGER.warning("Could not read time from string %s, %s", time_string, err)
+    hours = _read_uint16(register_value_hours)
+    minutes = _read_uint16(register_value_minutes)
+    return time(hour=hours, minute=minutes)
+
+
+T = TypeVar("T")
+
+
+def _read_enum(register_values: list[int], factory: Callable[[str], T]) -> T:
+    """Read register values as enum."""
+    str_value = _read_str(register_values)
+    return factory(str_value)
 
 
 def _read_str(register_values: list[int]) -> str:
     """Read register values as str."""
-    return str(
-        ModbusClient.convert_from_registers(
-            register_values, ModbusClient.DATATYPE.STRING
-        )
-    )
+    # custom implementation as strings a represented with little endian
+    byte_list = bytearray()
+    for x in register_values:
+        byte_list.extend(int.to_bytes(x, 2, "little"))
+    if byte_list[-1:] == b"\00":
+        byte_list = byte_list[:-1]
+    return byte_list.decode("utf-8")
 
 
 def _read_byte(register_value: int) -> np.byte:

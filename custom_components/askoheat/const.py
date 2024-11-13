@@ -56,50 +56,42 @@ class NumberAttrKey(StrEnum):
 
     # Analog input 0
     CON_ANALOG_INPUT_0_THRESHOLD = "analog_input_0_threshold"
-    # 0-7
-    CON_ANALOG_INPUT_0_STEP = "analog_input_0_step"
+    CON_ANALOG_INPUT_0_THRESHOLD_STEP = "analog_input_0_threshold_step"
     CON_ANALOG_INPUT_0_THRESHOLD_TEMPERATURE = "analog_input_0_threshold_temperature"
 
     # Analog input 1
     CON_ANALOG_INPUT_1_THRESHOLD = "analog_input_1_threshold"
-    # 0-7
-    CON_ANALOG_INPUT_1_STEP = "analog_input_1_step"
+    CON_ANALOG_INPUT_1_THRESHOLD_STEP = "analog_input_1_threshold_step"
     CON_ANALOG_INPUT_1_THRESHOLD_TEMPERATURE = "analog_input_1_threshold_temperature"
 
     # Analog input 2
     CON_ANALOG_INPUT_2_THRESHOLD = "analog_input_2_threshold"
-    # 0-7
-    CON_ANALOG_INPUT_2_STEP = "analog_input_2_step"
+    CON_ANALOG_INPUT_2_THRESHOLD_STEP = "analog_input_2_threshold_step"
     CON_ANALOG_INPUT_2_THRESHOLD_TEMPERATURE = "analog_input_2_threshold_temperature"
 
     # Analog input 3
     CON_ANALOG_INPUT_3_THRESHOLD = "analog_input_3_threshold"
-    # 0-7
-    CON_ANALOG_INPUT_3_STEP = "analog_input_3_step"
+    CON_ANALOG_INPUT_3_THRESHOLD_STEP = "analog_input_3_threshold_step"
     CON_ANALOG_INPUT_3_THRESHOLD_TEMPERATURE = "analog_input_3_threshold_temperature"
 
     # Analog input 4
     CON_ANALOG_INPUT_4_THRESHOLD = "analog_input_4_threshold"
-    # 0-7
-    CON_ANALOG_INPUT_4_STEP = "analog_input_4_step"
+    CON_ANALOG_INPUT_4_THRESHOLD_STEP = "analog_input_4_threshold_step"
     CON_ANALOG_INPUT_4_THRESHOLD_TEMPERATURE = "analog_input_4_threshold_temperature"
 
     # Analog input 5
     CON_ANALOG_INPUT_5_THRESHOLD = "analog_input_5_threshold"
-    # 0-7
-    CON_ANALOG_INPUT_5_STEP = "analog_input_5_step"
+    CON_ANALOG_INPUT_5_THRESHOLD_STEP = "analog_input_5_threshold_step"
     CON_ANALOG_INPUT_5_THRESHOLD_TEMPERATURE = "analog_input_5_threshold_temperature"
 
     # Analog input 6
     CON_ANALOG_INPUT_6_THRESHOLD = "analog_input_6_threshold"
-    # 0-7
-    CON_ANALOG_INPUT_6_STEP = "analog_input_6_step"
+    CON_ANALOG_INPUT_6_THRESHOLD_STEP = "analog_input_6_threshold_step"
     CON_ANALOG_INPUT_6_THRESHOLD_TEMPERATURE = "analog_input_6_threshold_temperature"
 
     # Analog input 7
     CON_ANALOG_INPUT_7_THRESHOLD = "analog_input_7_threshold"
-    # 0-7
-    CON_ANALOG_INPUT_7_STEP = "analog_input_7_step"
+    CON_ANALOG_INPUT_7_THRESHOLD_STEP = "analog_input_7_threshold_step"
     CON_ANALOG_INPUT_7_THRESHOLD_TEMPERATURE = "analog_input_7_threshold_temperature"
 
     # 0-7
@@ -135,8 +127,6 @@ class TimeAttrKey(StrEnum):
 class TextAttrKey(StrEnum):
     """Askoheat text entities attribute keys."""
 
-    # i.e. „32 °fH", „hart", °14 dH"
-    CON_WATER_HARDNESS = "legio_water_hardness"
     CON_INFO_STRING = "info_string"
 
 

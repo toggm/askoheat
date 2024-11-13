@@ -45,3 +45,13 @@ These are some next steps you may want to look into:
 - Create your first release.
 - Share your integration on the [Home Assistant Forum](https://community.home-assistant.io/).
 - Submit your integration to [HACS](https://hacs.xyz/docs/publish/start).
+
+
+## TODO
+- [ ] Integration configuration parameter sections
+- [ ] Integration data sensors
+- [ ] Integrate write operations for switches and number inputs
+- [ ] Add translations for en and de
+- [ ] Create service to start auto-feed linked to solar entity and a reserve
+- [ ] Provide meatures
+- [ ] Cleanup and document

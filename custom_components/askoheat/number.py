@@ -1,15 +1,14 @@
-"""Sensor platform for askoheat."""
+"""Number platform for askoheat."""
 
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import numpy as np
-from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
+from homeassistant.components.number import ENTITY_ID_FORMAT, NumberEntity
 from homeassistant.core import callback
 
-from custom_components.askoheat.sensor_entities_ema import (
-    EMA_SENSOR_ENTITY_DESCRIPTIONS,
+from custom_components.askoheat.number_entities_config import (
+    CONF_NUMBER_ENTITY_DESCRIPTIONS,
 )
 
 from .entity import AskoheatEntity
@@ -18,7 +17,9 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
-    from custom_components.askoheat.model import AskoheatSensorEntityDescription
+    from custom_components.askoheat.model import (
+        AskoheatNumberEntityDescription,
+    )
 
     from .coordinator import AskoheatDataUpdateCoordinator
     from .data import AskoheatConfigEntry
@@ -29,27 +30,27 @@ async def async_setup_entry(
     entry: AskoheatConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up the sensor platform."""
+    """Set up the number platform."""
     async_add_entities(
-        AskoheatSensor(
-            coordinator=entry.runtime_data.ema_coordinator,
+        AskoHeatNumber(
+            coordinator=entry.runtime_data.config_coordinator,
             entity_description=entity_description,
         )
-        for entity_description in EMA_SENSOR_ENTITY_DESCRIPTIONS
+        for entity_description in CONF_NUMBER_ENTITY_DESCRIPTIONS
     )
 
 
-class AskoheatSensor(AskoheatEntity, SensorEntity):
-    """askoheat Sensor class."""
+class AskoHeatNumber(AskoheatEntity, NumberEntity):
+    """askoheat number class."""
 
-    entity_description: AskoheatSensorEntityDescription
+    entity_description: AskoheatNumberEntityDescription
 
     def __init__(
         self,
         coordinator: AskoheatDataUpdateCoordinator,
-        entity_description: AskoheatSensorEntityDescription,
+        entity_description: AskoheatNumberEntityDescription,
     ) -> None:
-        """Initialize the sensor class."""
+        """Initialize the number class."""
         super().__init__(coordinator, entity_description)
         self.entity_id = ENTITY_ID_FORMAT.format(entity_description.key)
         self._attr_unique_id = self.entity_id
@@ -60,25 +61,14 @@ class AskoheatSensor(AskoheatEntity, SensorEntity):
         data = self.coordinator.data
         if data is None:
             return
-
         self._attr_native_value = data[self.entity_description.data_key]
 
-        if self._attr_native_value is None:
-            pass
-
-        elif isinstance(
-            self._attr_native_value, float | int | np.floating | np.integer
-        ) and (
-            self.entity_description.factor is not None
-            or self.entity_description.native_precision is not None
-        ):
-            float_value = float(self._attr_native_value)
+        if self._attr_native_value is not None:
             if self.entity_description.factor is not None:
-                float_value *= self.entity_description.factor
+                self._attr_native_value *= self.entity_description.factor
             if self.entity_description.native_precision is not None:
-                float_value = round(
-                    float_value, self.entity_description.native_precision
+                self._attr_native_value = round(
+                    self._attr_native_value, self.entity_description.native_precision
                 )
-            self._attr_native_value = float_value
-
+        self.async_write_ha_state()
         super()._handle_coordinator_update()

@@ -52,8 +52,7 @@ class AskoheatBinarySensor(AskoheatEntity, BinarySensorEntity):
         entity_description: AskoheatBinarySensorEntityDescription,
     ) -> None:
         """Initialize the binary_sensor class."""
-        super().__init__(coordinator)
-        self.entity_description = entity_description
+        super().__init__(coordinator, entity_description)
         self.entity_id = ENTITY_ID_FORMAT.format(entity_description.key)
         self._attr_unique_id = self.entity_id
 
@@ -77,6 +76,5 @@ class AskoheatBinarySensor(AskoheatEntity, BinarySensorEntity):
                 self.entity_description.on_states is not None
                 and self._attr_state in self.entity_description.on_states
             )
-        self.async_write_ha_state()
 
         super()._handle_coordinator_update()

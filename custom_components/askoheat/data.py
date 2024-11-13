@@ -22,7 +22,10 @@ if TYPE_CHECKING:
         TextAttrKey,
         TimeAttrKey,
     )
-    from custom_components.askoheat.coordinator import AskoheatEMADataUpdateCoordinator
+    from custom_components.askoheat.coordinator import (
+        AskoheatConfigDataUpdateCoordinator,
+        AskoheatEMADataUpdateCoordinator,
+    )
 
     from .api import AskoHeatModbusApiClient
 
@@ -36,6 +39,7 @@ class AskoheatData:
 
     client: AskoHeatModbusApiClient
     ema_coordinator: AskoheatEMADataUpdateCoordinator
+    config_coordinator: AskoheatConfigDataUpdateCoordinator
     integration: Integration
 
 

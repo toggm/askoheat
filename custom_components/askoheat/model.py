@@ -3,37 +3,44 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, datetime
-from decimal import Decimal
+from enum import StrEnum
 from functools import cached_property
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeVar
 
 from homeassistant.components.binary_sensor import BinarySensorEntityDescription
+from homeassistant.components.number import NumberEntityDescription, NumberMode
 from homeassistant.components.sensor import SensorEntityDescription
 from homeassistant.components.switch import SwitchEntityDescription
 from homeassistant.const import Platform
 from homeassistant.helpers.entity import EntityDescription
 
-from custom_components.askoheat.const import DOMAIN
+from custom_components.askoheat.const import (
+    DOMAIN,
+    BinarySensorAttrKey,
+    NumberAttrKey,
+    SensorAttrKey,
+    SwitchAttrKey,
+)
 
 if TYPE_CHECKING:
-    from custom_components.askoheat.const import (
-        BinarySensorAttrKey,
-        SensorAttrKey,
-        SwitchAttrKey,
-    )
+    from datetime import date, datetime
+    from decimal import Decimal
+
+
+K = TypeVar("K", bound=StrEnum)
 
 
 @dataclass(frozen=True)
-class AdkoheatEntityDescription(EntityDescription):
+class AskoheatEntityDescription[K](EntityDescription):
     """Class describing base askoheat entity."""
 
+    key: K
     icon_by_state: dict[date | datetime | Decimal, str] | None = None
 
 
 @dataclass(frozen=True)
 class AskoheatBinarySensorEntityDescription(
-    AdkoheatEntityDescription, BinarySensorEntityDescription
+    AskoheatEntityDescription[BinarySensorAttrKey], BinarySensorEntityDescription
 ):
     """Class describing Askoheat binary sensor entities."""
 
@@ -53,7 +60,7 @@ class AskoheatBinarySensorEntityDescription(
 
 @dataclass(frozen=True)
 class AskoheatSwitchEntityDescription(
-    AdkoheatEntityDescription,
+    AskoheatEntityDescription[SwitchAttrKey],
     SwitchEntityDescription,
 ):
     """Class describing Askoheat switch entities."""
@@ -74,7 +81,7 @@ class AskoheatSwitchEntityDescription(
 
 @dataclass(frozen=True)
 class AskoheatSensorEntityDescription(
-    AdkoheatEntityDescription,
+    AskoheatEntityDescription[SensorAttrKey],
     SensorEntityDescription,
 ):
     """Class describing Askoheat sensor entities."""
@@ -89,3 +96,24 @@ class AskoheatSensorEntityDescription(
     def data_key(self) -> str:
         """Get data key."""
         return f"sensor.{self.key}"
+
+
+@dataclass(frozen=True)
+class AskoheatNumberEntityDescription(
+    AskoheatEntityDescription[NumberAttrKey],
+    NumberEntityDescription,
+):
+    """Class describing Askoheat number entities."""
+
+    key: NumberAttrKey
+    platform = Platform.NUMBER
+    factor: float | None = None
+    native_precision: int | None = None
+    domain = DOMAIN
+    mode: NumberMode = NumberMode.AUTO
+    native_default_value: float | None = None
+
+    @cached_property
+    def data_key(self) -> str:
+        """Get data key."""
+        return f"number.{self.key}"
