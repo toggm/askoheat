@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 from datetime import time
-from typing import TYPE_CHECKING, Any, TypeVar
+from enum import StrEnum
+from typing import TYPE_CHECKING, Any, Coroutine, TypeVar, cast
 
 import numpy as np
 from numpy import number
@@ -68,23 +69,71 @@ class AskoHeatModbusApiClient:
 
     async def async_read_ema_data(self) -> AskoheatDataBlock:
         """Read EMA states."""
-        data = await self.async_read_input_registers_data(
+        data = await self.__async_read_input_registers_data(
             EMA_REGISTER_BLOCK_DESCRIPTOR.starting_register,
             EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
         )
         LOGGER.debug("async_read_ema_data %s", data)
         return self.__map_data(EMA_REGISTER_BLOCK_DESCRIPTOR, data)
 
+    async def async_write_ema_data(
+        self, api_desc: RegisterInputDescriptor, value: object
+    ) -> AskoheatDataBlock:
+        """Write EMA parameter."""
+        LOGGER.debug(
+            f"async write ema parameter at {api_desc.starting_register}, value={value}"
+        )
+        register_values = await self._prepare_register_value(
+            api_desc,
+            value,
+            lambda: self.__async_read_single_input_register(
+                EMA_REGISTER_BLOCK_DESCRIPTOR.absolute_register_index(api_desc)
+            ),
+        )
+        if len(register_values) > 0:
+            await self.__async_write_register_values(
+                EMA_REGISTER_BLOCK_DESCRIPTOR.absolute_register_index(api_desc),
+                register_values,
+            )
+        return await self.async_read_ema_data()
+
     async def async_read_config_data(self) -> AskoheatDataBlock:
         """Read EMA states."""
-        data = await self.async_read_holding_registers_data(
+        data = await self.__async_read_holding_registers_data(
             CONF_REGISTER_BLOCK_DESCRIPTOR.starting_register,
             CONF_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
         )
         LOGGER.debug("async_read_config_data %s", data)
         return self.__map_data(CONF_REGISTER_BLOCK_DESCRIPTOR, data)
 
-    async def async_read_input_registers_data(
+    async def async_write_config_data(
+        self, api_desc: RegisterInputDescriptor, value: object
+    ) -> AskoheatDataBlock:
+        """Write EMA parameter."""
+        LOGGER.debug(
+            f"async write config parameter at {api_desc.starting_register}, value={value}"
+        )
+        register_values = await self._prepare_register_value(
+            api_desc,
+            value,
+            lambda: self.__async_read_single_holding_register(
+                CONF_REGISTER_BLOCK_DESCRIPTOR.absolute_register_index(api_desc)
+            ),
+        )
+        if len(register_values) > 0:
+            await self.__async_write_register_values(
+                CONF_REGISTER_BLOCK_DESCRIPTOR.absolute_register_index(api_desc),
+                register_values,
+            )
+        return await self.async_read_ema_data()
+
+    async def __async_read_single_input_register(
+        self,
+        address: int,
+    ) -> int:
+        return (await self.__async_read_input_registers_data(address, 1)).registers[0]
+
+    async def __async_read_input_registers_data(
         self, address: int, count: int
     ) -> ModbusPDU:
         """Read holding registers through modbus."""
@@ -94,7 +143,13 @@ class AskoHeatModbusApiClient:
 
         return await self._client.read_input_registers(address=address, count=count)
 
-    async def async_read_holding_registers_data(
+    async def __async_read_single_holding_register(
+        self,
+        address: int,
+    ) -> int:
+        return (await self.__async_read_holding_registers_data(address, 1)).registers[0]
+
+    async def __async_read_holding_registers_data(
         self, address: int, count: int
     ) -> ModbusPDU:
         """Read input registers through modbus."""
@@ -103,6 +158,50 @@ class AskoHeatModbusApiClient:
             raise AskoheatModbusApiClientCommunicationError(msg)
 
         return await self._client.read_holding_registers(address=address, count=count)
+
+    async def __async_write_register_values(
+        self, address: int, values: list[bytes | int]
+    ) -> ModbusPDU:
+        """Write a register value throug modbus."""
+        if not self._client.connected:
+            msg = "cannot write register value, not connected"
+            raise AskoheatModbusApiClientCommunicationError(msg)
+
+        return await self._client.write_registers(address=address, values=values)
+
+    async def _prepare_register_value(
+        self,
+        desc: RegisterInputDescriptor,
+        value: object,
+        read_current_register_value: Callable[..., Coroutine[Any, Any, int]],
+    ) -> list[int | bytes]:
+        match desc:
+            case FlagRegisterInputDescriptor(starting_register, bit):
+                # first re-read value as this register might have changed
+                current_value = await read_current_register_value()
+                result = _prepare_flag(
+                    register_value=current_value, flag=value, index=bit
+                )
+            case ByteRegisterInputDescriptor(starting_register):
+                result = _prepare_byte(value)
+            case UnsignedIntRegisterInputDescriptor(starting_register):
+                result = _prepare_uint16(value)
+            case SignedIntRegisterInputDescriptor(starting_register):
+                result = _prepare_int16(value)
+            case Float32RegisterInputDescriptor(starting_register):
+                result = _prepare_float32(value)
+            case StringRegisterInputDescriptor(starting_register, number_of_bytes):
+                # TODO Support
+                # result = _read_str(
+                #    data.registers[
+                #        starting_register : starting_register + number_of_bytes + 1
+                #    ]
+                # )
+                result = []
+            case _:
+                LOGGER.error("Cannot read number input from descriptor %r", desc)
+                result = []
+        return cast(list[int | bytes], result)
 
     def __map_data(
         self, descr: RegisterBlockDescriptor, data: ModbusPDU
@@ -482,6 +581,15 @@ def _read_byte(register_value: int) -> np.byte:
     )
 
 
+def _prepare_byte(value: object) -> list[int]:
+    """Prepare byte value to be able to write to a register."""
+    if not isinstance(value, np.signedinteger):
+        LOGGER.error("Cannot convert value %s as byte, wrong datatype %r", value, value)
+        return []
+
+    return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.INT16)
+
+
 def _read_int16(register_value: int) -> np.int16:
     """Read register value as int16."""
     return np.int16(
@@ -489,6 +597,16 @@ def _read_int16(register_value: int) -> np.int16:
             [register_value], ModbusClient.DATATYPE.INT16
         )
     )
+
+
+def _prepare_int16(value: object) -> list[int]:
+    """Prepare signed int value to be able to write to a register."""
+    if not isinstance(value, np.signedinteger):
+        LOGGER.error(
+            "Cannot convert value %s as signed int, wrong datatype %r", value, value
+        )
+        return []
+    return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.INT16)
 
 
 def _read_uint16(register_value: int) -> np.uint16:
@@ -500,6 +618,17 @@ def _read_uint16(register_value: int) -> np.uint16:
     )
 
 
+def _prepare_uint16(value: object) -> list[int]:
+    """Prepare unsigned int value to be able to write to a register."""
+    if not isinstance(value, np.unsignedinteger):
+        LOGGER.error(
+            "Cannot convert value %s as unsigned int, wrong datatype %r", value, value
+        )
+        return []
+
+    return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.UINT16)
+
+
 def _read_float32(register_values: list[int]) -> np.float32:
     """Read register value as uint16."""
     return np.float32(
@@ -509,6 +638,36 @@ def _read_float32(register_values: list[int]) -> np.float32:
     )
 
 
+def _prepare_float32(value: object) -> list[int]:
+    """Prepare float32 value to be able to write to a register."""
+    if not isinstance(value, np.floating):
+        LOGGER.error(
+            "Cannot convert value %s as float32, wrong datatype %r", value, value
+        )
+        return []
+    return ModbusClient.convert_to_registers(
+        float(value), ModbusClient.DATATYPE.FLOAT32
+    )
+
+
 def _read_flag(register_value: int, index: int) -> bool:
     """Validate if bit at provided index is set."""
     return (register_value >> index) & 0x01 == 0x01
+
+
+def _prepare_flag(register_value: int, flag: object, index: int) -> list[int]:
+    """Prepare flag value to be able to write to a register, mask with current value."""
+    if not isinstance(flag, bool):
+        LOGGER.error(
+            "Cannot convert value %s as flag, wrong datatype %r",
+            flag,
+            flag,
+        )
+        return []
+
+    if flag:
+        # or mask to set the value to true
+        return [(flag << index) | register_value]
+
+    # minus flag from current registers value
+    return [register_value - (True << index)]

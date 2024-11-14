@@ -76,6 +76,10 @@ class RegisterBlockDescriptor:
     switches: list[AskoheatSwitchEntityDescription] = field(default_factory=list)
     number_inputs: list[AskoheatNumberEntityDescription] = field(default_factory=list)
 
+    def absolute_register_index(self, desc: RegisterInputDescriptor) -> int:
+        """Return absolute index of register."""
+        return self.starting_register + desc.starting_register
+
     # TODO: add more type of inputs as soon as supported
     # text_inputs: list[TextAttrKey, RegisterInputDescriptor] = field(
     #    default_factory=dict

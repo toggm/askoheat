@@ -8,6 +8,7 @@ from homeassistant.components.switch import ENTITY_ID_FORMAT, SwitchEntity
 from homeassistant.core import callback
 
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.const import LOGGER
 from custom_components.askoheat.model import AskoheatSwitchEntityDescription
 
 from .entity import AskoheatEntity
@@ -80,18 +81,23 @@ class AskoHeatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEnti
 
     async def _set_state(self, state: str | bool) -> None:
         """."""
-        # data = await self.coordinator.async_write(
-        # self.entity_description.data_key.value.split(".")[1], state
-        # )
-        # value = get_sensor_data(data, self.entity_description.key.value)
-        # if (
-        #   self.entity_description.on_state is True
-        #  or self.entity_description.on_state is False
-        # ):
-        # value = bool(value)
-        # self._attr_is_on = (
-        #   value != self.entity_description.on_state
-        #  if self.entity_description.inverted
-        # else value == self.entity_description.on_state
-        # )
-        # self._handle_coordinator_update()
+        if self.entity_description.api_descriptor is None:
+            LOGGER.error(
+                "Cannot set state, missing api_descriptor on entity %s", self.entity_id
+            )
+            return
+        data = await self.coordinator.async_write(
+            self.entity_description.api_descriptor, state
+        )
+        value = data[self.entity_description.data_key]
+        if (
+            self.entity_description.on_state is True
+            or self.entity_description.on_state is False
+        ):
+            value = bool(value)
+        self._attr_is_on = (
+            value != self.entity_description.on_state
+            if self.entity_description.inverted
+            else value == self.entity_description.on_state
+        )
+        self._handle_coordinator_update()
