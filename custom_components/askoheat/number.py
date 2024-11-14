@@ -7,8 +7,9 @@ from typing import TYPE_CHECKING
 from homeassistant.components.number import ENTITY_ID_FORMAT, NumberEntity
 from homeassistant.core import callback
 
-from custom_components.askoheat.number_entities_config import (
-    CONF_NUMBER_ENTITY_DESCRIPTIONS,
+from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.model import (
+    AskoheatNumberEntityDescription,
 )
 
 from .entity import AskoheatEntity
@@ -16,10 +17,6 @@ from .entity import AskoheatEntity
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-    from custom_components.askoheat.model import (
-        AskoheatNumberEntityDescription,
-    )
 
     from .coordinator import AskoheatDataUpdateCoordinator
     from .data import AskoheatConfigEntry
@@ -36,11 +33,11 @@ async def async_setup_entry(
             coordinator=entry.runtime_data.config_coordinator,
             entity_description=entity_description,
         )
-        for entity_description in CONF_NUMBER_ENTITY_DESCRIPTIONS
+        for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.number_inputs
     )
 
 
-class AskoHeatNumber(AskoheatEntity, NumberEntity):
+class AskoHeatNumber(AskoheatEntity[AskoheatNumberEntityDescription], NumberEntity):
     """askoheat number class."""
 
     entity_description: AskoheatNumberEntityDescription

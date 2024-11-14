@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 from functools import cached_property
 from typing import TYPE_CHECKING, TypeVar
@@ -14,6 +14,14 @@ from homeassistant.components.switch import SwitchEntityDescription
 from homeassistant.const import Platform
 from homeassistant.helpers.entity import EntityDescription
 
+from custom_components.askoheat.api_desc import (
+    ByteRegisterInputDescriptor,
+    FlagRegisterInputDescriptor,
+    Float32RegisterInputDescriptor,
+    RegisterInputDescriptor,
+    SignedIntRegisterInputDescriptor,
+    UnsignedIntRegisterInputDescriptor,
+)
 from custom_components.askoheat.const import (
     DOMAIN,
     BinarySensorAttrKey,
@@ -28,19 +36,22 @@ if TYPE_CHECKING:
 
 
 K = TypeVar("K", bound=StrEnum)
+A = TypeVar("A", bound=RegisterInputDescriptor)
 
 
 @dataclass(frozen=True)
-class AskoheatEntityDescription[K](EntityDescription):
+class AskoheatEntityDescription[K, A](EntityDescription):
     """Class describing base askoheat entity."""
 
     key: K
+    api_descriptor: A | None = None
     icon_by_state: dict[date | datetime | Decimal, str] | None = None
 
 
 @dataclass(frozen=True)
 class AskoheatBinarySensorEntityDescription(
-    AskoheatEntityDescription[BinarySensorAttrKey], BinarySensorEntityDescription
+    AskoheatEntityDescription[BinarySensorAttrKey, FlagRegisterInputDescriptor],
+    BinarySensorEntityDescription,
 ):
     """Class describing Askoheat binary sensor entities."""
 
@@ -60,7 +71,7 @@ class AskoheatBinarySensorEntityDescription(
 
 @dataclass(frozen=True)
 class AskoheatSwitchEntityDescription(
-    AskoheatEntityDescription[SwitchAttrKey],
+    AskoheatEntityDescription[SwitchAttrKey, FlagRegisterInputDescriptor],
     SwitchEntityDescription,
 ):
     """Class describing Askoheat switch entities."""
@@ -81,7 +92,13 @@ class AskoheatSwitchEntityDescription(
 
 @dataclass(frozen=True)
 class AskoheatSensorEntityDescription(
-    AskoheatEntityDescription[SensorAttrKey],
+    AskoheatEntityDescription[
+        SensorAttrKey,
+        ByteRegisterInputDescriptor
+        | UnsignedIntRegisterInputDescriptor
+        | SignedIntRegisterInputDescriptor
+        | Float32RegisterInputDescriptor,
+    ],
     SensorEntityDescription,
 ):
     """Class describing Askoheat sensor entities."""
@@ -100,7 +117,13 @@ class AskoheatSensorEntityDescription(
 
 @dataclass(frozen=True)
 class AskoheatNumberEntityDescription(
-    AskoheatEntityDescription[NumberAttrKey],
+    AskoheatEntityDescription[
+        NumberAttrKey,
+        ByteRegisterInputDescriptor
+        | UnsignedIntRegisterInputDescriptor
+        | SignedIntRegisterInputDescriptor
+        | Float32RegisterInputDescriptor,
+    ],
     NumberEntityDescription,
 ):
     """Class describing Askoheat number entities."""

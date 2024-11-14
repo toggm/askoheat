@@ -101,8 +101,8 @@ def _map_data_block_to_dict(data: AskoheatDataBlock) -> dict[str, Any]:
             {f"number.{k}": data.number_inputs[k] for k in data.number_inputs}
         )
 
-    if data.text_intputs:
-        result.update({f"text.{k}": data.text_intputs[k] for k in data.text_intputs})
+    if data.text_inputs:
+        result.update({f"text.{k}": data.text_inputs[k] for k in data.text_inputs})
 
     if data.select_inputs:
         result.update(

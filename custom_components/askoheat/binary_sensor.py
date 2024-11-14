@@ -10,17 +10,14 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.core import callback
 
-from custom_components.askoheat.binary_sensor_entities_ema import (
-    EMA_BINARY_SENSOR_ENTITY_DESCRIPTIONS,
-)
+from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.model import AskoheatBinarySensorEntityDescription
 
 from .entity import AskoheatEntity
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-    from custom_components.askoheat.model import AskoheatBinarySensorEntityDescription
 
     from .coordinator import AskoheatDataUpdateCoordinator
     from .data import AskoheatConfigEntry
@@ -37,11 +34,14 @@ async def async_setup_entry(
             coordinator=entry.runtime_data.ema_coordinator,
             entity_description=entity_description,
         )
-        for entity_description in EMA_BINARY_SENSOR_ENTITY_DESCRIPTIONS
+        for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
     )
 
 
-class AskoheatBinarySensor(AskoheatEntity, BinarySensorEntity):
+class AskoheatBinarySensor(
+    AskoheatEntity[AskoheatBinarySensorEntityDescription],
+    BinarySensorEntity,
+):
     """askoheat binary_sensor class."""
 
     entity_description: AskoheatBinarySensorEntityDescription

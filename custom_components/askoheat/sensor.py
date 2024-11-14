@@ -8,17 +8,14 @@ import numpy as np
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
 from homeassistant.core import callback
 
-from custom_components.askoheat.sensor_entities_ema import (
-    EMA_SENSOR_ENTITY_DESCRIPTIONS,
-)
+from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.model import AskoheatSensorEntityDescription
 
 from .entity import AskoheatEntity
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-
-    from custom_components.askoheat.model import AskoheatSensorEntityDescription
 
     from .coordinator import AskoheatDataUpdateCoordinator
     from .data import AskoheatConfigEntry
@@ -35,11 +32,11 @@ async def async_setup_entry(
             coordinator=entry.runtime_data.ema_coordinator,
             entity_description=entity_description,
         )
-        for entity_description in EMA_SENSOR_ENTITY_DESCRIPTIONS
+        for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.sensors
     )
 
 
-class AskoheatSensor(AskoheatEntity, SensorEntity):
+class AskoheatSensor(AskoheatEntity[AskoheatSensorEntityDescription], SensorEntity):
     """askoheat Sensor class."""
 
     entity_description: AskoheatSensorEntityDescription

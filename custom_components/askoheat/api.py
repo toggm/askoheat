@@ -6,16 +6,27 @@ from datetime import time
 from typing import TYPE_CHECKING, Any, TypeVar
 
 import numpy as np
+from numpy import number
 from pymodbus.client import AsyncModbusTcpClient as ModbusClient
 
+from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_desc import (
+    ByteRegisterInputDescriptor,
+    FlagRegisterInputDescriptor,
+    Float32RegisterInputDescriptor,
+    RegisterBlockDescriptor,
+    RegisterInputDescriptor,
+    SignedIntRegisterInputDescriptor,
+    StringRegisterInputDescriptor,
+    UnsignedIntRegisterInputDescriptor,
+)
+from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import (
     LOGGER,
     Baurate,
     BinarySensorAttrKey,
     EnergyMeterType,
-    NumberAttrKey,
     SelectAttrKey,
-    SensorAttrKey,
     SwitchAttrKey,
     TextAttrKey,
     TimeAttrKey,
@@ -57,17 +68,21 @@ class AskoHeatModbusApiClient:
 
     async def async_read_ema_data(self) -> AskoheatDataBlock:
         """Read EMA states."""
-        # http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#EM_Block
-        data = await self.async_read_input_registers_data(300, 37)
+        data = await self.async_read_input_registers_data(
+            EMA_REGISTER_BLOCK_DESCRIPTOR.starting_register,
+            EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
+        )
         LOGGER.debug("async_read_ema_data %s", data)
-        return self._map_ema_data(data)
+        return self.__map_data(EMA_REGISTER_BLOCK_DESCRIPTOR, data)
 
     async def async_read_config_data(self) -> AskoheatDataBlock:
         """Read EMA states."""
-        # http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Configuration_Block
-        data = await self.async_read_holding_registers_data(500, 100)
+        data = await self.async_read_holding_registers_data(
+            CONF_REGISTER_BLOCK_DESCRIPTOR.starting_register,
+            CONF_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
+        )
         LOGGER.debug("async_read_config_data %s", data)
-        return self._map_config_data(data)
+        return self.__map_data(CONF_REGISTER_BLOCK_DESCRIPTOR, data)
 
     async def async_read_input_registers_data(
         self, address: int, count: int
@@ -89,176 +104,54 @@ class AskoHeatModbusApiClient:
 
         return await self._client.read_holding_registers(address=address, count=count)
 
-    def _map_ema_data(self, data: ModbusPDU) -> AskoheatDataBlock:
-        """Map modbus result of ema data block."""
+    def __map_data(
+        self, descr: RegisterBlockDescriptor, data: ModbusPDU
+    ) -> AskoheatDataBlock:
+        binary_sensors = {
+            k: v
+            for k, v in {
+                item.key: _read_register_boolean_input(data, item.api_descriptor)  # type: ignore  # noqa: PGH003
+                for item in descr.binary_sensors
+            }.items()
+            if v is not None
+        }
+        number_inputs = {
+            k: v
+            for k, v in {
+                item.key: _read_register_number_input(data, item.api_descriptor)  # type: ignore  # noqa: PGH003
+                for item in descr.number_inputs
+            }.items()
+            if v is not None
+        }
+        sensors = {
+            k: v
+            for k, v in {
+                item.key: _read_register_input(data, item.api_descriptor)  # type: ignore  # noqa: PGH003
+                for item in descr.sensors
+            }.items()
+            if v is not None
+        }
+        switches = {
+            k: v
+            for k, v in {
+                item.key: _read_register_boolean_input(data, item.api_descriptor)  # type: ignore  # noqa: PGH003
+                for item in descr.switches
+            }.items()
+            if v is not None
+        }
         return AskoheatDataBlock(
-            binary_sensors=self._map_register_to_status(data.registers[16]),
-            sensors={
-                SensorAttrKey.HEATER_LOAD: _read_uint16(data.registers[17]),
-                SensorAttrKey.LOAD_SETPOINT_VALUE: _read_int16(data.registers[19]),
-                SensorAttrKey.LOAD_FEEDIN_VALUE: _read_int16(data.registers[20]),
-                SensorAttrKey.ANALOG_INPUT_VALUE: _read_float32(data.registers[23:25]),
-                SensorAttrKey.INTERNAL_TEMPERATUR_SENSOR_VALUE: _read_float32(
-                    data.registers[25:27]
-                ),
-                SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR1_VALUE: _read_float32(
-                    data.registers[27:29]
-                ),
-                SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR2_VALUE: _read_float32(
-                    data.registers[29:31]
-                ),
-                SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR3_VALUE: _read_float32(
-                    data.registers[31:33]
-                ),
-                SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR4_VALUE: _read_float32(
-                    data.registers[33:35]
-                ),
-            },
-            switches=self._map_register_to_heater_step(data.registers[18]),
+            binary_sensors=binary_sensors,
+            sensors=sensors,
+            switches=switches,
+            number_inputs=number_inputs,
         )
 
-    def _map_config_data(self, data: ModbusPDU) -> AskoheatDataBlock:
+    def __map_config_data(self, data: ModbusPDU) -> AskoheatDataBlock:
         """Map modbus result of config data block."""
         return AskoheatDataBlock(
-            number_inputs={
-                NumberAttrKey.CON_RELAY_SEC_COUNT_SECONDS: _read_uint16(
-                    data.registers[0]
-                ),
-                NumberAttrKey.CON_PUMP_SEC_COUNT_SECONDS: _read_uint16(
-                    data.registers[1]
-                ),
-                NumberAttrKey.CON_AUTO_HEATER_OFF_MINUTES: _read_uint16(
-                    data.registers[3]
-                ),
-                NumberAttrKey.CON_CASCADE_PRIORIZATION: _read_byte(data.registers[5]),
-                NumberAttrKey.CON_HEATBUFFER_VOLUME: _read_uint16(data.registers[7]),
-                NumberAttrKey.CON_LEGIO_PROTECTION_TEMPERATURE: _read_byte(
-                    data.registers[10]
-                ),
-                NumberAttrKey.CON_LEGIO_PROTECTION_HEATUP_MINUTES: _read_uint16(
-                    data.registers[11]
-                ),
-                NumberAttrKey.CON_NUMBER_OF_HOUSEHOLD_MEMBERS: _read_byte(
-                    data.registers[21]
-                ),
-                NumberAttrKey.CON_LOAD_FEEDIN_DELAY_SECONDS: _read_uint16(
-                    data.registers[39]
-                ),
-                NumberAttrKey.CON_LOAD_FEEDIN_BASIC_ENERGY_LEVEL: _read_uint16(
-                    data.registers[40]
-                ),
-                NumberAttrKey.CON_TIMEZONE_OFFSET: _read_int16(data.registers[41]),
-                NumberAttrKey.CON_RTU_SLAVE_ID: _read_byte(data.registers[50]),
-                NumberAttrKey.CON_ANALOG_INPUT_HYSTERESIS: _read_float32(
-                    data.registers[56:58]
-                ),
-                # Analog 0
-                NumberAttrKey.CON_ANALOG_INPUT_0_THRESHOLD: _read_float32(
-                    data.registers[58:60]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_0_THRESHOLD_STEP: _read_byte(
-                    data.registers[60]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_0_THRESHOLD_TEMPERATURE: _read_byte(
-                    data.registers[61]
-                ),
-                # Analog 1
-                NumberAttrKey.CON_ANALOG_INPUT_1_THRESHOLD: _read_float32(
-                    data.registers[62:64]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_1_THRESHOLD_STEP: _read_byte(
-                    data.registers[64]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_1_THRESHOLD_TEMPERATURE: _read_byte(
-                    data.registers[65]
-                ),
-                # Analog 2
-                NumberAttrKey.CON_ANALOG_INPUT_2_THRESHOLD: _read_float32(
-                    data.registers[66:68]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_2_THRESHOLD_STEP: _read_byte(
-                    data.registers[68]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_2_THRESHOLD_TEMPERATURE: _read_byte(
-                    data.registers[69]
-                ),
-                # Analog 3
-                NumberAttrKey.CON_ANALOG_INPUT_3_THRESHOLD: _read_float32(
-                    data.registers[70:72]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_3_THRESHOLD_STEP: _read_byte(
-                    data.registers[72]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_3_THRESHOLD_TEMPERATURE: _read_byte(
-                    data.registers[73]
-                ),
-                # Analog 4
-                NumberAttrKey.CON_ANALOG_INPUT_4_THRESHOLD: _read_float32(
-                    data.registers[74:76]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_4_THRESHOLD_STEP: _read_byte(
-                    data.registers[76]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_4_THRESHOLD_TEMPERATURE: _read_byte(
-                    data.registers[77]
-                ),
-                # Analog 5
-                NumberAttrKey.CON_ANALOG_INPUT_5_THRESHOLD: _read_float32(
-                    data.registers[78:80]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_5_THRESHOLD_STEP: _read_byte(
-                    data.registers[80]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_5_THRESHOLD_TEMPERATURE: _read_byte(
-                    data.registers[81]
-                ),
-                # Analog 6
-                NumberAttrKey.CON_ANALOG_INPUT_6_THRESHOLD: _read_float32(
-                    data.registers[82:84]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_6_THRESHOLD_STEP: _read_byte(
-                    data.registers[84]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_6_THRESHOLD_TEMPERATURE: _read_byte(
-                    data.registers[65]
-                ),
-                # Analog 7
-                NumberAttrKey.CON_ANALOG_INPUT_7_THRESHOLD: _read_float32(
-                    data.registers[86:88]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_7_THRESHOLD_STEP: _read_byte(
-                    data.registers[88]
-                ),
-                NumberAttrKey.CON_ANALOG_INPUT_7_THRESHOLD_TEMPERATURE: _read_byte(
-                    data.registers[89]
-                ),
-                NumberAttrKey.CON_HEAT_PUMP_REQUEST_OFF_STEP: _read_byte(
-                    data.registers[90]
-                ),
-                NumberAttrKey.CON_HEAT_PUMP_REQUEST_ON_STEP: _read_byte(
-                    data.registers[91]
-                ),
-                NumberAttrKey.CON_EMERGENCY_MODE_ON_STOP: _read_byte(
-                    data.registers[92]
-                ),
-                NumberAttrKey.CON_TEMPERATURE_HYSTERESIS: _read_byte(
-                    data.registers[93]
-                ),
-                NumberAttrKey.CON_MINIMAL_TEMPERATURE: _read_byte(data.registers[95]),
-                NumberAttrKey.CON_SET_HEATER_STEP_TEMPERATURE_LIMIT: _read_byte(
-                    data.registers[96]
-                ),
-                NumberAttrKey.CON_LOAD_FEEDIN_OR_SETPOINT_TEMPERATURE_LIMIT: _read_byte(
-                    data.registers[97]
-                ),
-                NumberAttrKey.CON_LOW_TARIFF_TEMPERATURE_LIMIT: _read_byte(
-                    data.registers[98]
-                ),
-                NumberAttrKey.CON_HEATPUMP_REQUEST_TEMPERATURE_LIMIT: _read_byte(
-                    data.registers[99]
-                ),
-            },
+            number_inputs={},
             switches={
+                # TODO: Move/merge to api_conf_desc.py
                 # input settings register
                 # low byte
                 SwitchAttrKey.CON_MISSING_CURRENT_FLOW_TRIGGERS_ERROR: _read_flag(
@@ -454,7 +347,7 @@ class AskoHeatModbusApiClient:
                     minute=_read_byte(data.registers[55]),
                 ),
             },
-            text_intputs={
+            text_inputs={
                 TextAttrKey.CON_INFO_STRING: _read_str(data.registers[22:38]),
             },
             select_inputs={
@@ -496,15 +389,61 @@ class AskoHeatModbusApiClient:
             BinarySensorAttrKey.ERROR_OCCURED: _read_flag(register_value, 15),
         }
 
-    def _map_register_to_heater_step(
-        self, register_value: int
-    ) -> dict[SwitchAttrKey, bool]:
-        """Map modbus register to status class."""
-        return {
-            SwitchAttrKey.EMA_SET_HEATER_STEP_HEATER1: _read_flag(register_value, 0),
-            SwitchAttrKey.EMA_SET_HEATER_STEP_HEATER2: _read_flag(register_value, 1),
-            SwitchAttrKey.EMA_SET_HEATER_STEP_HEATER3: _read_flag(register_value, 2),
-        }
+
+def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> object:
+    match desc:
+        case FlagRegisterInputDescriptor(starting_register, bit):
+            result = _read_flag(data.registers[starting_register], bit)
+        case ByteRegisterInputDescriptor(starting_register):
+            result = _read_byte(data.registers[starting_register])
+        case UnsignedIntRegisterInputDescriptor(starting_register):
+            result = _read_uint16(data.registers[starting_register])
+        case SignedIntRegisterInputDescriptor(starting_register):
+            result = _read_int16(data.registers[starting_register])
+        case Float32RegisterInputDescriptor(starting_register):
+            result = _read_float32(
+                data.registers[starting_register : starting_register + 2]
+            )
+        case StringRegisterInputDescriptor(starting_register, number_of_bytes):
+            result = _read_str(
+                data.registers[
+                    starting_register : starting_register + number_of_bytes + 1
+                ]
+            )
+        case _:
+            LOGGER.error("Cannot read number input from descriptor %r", desc)
+            result = None
+    return result
+
+
+def _read_register_boolean_input(
+    data: ModbusPDU, desc: RegisterInputDescriptor
+) -> bool | None:
+    result = _read_register_input(data, desc)
+    if isinstance(result, bool):
+        return result
+
+    LOGGER.error(
+        "Cannot read bool input from descriptor %r, unsupported value %r",
+        desc,
+        result,
+    )
+    return None
+
+
+def _read_register_number_input(
+    data: ModbusPDU, desc: RegisterInputDescriptor
+) -> number | None:
+    result = _read_register_input(data, desc)
+    if isinstance(result, number):
+        return result
+
+    LOGGER.error(
+        "Cannot read number input from descriptor %r, unsupported value %r",
+        desc,
+        result,
+    )
+    return None
 
 
 def _read_time(register_value_hours: int, register_value_minutes: int) -> time | None:

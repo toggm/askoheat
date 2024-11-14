@@ -2,29 +2,30 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TypeVar
 
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
+from custom_components.askoheat.model import AskoheatEntityDescription
+
 from .const import ATTRIBUTION
 from .coordinator import AskoheatDataUpdateCoordinator
 
-if TYPE_CHECKING:
-    from custom_components.askoheat.model import AskoheatEntityDescription
+E = TypeVar("E", bound=AskoheatEntityDescription)
 
 
-class AskoheatEntity(CoordinatorEntity[AskoheatDataUpdateCoordinator]):
+class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
     """AskoheatEntity class."""
 
     _attr_attribution = ATTRIBUTION
-    entity_description: AskoheatEntityDescription
+    entity_description: E
 
     def __init__(
         self,
         coordinator: AskoheatDataUpdateCoordinator,
-        entity_description: AskoheatEntityDescription,
+        entity_description: E,
     ) -> None:
         """Initialize."""
         super().__init__(coordinator)

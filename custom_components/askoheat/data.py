@@ -50,7 +50,7 @@ class AskoheatDataBlock:
     binary_sensors: dict[BinarySensorAttrKey, bool] | None = None
     sensors: dict[SensorAttrKey, object] | None = None
     switches: dict[SwitchAttrKey, bool] | None = None
-    text_intputs: dict[TextAttrKey, str] | None = None
+    text_inputs: dict[TextAttrKey, str] | None = None
     select_inputs: dict[SelectAttrKey, ReprEnum] | None = None
     number_inputs: dict[NumberAttrKey, number] | None = None
     time_inputs: dict[TimeAttrKey, time | None] | None = None
