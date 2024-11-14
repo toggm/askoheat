@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
+from homeassistant.components.number import NumberMode
 from homeassistant.components.sensor.const import (
     SensorDeviceClass,
     SensorStateClass,
@@ -15,6 +16,7 @@ from homeassistant.const import (
 )
 
 from custom_components.askoheat.api_desc import (
+    ByteRegisterInputDescriptor,
     FlagRegisterInputDescriptor,
     Float32RegisterInputDescriptor,
     RegisterBlockDescriptor,
@@ -23,13 +25,13 @@ from custom_components.askoheat.api_desc import (
 )
 from custom_components.askoheat.const import (
     BinarySensorAttrKey,
+    NumberAttrKey,
     SensorAttrKey,
-    SwitchAttrKey,
 )
 from custom_components.askoheat.model import (
     AskoheatBinarySensorEntityDescription,
+    AskoheatNumberEntityDescription,
     AskoheatSensorEntityDescription,
-    AskoheatSwitchEntityDescription,
 )
 
 EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
@@ -129,26 +131,6 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=15),
         ),
     ],
-    switches=[
-        AskoheatSwitchEntityDescription(
-            key=SwitchAttrKey.EMA_SET_HEATER_STEP_HEATER1,
-            icon="mdi:heat-wave",
-            entity_category=None,
-            api_descriptor=FlagRegisterInputDescriptor(starting_register=18, bit=0),
-        ),
-        AskoheatSwitchEntityDescription(
-            key=SwitchAttrKey.EMA_SET_HEATER_STEP_HEATER2,
-            icon="mdi:heat-wave",
-            entity_category=None,
-            api_descriptor=FlagRegisterInputDescriptor(starting_register=18, bit=1),
-        ),
-        AskoheatSwitchEntityDescription(
-            key=SwitchAttrKey.EMA_SET_HEATER_STEP_HEATER3,
-            icon="mdi:heat-wave",
-            entity_category=None,
-            api_descriptor=FlagRegisterInputDescriptor(starting_register=18, bit=2),
-        ),
-    ],
     sensors=[
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.HEATER_LOAD,
@@ -157,27 +139,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_class=SensorDeviceClass.POWER,
             native_unit_of_measurement=UnitOfPower.WATT,
             entity_category=None,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(16),
-        ),
-        AskoheatSensorEntityDescription(
-            key=SensorAttrKey.LOAD_SETPOINT_VALUE,
-            icon="mdi:lightning-bolt",
-            native_precision=0,
-            state_class=SensorStateClass.MEASUREMENT,
-            device_class=SensorDeviceClass.POWER,
-            native_unit_of_measurement=UnitOfPower.WATT,
-            entity_category=None,
-            api_descriptor=SignedIntRegisterInputDescriptor(19),
-        ),
-        AskoheatSensorEntityDescription(
-            key=SensorAttrKey.LOAD_FEEDIN_VALUE,
-            icon="mdi:solar-power",
-            native_precision=0,
-            state_class=SensorStateClass.MEASUREMENT,
-            device_class=SensorDeviceClass.POWER,
-            native_unit_of_measurement=UnitOfPower.WATT,
-            entity_category=None,
-            api_descriptor=SignedIntRegisterInputDescriptor(20),
+            api_descriptor=UnsignedIntRegisterInputDescriptor(17),
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.ANALOG_INPUT_VALUE,
@@ -238,6 +200,38 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(33),
+        ),
+    ],
+    number_inputs=[
+        AskoheatNumberEntityDescription(
+            key=NumberAttrKey.SET_HEADER_STEP_VALUE,
+            icon="mdi:lightning-bolt",
+            native_min_value=0,
+            native_max_value=7,
+            native_step=1,
+            entity_category=None,
+            mode=NumberMode.SLIDER,
+            api_descriptor=ByteRegisterInputDescriptor(18),
+        ),
+        AskoheatNumberEntityDescription(
+            key=NumberAttrKey.LOAD_SETPOINT_VALUE,
+            icon="mdi:lightning-bolt",
+            native_min_value=250,
+            native_max_value=30000,
+            native_precision=0,
+            native_unit_of_measurement=UnitOfPower.WATT,
+            entity_category=None,
+            api_descriptor=SignedIntRegisterInputDescriptor(19),
+        ),
+        AskoheatNumberEntityDescription(
+            key=NumberAttrKey.LOAD_FEEDIN_VALUE,
+            icon="mdi:solar-power",
+            native_min_value=-30000,
+            native_max_value=30000,
+            native_precision=0,
+            native_unit_of_measurement=UnitOfPower.WATT,
+            entity_category=None,
+            api_descriptor=SignedIntRegisterInputDescriptor(20),
         ),
     ],
 )

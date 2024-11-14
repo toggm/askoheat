@@ -125,7 +125,7 @@ class AskoHeatModbusApiClient:
                 CONF_REGISTER_BLOCK_DESCRIPTOR.absolute_register_index(api_desc),
                 register_values,
             )
-        return await self.async_read_ema_data()
+        return await self.async_read_config_data()
 
     async def __async_read_single_input_register(
         self,
@@ -583,8 +583,10 @@ def _read_byte(register_value: int) -> np.byte:
 
 def _prepare_byte(value: object) -> list[int]:
     """Prepare byte value to be able to write to a register."""
-    if not isinstance(value, np.signedinteger):
-        LOGGER.error("Cannot convert value %s as byte, wrong datatype %r", value, value)
+    if not isinstance(value, number | float):
+        LOGGER.error(
+            "Cannot convert value %s as byte, wrong datatype %r", value, type(value)
+        )
         return []
 
     return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.INT16)
@@ -601,9 +603,11 @@ def _read_int16(register_value: int) -> np.int16:
 
 def _prepare_int16(value: object) -> list[int]:
     """Prepare signed int value to be able to write to a register."""
-    if not isinstance(value, np.signedinteger):
+    if not isinstance(value, number | float):
         LOGGER.error(
-            "Cannot convert value %s as signed int, wrong datatype %r", value, value
+            "Cannot convert value %s as signed int, wrong datatype %r",
+            value,
+            type(value),
         )
         return []
     return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.INT16)
@@ -620,9 +624,11 @@ def _read_uint16(register_value: int) -> np.uint16:
 
 def _prepare_uint16(value: object) -> list[int]:
     """Prepare unsigned int value to be able to write to a register."""
-    if not isinstance(value, np.unsignedinteger):
+    if not isinstance(value, number | float):
         LOGGER.error(
-            "Cannot convert value %s as unsigned int, wrong datatype %r", value, value
+            "Cannot convert value %s as unsigned int, wrong datatype %r",
+            value,
+            type(value),
         )
         return []
 
@@ -640,9 +646,9 @@ def _read_float32(register_values: list[int]) -> np.float32:
 
 def _prepare_float32(value: object) -> list[int]:
     """Prepare float32 value to be able to write to a register."""
-    if not isinstance(value, np.floating):
+    if not isinstance(value, number | float):
         LOGGER.error(
-            "Cannot convert value %s as float32, wrong datatype %r", value, value
+            "Cannot convert value %s as float32, wrong datatype %r", value, type(value)
         )
         return []
     return ModbusClient.convert_to_registers(
@@ -661,7 +667,7 @@ def _prepare_flag(register_value: int, flag: object, index: int) -> list[int]:
         LOGGER.error(
             "Cannot convert value %s as flag, wrong datatype %r",
             flag,
-            flag,
+            type(flag),
         )
         return []
 

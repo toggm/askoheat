@@ -80,24 +80,13 @@ class AskoHeatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEnti
         await self._set_state(self.entity_description.off_state)
 
     async def _set_state(self, state: str | bool) -> None:
-        """."""
+        """Set state of switch."""
         if self.entity_description.api_descriptor is None:
             LOGGER.error(
                 "Cannot set state, missing api_descriptor on entity %s", self.entity_id
             )
             return
-        data = await self.coordinator.async_write(
+        await self.coordinator.async_write(
             self.entity_description.api_descriptor, state
-        )
-        value = data[self.entity_description.data_key]
-        if (
-            self.entity_description.on_state is True
-            or self.entity_description.on_state is False
-        ):
-            value = bool(value)
-        self._attr_is_on = (
-            value != self.entity_description.on_state
-            if self.entity_description.inverted
-            else value == self.entity_description.on_state
         )
         self._handle_coordinator_update()

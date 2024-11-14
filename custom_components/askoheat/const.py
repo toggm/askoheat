@@ -22,6 +22,13 @@ SCAN_INTERVAL_DATA = timedelta(minutes=1)
 class NumberAttrKey(StrEnum):
     """Askoheat number entities attribute keys."""
 
+    # 1-7
+    SET_HEADER_STEP_VALUE = "set_heater_step"
+    # 250-30000 watt
+    LOAD_SETPOINT_VALUE = "load_setpoint"
+    # -30000-30000 watt
+    LOAD_FEEDIN_VALUE = "load_feedin"
+
     # -----------------------------------------------
     # config block enums
     # -----------------------------------------------
@@ -140,13 +147,6 @@ class SelectAttrKey(StrEnum):
 
 class SwitchAttrKey(StrEnum):
     """Askoheat binary switch attribute keys."""
-
-    # -----------------------------------------------
-    # EMA block enums
-    # -----------------------------------------------
-    EMA_SET_HEATER_STEP_HEATER1 = "set_heater_step_heater1"
-    EMA_SET_HEATER_STEP_HEATER2 = "set_heater_step_heater2"
-    EMA_SET_HEATER_STEP_HEATER3 = "set_heater_step_heater3"
 
     # -----------------------------------------------
     # config block enums
@@ -283,10 +283,6 @@ class SensorAttrKey(StrEnum):
 
     # 250-30000 watt
     HEATER_LOAD = "heater_load"
-    # 250-30000 watt
-    LOAD_SETPOINT_VALUE = "load_setpoint"
-    # -30000-30000 watt
-    LOAD_FEEDIN_VALUE = "load_feedin"
     # 0-10V
     ANALOG_INPUT_VALUE = "analog_input"
     INTERNAL_TEMPERATUR_SENSOR_VALUE = "internal_temp_sensor"

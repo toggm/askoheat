@@ -8,6 +8,8 @@ from homeassistant.components.number import ENTITY_ID_FORMAT, NumberEntity
 from homeassistant.core import callback
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.const import LOGGER
 from custom_components.askoheat.model import (
     AskoheatNumberEntityDescription,
 )
@@ -28,6 +30,13 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Set up the number platform."""
+    async_add_entities(
+        AskoHeatNumber(
+            coordinator=entry.runtime_data.ema_coordinator,
+            entity_description=entity_description,
+        )
+        for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.number_inputs
+    )
     async_add_entities(
         AskoHeatNumber(
             coordinator=entry.runtime_data.config_coordinator,
@@ -69,3 +78,18 @@ class AskoHeatNumber(AskoheatEntity[AskoheatNumberEntityDescription], NumberEnti
                 )
         self.async_write_ha_state()
         super()._handle_coordinator_update()
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        if self.entity_description.api_descriptor is None:
+            LOGGER.error(
+                "Cannot set native value, missing api_descriptor on entity %s",
+                self.entity_id,
+            )
+            return
+        if self.entity_description.factor is not None:
+            value = int(value / self.entity_description.factor)
+        await self.coordinator.async_write(
+            self.entity_description.api_descriptor, value
+        )
+        self._handle_coordinator_update()

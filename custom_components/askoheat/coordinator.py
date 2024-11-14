@@ -3,13 +3,10 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from enum import StrEnum
 from typing import TYPE_CHECKING, Any
 
 import async_timeout
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
-
-from custom_components.askoheat.api_desc import RegisterInputDescriptor
 
 from .api import (
     AskoheatModbusApiClientError,
@@ -21,6 +18,7 @@ if TYPE_CHECKING:
 
     from homeassistant.core import HomeAssistant
 
+    from custom_components.askoheat.api_desc import RegisterInputDescriptor
     from custom_components.askoheat.data import AskoheatDataBlock
 
     from .data import AskoheatConfigEntry
@@ -31,6 +29,7 @@ class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching state of askoheat through a single API call."""
 
     config_entry: AskoheatConfigEntry
+    _writing: bool = False
 
     def __init__(self, hass: HomeAssistant, scan_interval: timedelta) -> None:
         """Initialize."""
@@ -48,7 +47,7 @@ class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
     @abstractmethod
     async def async_write(
         self, api_desc: RegisterInputDescriptor, value: object
-    ) -> dict[str, Any]:
+    ) -> None:
         """Write parameter to Askoheat."""
 
 
@@ -63,6 +62,9 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update ema data via library."""
+        # prevent concurrent reads while writing is in progress
+        if self._writing:
+            return self.data
         try:
             async with async_timeout.timeout(10):
                 data = await self.config_entry.runtime_data.client.async_read_ema_data()
@@ -72,23 +74,25 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
 
     async def async_write(
         self, api_desc: RegisterInputDescriptor, value: object
-    ) -> dict[str, Any]:
+    ) -> None:
         """Write parameter ema block of Askoheat."""
         try:
+            self._writing = True
             async with async_timeout.timeout(10):
                 data = await self.config_entry.runtime_data.client.async_write_ema_data(
                     api_desc, value
                 )
-                return _map_data_block_to_dict(data)
+                self.data = _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
             raise UpdateFailed(exception) from exception
+        finally:
+            self._writing = False
 
 
 class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
     """Class to manage fetching askoheat energymanager states."""
 
     config_entry: AskoheatConfigEntry
-    _writing: bool = False
 
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize."""
@@ -110,7 +114,7 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
 
     async def async_write(
         self, api_desc: RegisterInputDescriptor, value: object
-    ) -> dict[str, Any]:
+    ) -> None:
         """Write parameter ema block of Askoheat."""
         try:
             self._writing = True
@@ -120,7 +124,7 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                         api_desc, value
                     )
                 )
-                return _map_data_block_to_dict(data)
+                self.data = _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
             raise UpdateFailed(exception) from exception
         finally:
