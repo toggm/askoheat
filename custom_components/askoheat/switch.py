@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 from homeassistant.components.switch import ENTITY_ID_FORMAT, SwitchEntity
 from homeassistant.core import callback
 
+from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import LOGGER
 from custom_components.askoheat.model import AskoheatSwitchEntityDescription
@@ -33,6 +34,13 @@ async def async_setup_entry(
             entity_description=entity_description,
         )
         for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.switches
+    )
+    async_add_entities(
+        AskoHeatSwitch(
+            coordinator=entry.runtime_data.config_coordinator,
+            entity_description=entity_description,
+        )
+        for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.switches
     )
 
 

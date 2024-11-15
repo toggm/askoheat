@@ -249,189 +249,8 @@ class AskoHeatModbusApiClient:
         """Map modbus result of config data block."""
         return AskoheatDataBlock(
             number_inputs={},
-            switches={
-                # TODO: Move/merge to api_conf_desc.py
-                # input settings register
-                # low byte
-                SwitchAttrKey.CON_MISSING_CURRENT_FLOW_TRIGGERS_ERROR: _read_flag(
-                    data.registers[2], 0
-                ),
-                SwitchAttrKey.CON_HEATER_LOAD_VALUE_ONLY_IF_CURRENT_FLOWS: _read_flag(
-                    data.registers[2], 1
-                ),
-                SwitchAttrKey.CON_LOAD_FEEDIN_VALUE_ENABLED: _read_flag(
-                    data.registers[2], 2
-                ),
-                SwitchAttrKey.CON_LOAD_SETPOINT_VALUE_ENABLED: _read_flag(
-                    data.registers[2], 3
-                ),
-                SwitchAttrKey.CON_SET_HEATER_STEP_VALUE_ENABLED: _read_flag(
-                    data.registers[2], 4
-                ),
-                SwitchAttrKey.CON_SET_ANALOG_INPUT_ENABLED: _read_flag(
-                    data.registers[2], 5
-                ),
-                SwitchAttrKey.CON_HEATPUMP_REQUEST_INPUT_ENABLED: _read_flag(
-                    data.registers[2], 6
-                ),
-                SwitchAttrKey.CON_EMERGENCY_MODE_ENABLED: _read_flag(
-                    data.registers[2], 7
-                ),
-                # high byte
-                SwitchAttrKey.CON_HOLD_MINIMAL_TEMPERATURE_ENABELD: _read_flag(
-                    data.registers[2], 8
-                ),
-                SwitchAttrKey.CON_HOLD_MINIMAL_TEMPERATURE_ENABELD: _read_flag(
-                    data.registers[2], 9
-                ),
-                SwitchAttrKey.CON_SOFTWARE_CONTROL_SMA_SEMP_ENABLED: _read_flag(
-                    data.registers[2], 10
-                ),
-                SwitchAttrKey.CON_SOFTWARE_CONTROL_SENEC_HOME_ENABLED: _read_flag(
-                    data.registers[2], 11
-                ),
-                # auto heater off settings register
-                # low byte
-                SwitchAttrKey.CON_AUTO_OFF_ENABLED: _read_flag(data.registers[4], 0),
-                SwitchAttrKey.CON_RESTART_IF_ENERGYMANAGER_CONNECTION_LOST: _read_flag(
-                    data.registers[4], 1
-                ),
-                SwitchAttrKey.CON_AUTO_OFF_MODBUS_ENABLED: _read_flag(
-                    data.registers[4], 4
-                ),
-                SwitchAttrKey.CON_AUTO_OFF_ANALOG_INPUT_ENABLED: _read_flag(
-                    data.registers[4], 5
-                ),
-                SwitchAttrKey.CON_AUTO_OFF_HEAT_PUMP_REQUEST_ENABLED: _read_flag(
-                    data.registers[4], 6
-                ),
-                SwitchAttrKey.CON_AUTO_OFF_EMERGENCY_MODE_ENABLED: _read_flag(
-                    data.registers[4], 7
-                ),
-                # heatbuffer type register
-                SwitchAttrKey.CON_HEATBUFFER_TYPE_TAP_WATER: _read_flag(
-                    data.registers[6], 0
-                ),
-                SwitchAttrKey.CON_HEATBUFFER_TYPE_HEATING_WATER: _read_flag(
-                    data.registers[6], 1
-                ),
-                SwitchAttrKey.CON_HEATBUFFER_TYPE_COMBINED_HEAT_AND_POWER_UNIT: _read_flag(
-                    data.registers[6], 2
-                ),
-                SwitchAttrKey.CON_HEATBUFFER_TYPE_PELLET_FIRING: _read_flag(
-                    data.registers[6], 3
-                ),
-                SwitchAttrKey.CON_HEATBUFFER_TYPE_GAS_BURNER: _read_flag(
-                    data.registers[6], 4
-                ),
-                SwitchAttrKey.CON_HEATBUFFER_TYPE_OIL_BURNER: _read_flag(
-                    data.registers[6], 5
-                ),
-                SwitchAttrKey.CON_HEATBUFFER_TYPE_HEAT_PUMP: _read_flag(
-                    data.registers[6], 6
-                ),
-                SwitchAttrKey.CON_HEATBUFFER_TYPE_OTHER: _read_flag(
-                    data.registers[6], 7
-                ),
-                # heater position register
-                SwitchAttrKey.CON_HEATER_POSITION_BOTTOM: _read_flag(
-                    data.registers[8], 0
-                ),
-                SwitchAttrKey.CON_HEATER_POSITION_MIDDLE: _read_flag(
-                    data.registers[8], 1
-                ),
-                SwitchAttrKey.CON_HEATER_POSITION_ASKOWALL: _read_flag(
-                    data.registers[8], 7
-                ),
-                # legio settings register
-                # low byte
-                SwitchAttrKey.CON_LEGIO_SETTINGS_USE_INTERNAL_TEMP_SENSOR: _read_flag(
-                    data.registers[9], 0
-                ),
-                SwitchAttrKey.CON_LEGIO_SETTINGS_USE_EXTERNAL_TEMP_SENSOR1: _read_flag(
-                    data.registers[9], 1
-                ),
-                SwitchAttrKey.CON_LEGIO_SETTINGS_USE_EXTERNAL_TEMP_SENSOR2: _read_flag(
-                    data.registers[9], 2
-                ),
-                SwitchAttrKey.CON_LEGIO_SETTINGS_USE_EXTERNAL_TEMP_SENSOR3: _read_flag(
-                    data.registers[9], 3
-                ),
-                SwitchAttrKey.CON_LEGIO_SETTINGS_USE_EXTERNAL_TEMP_SENSOR4: _read_flag(
-                    data.registers[9], 4
-                ),
-                # high byte
-                SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_DAILY: _read_flag(
-                    data.registers[9], 8
-                ),
-                SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_WEEKLY: _read_flag(
-                    data.registers[9], 9
-                ),
-                SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_FORTNIGHTLY: _read_flag(
-                    data.registers[9], 10
-                ),
-                SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_MONTHLY: _read_flag(
-                    data.registers[9], 11
-                ),
-                SwitchAttrKey.CON_LEGIO_SETTINGS_PREFER_FEEDIN_ENERGY: _read_flag(
-                    data.registers[9], 12
-                ),
-                SwitchAttrKey.CON_LEGIO_SETTINGS_PROTECTION_ENABLED: _read_flag(
-                    data.registers[9], 13
-                ),
-                # house type settings register
-                # low byte
-                SwitchAttrKey.CON_HOUSE_TYPE_SINGLE_FAMILY_HOUSE: _read_flag(
-                    data.registers[20], 0
-                ),
-                SwitchAttrKey.CON_HOUSE_TYPE_TWO_FAMILY_HOUSE: _read_flag(
-                    data.registers[20], 1
-                ),
-                SwitchAttrKey.CON_HOUSE_TYPE_APPARTMENT_BUILDING: _read_flag(
-                    data.registers[20], 2
-                ),
-                SwitchAttrKey.CON_HOUSE_TYPE_COMMERCIAL_BUILDING: _read_flag(
-                    data.registers[20], 7
-                ),
-                # Summer time int 1/0 as bool
-                SwitchAttrKey.CON_SUMMERTIME_ENABLED: _read_int16(data.registers[42])
-                == 1,
-                # rtu settings register
-                # low byte
-                SwitchAttrKey.CON_RTU_SEND_TWO_STOP_BITS: _read_flag(
-                    data.registers[49], 0
-                ),
-                SwitchAttrKey.CON_RTU_SEND_PARITY_EVEN: _read_flag(
-                    data.registers[49], 1
-                ),
-                SwitchAttrKey.CON_RTU_SEND_PARITY_ODD: _read_flag(
-                    data.registers[49], 2
-                ),
-                SwitchAttrKey.CON_RTU_SLAVE_MODE_ACTIVE: _read_flag(
-                    data.registers[49], 7
-                ),
-                # high byte
-                SwitchAttrKey.CON_RTU_MASTER_MODE_ACTIVE: _read_flag(
-                    data.registers[49], 15
-                ),
-                # temperature settings register
-                # low byte
-                SwitchAttrKey.CON_USE_INTERNAL_TEMP_SENSOR: _read_flag(
-                    data.registers[94], 0
-                ),
-                SwitchAttrKey.CON_USE_EXTERNAL_TEMP_SENSOR1: _read_flag(
-                    data.registers[94], 1
-                ),
-                SwitchAttrKey.CON_USE_EXTERNAL_TEMP_SENSOR2: _read_flag(
-                    data.registers[94], 2
-                ),
-                SwitchAttrKey.CON_USE_EXTERNAL_TEMP_SENSOR3: _read_flag(
-                    data.registers[94], 3
-                ),
-                SwitchAttrKey.CON_USE_EXTERNAL_TEMP_SENSOR4: _read_flag(
-                    data.registers[94], 4
-                ),
-            },
+            switches={},
+            # TODO: Move/merge to api_conf_desc.py
             time_inputs={
                 TimeAttrKey.CON_LEGIO_PROTECTION_PREFERRED_START_TIME: _read_time(
                     register_value_hours=data.registers[12],
@@ -446,9 +265,11 @@ class AskoHeatModbusApiClient:
                     minute=_read_byte(data.registers[55]),
                 ),
             },
+            # TODO: Move/merge to api_conf_desc.py
             text_inputs={
                 TextAttrKey.CON_INFO_STRING: _read_str(data.registers[22:38]),
             },
+            # TODO: Move/merge to api_conf_desc.py
             select_inputs={
                 SelectAttrKey.CON_RTU_BAUDRATE: _read_enum(
                     data.registers[46:49], Baurate
@@ -521,6 +342,9 @@ def _read_register_boolean_input(
     result = _read_register_input(data, desc)
     if isinstance(result, bool):
         return result
+
+    if isinstance(result, number):
+        return result == 1
 
     LOGGER.error(
         "Cannot read bool input from descriptor %r, unsupported value %r",

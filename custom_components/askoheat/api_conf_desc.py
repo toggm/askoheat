@@ -15,6 +15,7 @@ from homeassistant.const import (
 
 from custom_components.askoheat.api_desc import (
     ByteRegisterInputDescriptor,
+    FlagRegisterInputDescriptor,
     Float32RegisterInputDescriptor,
     RegisterBlockDescriptor,
     SignedIntRegisterInputDescriptor,
@@ -22,9 +23,11 @@ from custom_components.askoheat.api_desc import (
 )
 from custom_components.askoheat.const import (
     NumberAttrKey,
+    SwitchAttrKey,
 )
 from custom_components.askoheat.model import (
     AskoheatNumberEntityDescription,
+    AskoheatSwitchEntityDescription,
 )
 
 CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
@@ -488,5 +491,369 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             icon="mdi:thermometer-chevron-up",
             api_descriptor=ByteRegisterInputDescriptor(99),
         ),
+    ],
+    switches=[
+        ### input settings register - begin
+        # low byte
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_MISSING_CURRENT_FLOW_TRIGGERS_ERROR,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:alert-circle",
+            api_descriptor=FlagRegisterInputDescriptor(2, 0),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATER_LOAD_VALUE_ONLY_IF_CURRENT_FLOWS,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:home-lightning-bolt",
+            api_descriptor=FlagRegisterInputDescriptor(2, 1),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LOAD_FEEDIN_VALUE_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:solar-power",
+            api_descriptor=FlagRegisterInputDescriptor(2, 2),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LOAD_SETPOINT_VALUE_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:stairs",
+            api_descriptor=FlagRegisterInputDescriptor(2, 3),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_SET_HEATER_STEP_VALUE_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:gauge",
+            api_descriptor=FlagRegisterInputDescriptor(2, 4),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_SET_ANALOG_INPUT_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:since-wave",
+            api_descriptor=FlagRegisterInputDescriptor(2, 5),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATPUMP_REQUEST_INPUT_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:heat-pump",
+            api_descriptor=FlagRegisterInputDescriptor(2, 6),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_EMERGENCY_MODE_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:car-emergency",
+            api_descriptor=FlagRegisterInputDescriptor(2, 7),
+        ),
+        # high byte
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LOW_TARIFF_OPTION_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:weather-night",
+            api_descriptor=FlagRegisterInputDescriptor(2, 8),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HOLD_MINIMAL_TEMPERATURE_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer-check",
+            api_descriptor=FlagRegisterInputDescriptor(2, 9),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_SOFTWARE_CONTROL_SMA_SEMP_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:car-cruise-control",
+            api_descriptor=FlagRegisterInputDescriptor(2, 10),
+            entity_registry_enabled_default=False,
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_SOFTWARE_CONTROL_SENEC_HOME_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:car-cruise-control",
+            api_descriptor=FlagRegisterInputDescriptor(2, 11),
+            entity_registry_enabled_default=False,
+        ),
+        ### input settings register - end
+        ### auto heater off settings register - begin
+        # low byte
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_AUTO_OFF_MODBUS_TIMEOUT_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:timer-cancel",
+            api_descriptor=FlagRegisterInputDescriptor(4, 0),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_RESTART_IF_ENERGYMANAGER_CONNECTION_LOST,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:timer-cancel",
+            api_descriptor=FlagRegisterInputDescriptor(4, 1),
+        ),
+        # bit 2 not used
+        # bit 3 not used
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_AUTO_OFF_MODBUS_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:timer-cancel",
+            api_descriptor=FlagRegisterInputDescriptor(4, 4),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_AUTO_OFF_ANALOG_INPUT_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:timer-cancel",
+            api_descriptor=FlagRegisterInputDescriptor(4, 5),
+            entity_registry_enabled_default=False,
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_AUTO_OFF_HEAT_PUMP_REQUEST_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:timer-cancel",
+            api_descriptor=FlagRegisterInputDescriptor(4, 6),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_AUTO_OFF_EMERGENCY_MODE_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:timer-cancel",
+            api_descriptor=FlagRegisterInputDescriptor(4, 7),
+        ),
+        ### auto heater off settings register - end
+        ### heatbuffer type register - begin
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATBUFFER_TYPE_TAP_WATER,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-boiler",
+            api_descriptor=FlagRegisterInputDescriptor(6, 0),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATBUFFER_TYPE_HEATING_WATER,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-boiler",
+            api_descriptor=FlagRegisterInputDescriptor(6, 1),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATBUFFER_TYPE_COMBINED_HEAT_AND_POWER_UNIT,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-boiler",
+            api_descriptor=FlagRegisterInputDescriptor(6, 2),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATBUFFER_TYPE_PELLET_FIRING,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-boiler",
+            api_descriptor=FlagRegisterInputDescriptor(6, 3),
+            entity_registry_enabled_default=False,
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATBUFFER_TYPE_GAS_BURNER,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-boiler",
+            api_descriptor=FlagRegisterInputDescriptor(6, 4),
+            entity_registry_enabled_default=False,
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATBUFFER_TYPE_OIL_BURNER,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-boiler",
+            api_descriptor=FlagRegisterInputDescriptor(6, 5),
+            entity_registry_enabled_default=False,
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATBUFFER_TYPE_HEAT_PUMP,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-boiler",
+            api_descriptor=FlagRegisterInputDescriptor(6, 6),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATBUFFER_TYPE_OTHER,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-boiler",
+            api_descriptor=FlagRegisterInputDescriptor(6, 7),
+        ),
+        ### heatbuffer type register - end
+        ### heater position register - begin
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATER_POSITION_BOTTOM,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:format-vertical-align-bottom",
+            api_descriptor=FlagRegisterInputDescriptor(8, 0),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATER_POSITION_MIDDLE,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:format-vertical-align-center",
+            api_descriptor=FlagRegisterInputDescriptor(8, 1),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HEATER_POSITION_ASKOWALL,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:wall",
+            api_descriptor=FlagRegisterInputDescriptor(8, 7),
+        ),
+        ### heater position register - end
+        ### legio settings register - begin
+        # low byte
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_USE_INTERNAL_TEMP_SENSOR,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-thermometer",
+            api_descriptor=FlagRegisterInputDescriptor(9, 0),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_USE_EXTERNAL_TEMP_SENSOR1,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-thermometer",
+            api_descriptor=FlagRegisterInputDescriptor(9, 1),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_USE_EXTERNAL_TEMP_SENSOR2,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-thermometer",
+            api_descriptor=FlagRegisterInputDescriptor(9, 2),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_USE_EXTERNAL_TEMP_SENSOR3,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-thermometer",
+            api_descriptor=FlagRegisterInputDescriptor(9, 3),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_USE_EXTERNAL_TEMP_SENSOR4,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:water-thermometer",
+            api_descriptor=FlagRegisterInputDescriptor(9, 4),
+        ),
+        # high byte
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_DAILY,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:home-clock",
+            api_descriptor=FlagRegisterInputDescriptor(9, 8),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_WEEKLY,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:home-clock",
+            api_descriptor=FlagRegisterInputDescriptor(9, 9),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_FORTNIGHTLY,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:home-clock",
+            api_descriptor=FlagRegisterInputDescriptor(9, 10),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_MONTHLY,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:home-clock",
+            api_descriptor=FlagRegisterInputDescriptor(9, 11),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_PREFER_FEEDIN_ENERGY,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:solar-power",
+            api_descriptor=FlagRegisterInputDescriptor(9, 12),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_LEGIO_SETTINGS_PROTECTION_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:shield-sun",
+            api_descriptor=FlagRegisterInputDescriptor(9, 13),
+        ),
+        ### legio settings register - end
+        ### house type settings register - begin
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HOUSE_TYPE_SINGLE_FAMILY_HOUSE,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:home",
+            api_descriptor=FlagRegisterInputDescriptor(20, 0),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HOUSE_TYPE_TWO_FAMILY_HOUSE,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:home-group",
+            api_descriptor=FlagRegisterInputDescriptor(20, 1),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HOUSE_TYPE_APPARTMENT_BUILDING,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:floor-plan",
+            api_descriptor=FlagRegisterInputDescriptor(20, 2),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_HOUSE_TYPE_COMMERCIAL_BUILDING,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:office-building",
+            api_descriptor=FlagRegisterInputDescriptor(20, 7),
+        ),
+        ### house type settings register - end
+        ###  Summer time int 1/0 as bool
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_SUMMER_TIME_ENABLED,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:calendar-clock",
+            api_descriptor=ByteRegisterInputDescriptor(42),
+        ),
+        ### rtu settings register - begin
+        # low byte
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_RTU_SEND_TWO_STOP_BITS,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:protocol",
+            api_descriptor=FlagRegisterInputDescriptor(49, 0),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_RTU_SEND_PARITY_EVEN,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:protocol",
+            api_descriptor=FlagRegisterInputDescriptor(49, 1),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_RTU_SEND_PARITY_ODD,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:protocol",
+            api_descriptor=FlagRegisterInputDescriptor(49, 2),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_RTU_SLAVE_MODE_ACTIVE,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:protocol",
+            api_descriptor=FlagRegisterInputDescriptor(49, 7),
+        ),
+        # high byte
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_RTU_MASTER_MODE_ACTIVE,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:protocol",
+            api_descriptor=FlagRegisterInputDescriptor(49, 15),
+        ),
+        ### rtu settings register - end
+        ### temperature settings register - begin
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_USE_INTERNAL_TEMP_SENSOR,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer-water",
+            api_descriptor=FlagRegisterInputDescriptor(94, 0),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_USE_EXTERNAL_TEMP_SENSOR1,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer-water",
+            api_descriptor=FlagRegisterInputDescriptor(94, 1),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_USE_EXTERNAL_TEMP_SENSOR2,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer-water",
+            api_descriptor=FlagRegisterInputDescriptor(94, 2),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_USE_EXTERNAL_TEMP_SENSOR3,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer-water",
+            api_descriptor=FlagRegisterInputDescriptor(94, 3),
+        ),
+        AskoheatSwitchEntityDescription(
+            key=SwitchAttrKey.CON_USE_EXTERNAL_TEMP_SENSOR4,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:thermometer-water",
+            api_descriptor=FlagRegisterInputDescriptor(94, 4),
+        ),
+        ### temperature settings register - end
     ],
 )

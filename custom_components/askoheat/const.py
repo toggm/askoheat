@@ -165,13 +165,13 @@ class SwitchAttrKey(StrEnum):
     CON_EMERGENCY_MODE_ENABLED = "emergency_mode_enabled"
     # high byte
     CON_LOW_TARIFF_OPTION_ENABLED = "low_tariff_option_enabled"
-    CON_HOLD_MINIMAL_TEMPERATURE_ENABELD = "hold_minimal_temperature_enabled"
+    CON_HOLD_MINIMAL_TEMPERATURE_ENABLED = "hold_minimal_temperature_enabled"
     CON_SOFTWARE_CONTROL_SMA_SEMP_ENABLED = "sw_control_sma_semp_enabled"
     CON_SOFTWARE_CONTROL_SENEC_HOME_ENABLED = "sw_control_senec_home_enabled"
     # from input settings register -- end
 
     # from auto heater off settings register -- begin
-    CON_AUTO_OFF_ENABLED = "auto_off_enabled"
+    CON_AUTO_OFF_MODBUS_TIMEOUT_ENABLED = "auto_off_modbus_timeout_enabled"
     CON_RESTART_IF_ENERGYMANAGER_CONNECTION_LOST = "restart_if_em_connection_lost"
     CON_AUTO_OFF_MODBUS_ENABLED = "auto_off_modbus_enabled"
     CON_AUTO_OFF_ANALOG_INPUT_ENABLED = "auto_off_analog_input_enabled"
@@ -231,7 +231,7 @@ class SwitchAttrKey(StrEnum):
     CON_HOUSE_TYPE_COMMERCIAL_BUILDING = "house_type_commercial_building"
     # from house type register -- end
 
-    CON_SUMMERTIME_ENABLED = "summertime_enabled"
+    CON_SUMMER_TIME_ENABLED = "summer_time_enabled"
 
     # from rtu settings register -- begin
     # low byte

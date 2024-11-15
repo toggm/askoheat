@@ -71,7 +71,9 @@ class AskoheatBinarySensorEntityDescription(
 
 @dataclass(frozen=True)
 class AskoheatSwitchEntityDescription(
-    AskoheatEntityDescription[SwitchAttrKey, FlagRegisterInputDescriptor],
+    AskoheatEntityDescription[
+        SwitchAttrKey, FlagRegisterInputDescriptor | ByteRegisterInputDescriptor
+    ],
     SwitchEntityDescription,
 ):
     """Class describing Askoheat switch entities."""
