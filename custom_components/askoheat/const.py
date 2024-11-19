@@ -106,7 +106,7 @@ class NumberAttrKey(StrEnum):
     # 0-7
     CON_HEAT_PUMP_REQUEST_ON_STEP = "heat_pump_request_on_step"
     # 0-7
-    CON_EMERGENCY_MODE_ON_STOP = "emergency_mode_on_step"
+    CON_EMERGENCY_MODE_ON_STEP = "emergency_mode_on_step"
 
     # 0-95 degree
     CON_TEMPERATURE_HYSTERESIS = "temperature_hysteresis"
@@ -334,3 +334,14 @@ class EnergyMeterType(IntEnum):
     EM_AUTOMATION_ONE_TYPE_A1EM_BIMOD = 0x001
     EM_AUTOMATION_ONE_TYPE_A1EM_MOD = 0x02
     EM300 = 0x010
+
+
+class DeviceKey(StrEnum):
+    """Device keys."""
+
+    MODBUS_MASTER = "modbus_master"
+    HEAT_PUMP = "heat_pump"
+    ANALOG_INPUT = "analog_input"
+    ENERGY_MANAGER = "energy_manager"
+    WATER_BOILER = "water_boiler"
+    LEGIO_PROTECTION = "legio_protection"

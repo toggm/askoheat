@@ -32,6 +32,7 @@ from custom_components.askoheat.api_desc import (
 from custom_components.askoheat.const import (
     DOMAIN,
     BinarySensorAttrKey,
+    DeviceKey,
     NumberAttrKey,
     SelectAttrKey,
     SensorAttrKey,
@@ -56,6 +57,7 @@ class AskoheatEntityDescription[K, A](EntityDescription):
     key: K
     api_descriptor: A | None = None
     icon_by_state: dict[date | datetime | Decimal, str] | None = None
+    device_key: DeviceKey | None = None
 
 
 @dataclass(frozen=True)

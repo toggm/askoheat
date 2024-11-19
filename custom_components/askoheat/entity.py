@@ -10,7 +10,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.askoheat.model import AskoheatEntityDescription
 
-from .const import ATTRIBUTION
+from .const import ATTRIBUTION, DeviceKey
 from .coordinator import AskoheatDataUpdateCoordinator
 
 E = TypeVar("E", bound=AskoheatEntityDescription)
@@ -34,9 +34,11 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
             identifiers={
                 (
                     coordinator.config_entry.domain,
-                    coordinator.config_entry.entry_id,
+                    f"{entity_description.device_key}.{coordinator.config_entry.entry_id}",
                 ),
             },
+            translation_key=entity_description.device_key,  # type: ignore  # noqa: PGH003
+            via_device=(coordinator.config_entry.domain, DeviceKey.WATER_BOILER),
         )
         self.entity_description = entity_description
         self.translation_key = (

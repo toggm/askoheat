@@ -25,6 +25,7 @@ from custom_components.askoheat.api_desc import (
 )
 from custom_components.askoheat.const import (
     BinarySensorAttrKey,
+    DeviceKey,
     NumberAttrKey,
     SensorAttrKey,
 )
@@ -40,30 +41,35 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
     binary_sensors=[
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.HEATER1_ACTIVE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:power-plug",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=0),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.HEATER2_ACTIVE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:power-plug",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=1),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.HEATER3_ACTIVE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:power-plug",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=2),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PUMP_ACTIVE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:pump",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=3),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.RELAY_BOARD_CONNECTED,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:connection",
             device_class=BinarySensorDeviceClass.PROBLEM,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=4),
@@ -71,42 +77,49 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         # bit 5 ignored
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.HEAT_PUMP_REQUEST_ACTIVE,
+            device_key=DeviceKey.HEAT_PUMP,
             icon="mdi:heat-pump",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=6),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.EMERGENCY_MODE_ACTIVE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:car-emergency",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=7),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.LEGIONELLA_PROTECTION_ACTIVE,
+            device_key=DeviceKey.LEGIO_PROTECTION,
             icon="mdi:shield-sun",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=8),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.ANALOG_INPUT_ACTIVE,
+            device_key=DeviceKey.ANALOG_INPUT,
             icon="mdi:sine-wave",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=9),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.SETPOINT_ACTIVE,
+            device_key=DeviceKey.ENERGY_MANAGER,
             icon="mdi:finance",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=10),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.LOAD_FEEDIN_ACTIVE,
+            device_key=DeviceKey.ENERGY_MANAGER,
             icon="mdi:solar-power",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=11),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.AUTOHEATER_ACTIVE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:water-boiler-auto",
             inverted=True,
             device_class=BinarySensorDeviceClass.RUNNING,
@@ -114,18 +127,21 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:water-boiler-auto",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=13),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.TEMP_LIMIT_REACHED,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:water-boiler-auto",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=14),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.ERROR_OCCURED,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:water-thermometer",
             device_class=BinarySensorDeviceClass.PROBLEM,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=15),
@@ -134,6 +150,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
     sensors=[
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.HEATER_LOAD,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:lightning-bolt",
             state_class=SensorStateClass.MEASUREMENT,
             device_class=SensorDeviceClass.POWER,
@@ -143,6 +160,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.ANALOG_INPUT_VALUE,
+            device_key=DeviceKey.ANALOG_INPUT,
             icon="mdi:gauge",
             native_precision=0,
             state_class=SensorStateClass.MEASUREMENT,
@@ -153,6 +171,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.INTERNAL_TEMPERATUR_SENSOR_VALUE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:thermometer",
             native_precision=1,
             state_class=SensorStateClass.MEASUREMENT,
@@ -163,6 +182,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR1_VALUE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:thermometer",
             native_precision=1,
             state_class=SensorStateClass.MEASUREMENT,
@@ -173,6 +193,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR2_VALUE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:thermometer",
             native_precision=1,
             state_class=SensorStateClass.MEASUREMENT,
@@ -183,6 +204,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR3_VALUE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:thermometer",
             native_precision=1,
             state_class=SensorStateClass.MEASUREMENT,
@@ -193,6 +215,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR4_VALUE,
+            device_key=DeviceKey.WATER_BOILER,
             icon="mdi:thermometer",
             native_precision=1,
             state_class=SensorStateClass.MEASUREMENT,
@@ -205,6 +228,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
     number_inputs=[
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.SET_HEADER_STEP_VALUE,
+            device_key=DeviceKey.ENERGY_MANAGER,
             icon="mdi:lightning-bolt",
             native_min_value=0,
             native_max_value=7,
@@ -215,6 +239,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.LOAD_SETPOINT_VALUE,
+            device_key=DeviceKey.ENERGY_MANAGER,
             icon="mdi:lightning-bolt",
             native_min_value=250,
             native_max_value=30000,
@@ -225,6 +250,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.LOAD_FEEDIN_VALUE,
+            device_key=DeviceKey.ENERGY_MANAGER,
             icon="mdi:solar-power",
             native_min_value=-30000,
             native_max_value=30000,
