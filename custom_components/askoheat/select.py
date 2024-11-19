@@ -68,7 +68,7 @@ class AskoheatSelect(AskoheatEntity[AskoheatSelectEntityDescription], SelectEnti
     def _options_to_enum(self) -> dict[str, object]:
         return {
             self.platform.object_id_platform_translations.get(
-                f"{self._entity_translation_key_base}.values.{e}"
+                f"{self._entity_translation_key_base}.state.{e}"
             )
             or str(e): e
             for e in self.entity_description.api_descriptor.values  # type: ignore  # noqa: PD011, PGH003

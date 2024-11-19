@@ -17,7 +17,7 @@
     "entity": {
         "select": {
             "energy_meter_type": {
-                "values": {
+                "state": {
                     "0": "Not installed",
                     "1": "Automation One A1EM.BIDMOD",
                     "2": "Automation One A1EM.MOD",
