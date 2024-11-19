@@ -1,7 +1,5 @@
 """Askoheat time entity."""
 
-from datetime import time
-
 from homeassistant.components.text import ENTITY_ID_FORMAT, TextEntity
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -12,7 +10,6 @@ from custom_components.askoheat.const import LOGGER
 from custom_components.askoheat.coordinator import AskoheatDataUpdateCoordinator
 from custom_components.askoheat.model import (
     AskoheatTextEntityDescription,
-    AskoheatTimeEntityDescription,
 )
 
 from .data import AskoheatConfigEntry

@@ -1,7 +1,7 @@
 """Askoheat time entity."""
 
 from functools import cached_property
-import platform
+
 from homeassistant.components.select import ENTITY_ID_FORMAT, SelectEntity
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback

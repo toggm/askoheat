@@ -437,7 +437,7 @@ def _prepare_str(value: object) -> list[int]:
     byte_list = str_value.encode("utf-8")
     size = int(len(byte_list) / 2)
     result = []
-    for index in range(0, size):
+    for index in range(size):
         b = byte_list[index * 2 : index * 2 + 1]
         result.append(int.from_bytes(b, "little"))
     return result

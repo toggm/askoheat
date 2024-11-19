@@ -40,7 +40,7 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
         )
         self.entity_description = entity_description
         self.translation_key = (
-            entity_description.translation_key or entity_description.key.value  # type: ignore
+            entity_description.translation_key or entity_description.key.value  # type: ignore  # noqa: PGH003
         )
 
     async def async_added_to_hass(self) -> None:
@@ -61,10 +61,10 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
         icon_state = self._attr_state
         if hasattr(self, "_attr_is_on"):
             icon_state = self._attr_is_on  # type: ignore  # noqa: PGH003
-        if descr.icon_by_state is not None and icon_state in descr.icon_by_state:  # type: ignore
-            self._attr_icon = descr.icon_by_state.get(icon_state)  # type: ignore
+        if descr.icon_by_state is not None and icon_state in descr.icon_by_state:  # type: ignore  # noqa: PGH003
+            self._attr_icon = descr.icon_by_state.get(icon_state)  # type: ignore  # noqa: PGH003
         else:
-            self._attr_icon = descr.icon  # type: ignore
+            self._attr_icon = descr.icon  # type: ignore  # noqa: PGH003
 
         super()._handle_coordinator_update()
         self.async_write_ha_state()

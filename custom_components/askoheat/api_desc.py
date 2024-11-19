@@ -6,19 +6,21 @@ import typing
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import IntEnum, StrEnum
-from typing import TYPE_CHECKING, Callable, TypeVar
-
-import numpy
+from typing import TYPE_CHECKING, TypeVar
 
 if TYPE_CHECKING:
+    from collections.abc import Callable
+
+    import numpy as np
+
     from custom_components.askoheat.model import (
         AskoheatBinarySensorEntityDescription,
         AskoheatNumberEntityDescription,
+        AskoheatSelectEntityDescription,
         AskoheatSensorEntityDescription,
         AskoheatSwitchEntityDescription,
-        AskoheatTimeEntityDescription,
-        AskoheatSelectEntityDescription,
         AskoheatTextEntityDescription,
+        AskoheatTimeEntityDescription,
     )
 
 
@@ -90,7 +92,7 @@ E2 = TypeVar("E2", bound=IntEnum)
 class IntEnumInputDescriptor[E2](ByteRegisterInputDescriptor):
     """Input register representing a int based enum value."""
 
-    factory: Callable[[numpy.byte], E2]
+    factory: Callable[[np.byte], E2]
     values: list[E2]
 
 
