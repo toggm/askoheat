@@ -17,17 +17,29 @@ from custom_components.askoheat.api_desc import (
     ByteRegisterInputDescriptor,
     FlagRegisterInputDescriptor,
     Float32RegisterInputDescriptor,
+    IntEnumInputDescriptor,
     RegisterBlockDescriptor,
     SignedIntRegisterInputDescriptor,
+    StrEnumInputDescriptor,
+    StringRegisterInputDescriptor,
+    TimeRegisterInputDescriptor,
     UnsignedIntRegisterInputDescriptor,
 )
 from custom_components.askoheat.const import (
+    Baudrate,
+    EnergyMeterType,
     NumberAttrKey,
+    SelectAttrKey,
     SwitchAttrKey,
+    TextAttrKey,
+    TimeAttrKey,
 )
 from custom_components.askoheat.model import (
     AskoheatNumberEntityDescription,
+    AskoheatSelectEntityDescription,
     AskoheatSwitchEntityDescription,
+    AskoheatTextEntityDescription,
+    AskoheatTimeEntityDescription,
 )
 
 CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
@@ -782,9 +794,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             api_descriptor=FlagRegisterInputDescriptor(20, 7),
         ),
         ### house type settings register - end
-        ###  Summer time int 1/0 as bool
+        ###  is Summer time int 1/0 as bool, 1 hour offset
         AskoheatSwitchEntityDescription(
-            key=SwitchAttrKey.CON_SUMMER_TIME_ENABLED,
+            key=SwitchAttrKey.CON_SUMMER_TIME,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:calendar-clock",
             api_descriptor=ByteRegisterInputDescriptor(42),
@@ -855,5 +867,59 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             api_descriptor=FlagRegisterInputDescriptor(94, 4),
         ),
         ### temperature settings register - end
+    ],
+    time_inputs=[
+        AskoheatTimeEntityDescription(
+            key=TimeAttrKey.CON_LEGIO_PROTECTION_PREFERRED_START_TIME,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:timer-play",
+            api_descriptor=TimeRegisterInputDescriptor(12),
+        ),
+        AskoheatTimeEntityDescription(
+            key=TimeAttrKey.CON_LOW_TARIFF_START_TIME,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:timer-play",
+            api_descriptor=TimeRegisterInputDescriptor(52),
+        ),
+        AskoheatTimeEntityDescription(
+            key=TimeAttrKey.CON_LOW_TARIFF_END_TIME,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:timer-remove",
+            api_descriptor=TimeRegisterInputDescriptor(54),
+        ),
+    ],
+    text_inputs=[
+        AskoheatTextEntityDescription(
+            key=TextAttrKey.CON_INFO_STRING,
+            entity_category=EntityCategory.CONFIG,
+            native_max=32,
+            icon="mdi:information",
+            api_descriptor=StringRegisterInputDescriptor(
+                starting_register=22, number_of_words=16
+            ),
+        ),
+    ],
+    select_inputs=[
+        AskoheatSelectEntityDescription(
+            key=SelectAttrKey.CON_RTU_BAUDRATE,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:speedometer",
+            api_descriptor=StrEnumInputDescriptor(
+                starting_register=46,
+                number_of_words=3,
+                factory=Baudrate,
+                values=[e.value for e in Baudrate],
+            ),
+        ),
+        AskoheatSelectEntityDescription(
+            key=SelectAttrKey.CON_ENERGY_METER_TYPE,
+            entity_category=EntityCategory.CONFIG,
+            icon="mdi:list-box",
+            api_descriptor=IntEnumInputDescriptor(
+                starting_register=51,
+                factory=EnergyMeterType,
+                values=[e.value for e in EnergyMeterType],
+            ),
+        ),
     ],
 )

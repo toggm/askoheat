@@ -53,4 +53,4 @@ class AskoheatDataBlock:
     text_inputs: dict[TextAttrKey, str] | None = None
     select_inputs: dict[SelectAttrKey, ReprEnum] | None = None
     number_inputs: dict[NumberAttrKey, number] | None = None
-    time_inputs: dict[TimeAttrKey, time | None] | None = None
+    time_inputs: dict[TimeAttrKey, time] | None = None

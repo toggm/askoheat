@@ -4,15 +4,26 @@
             "user": {
                 "description": "If you need help with the configuration have a look here: https://github.com/toggm/askoheat",
                 "data": {
-                    "username": "Username",
-                    "password": "Password"
+                    "host": "host",
+                    "port": "port"
                 }
             }
         },
         "error": {
-            "auth": "Username/Password is wrong.",
-            "connection": "Unable to connect to the server.",
+            "connection": "Unable to connect to the askoheat instance.",
             "unknown": "Unknown error occurred."
+        }
+    },
+    "entity": {
+        "select": {
+            "energy_meter_type": {
+                "values": {
+                    "0": "Not installed",
+                    "1": "Automation One A1EM.BIDMOD",
+                    "2": "Automation One A1EM.MOD",
+                    "16": "Carlo Gavazzi EM300 / ET300 SERIES (e.g. EM340)"
+                }
+            }
         }
     }
 }

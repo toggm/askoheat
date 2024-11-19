@@ -231,7 +231,7 @@ class SwitchAttrKey(StrEnum):
     CON_HOUSE_TYPE_COMMERCIAL_BUILDING = "house_type_commercial_building"
     # from house type register -- end
 
-    CON_SUMMER_TIME_ENABLED = "summer_time_enabled"
+    CON_SUMMER_TIME = "is_summer_time"
 
     # from rtu settings register -- begin
     # low byte
@@ -292,7 +292,7 @@ class SensorAttrKey(StrEnum):
     EXTERNAL_TEMPERATUR_SENSOR4_VALUE = "external_temp_sensor4"
 
 
-class Baurate(StrEnum):
+class Baudrate(StrEnum):
     """Available Baudrates."""
 
     BAUD_RATE_1200 = "1200"

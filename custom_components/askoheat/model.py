@@ -2,15 +2,18 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import StrEnum
 from functools import cached_property
 from typing import TYPE_CHECKING, TypeVar
 
 from homeassistant.components.binary_sensor import BinarySensorEntityDescription
 from homeassistant.components.number import NumberEntityDescription, NumberMode
+from homeassistant.components.select import SelectEntityDescription
 from homeassistant.components.sensor import SensorEntityDescription
 from homeassistant.components.switch import SwitchEntityDescription
+from homeassistant.components.text import TextEntityDescription
+from homeassistant.components.time import TimeEntityDescription
 from homeassistant.const import Platform
 from homeassistant.helpers.entity import EntityDescription
 
@@ -18,16 +21,23 @@ from custom_components.askoheat.api_desc import (
     ByteRegisterInputDescriptor,
     FlagRegisterInputDescriptor,
     Float32RegisterInputDescriptor,
+    IntEnumInputDescriptor,
     RegisterInputDescriptor,
     SignedIntRegisterInputDescriptor,
+    StrEnumInputDescriptor,
+    StringRegisterInputDescriptor,
+    TimeRegisterInputDescriptor,
     UnsignedIntRegisterInputDescriptor,
 )
 from custom_components.askoheat.const import (
     DOMAIN,
     BinarySensorAttrKey,
     NumberAttrKey,
+    SelectAttrKey,
     SensorAttrKey,
     SwitchAttrKey,
+    TextAttrKey,
+    TimeAttrKey,
 )
 
 if TYPE_CHECKING:
@@ -142,3 +152,63 @@ class AskoheatNumberEntityDescription(
     def data_key(self) -> str:
         """Get data key."""
         return f"number.{self.key}"
+
+
+@dataclass(frozen=True)
+class AskoheatTimeEntityDescription(
+    AskoheatEntityDescription[
+        TimeAttrKey,
+        TimeRegisterInputDescriptor,
+    ],
+    TimeEntityDescription,
+):
+    """Class describing Askoheat time entities."""
+
+    key: TimeAttrKey
+    platform = Platform.TIME
+    domain = DOMAIN
+
+    @cached_property
+    def data_key(self) -> str:
+        """Get data key."""
+        return f"time.{self.key}"
+
+
+@dataclass(frozen=True)
+class AskoheatTextEntityDescription(
+    AskoheatEntityDescription[
+        TextAttrKey,
+        StringRegisterInputDescriptor,
+    ],
+    TextEntityDescription,
+):
+    """Class describing Askoheat text entities."""
+
+    key: TextAttrKey
+    platform = Platform.TEXT
+    domain = DOMAIN
+
+    @cached_property
+    def data_key(self) -> str:
+        """Get data key."""
+        return f"text.{self.key}"
+
+
+@dataclass(frozen=True)
+class AskoheatSelectEntityDescription(
+    AskoheatEntityDescription[
+        SelectAttrKey,
+        IntEnumInputDescriptor | StrEnumInputDescriptor,
+    ],
+    SelectEntityDescription,
+):
+    """Class describing Askoheat select entities."""
+
+    key: SelectAttrKey
+    platform = Platform.SELECT
+    domain = DOMAIN
+
+    @cached_property
+    def data_key(self) -> str:
+        """Get data key."""
+        return f"select.{self.key}"

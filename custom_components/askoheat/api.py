@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 from datetime import time
-from enum import StrEnum
-from typing import TYPE_CHECKING, Any, Coroutine, TypeVar, cast
+from enum import ReprEnum
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import numpy as np
 from numpy import number
@@ -15,27 +15,23 @@ from custom_components.askoheat.api_desc import (
     ByteRegisterInputDescriptor,
     FlagRegisterInputDescriptor,
     Float32RegisterInputDescriptor,
+    IntEnumInputDescriptor,
     RegisterBlockDescriptor,
     RegisterInputDescriptor,
     SignedIntRegisterInputDescriptor,
+    StrEnumInputDescriptor,
     StringRegisterInputDescriptor,
+    TimeRegisterInputDescriptor,
     UnsignedIntRegisterInputDescriptor,
 )
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import (
     LOGGER,
-    Baurate,
-    BinarySensorAttrKey,
-    EnergyMeterType,
-    SelectAttrKey,
-    SwitchAttrKey,
-    TextAttrKey,
-    TimeAttrKey,
 )
 from custom_components.askoheat.data import AskoheatDataBlock
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Coroutine
 
     from pymodbus.pdu import ModbusPDU
 
@@ -111,7 +107,9 @@ class AskoHeatModbusApiClient:
     ) -> AskoheatDataBlock:
         """Write EMA parameter."""
         LOGGER.debug(
-            f"async write config parameter at {api_desc.starting_register}, value={value}"
+            "async write config parameter at %i, value=%r",
+            api_desc.starting_register,
+            value,
         )
         register_values = await self._prepare_register_value(
             api_desc,
@@ -176,28 +174,28 @@ class AskoHeatModbusApiClient:
         read_current_register_value: Callable[..., Coroutine[Any, Any, int]],
     ) -> list[int | bytes]:
         match desc:
-            case FlagRegisterInputDescriptor(starting_register, bit):
+            case FlagRegisterInputDescriptor(_, bit):
                 # first re-read value as this register might have changed
                 current_value = await read_current_register_value()
                 result = _prepare_flag(
                     register_value=current_value, flag=value, index=bit
                 )
-            case ByteRegisterInputDescriptor(starting_register):
+            case ByteRegisterInputDescriptor():
                 result = _prepare_byte(value)
-            case UnsignedIntRegisterInputDescriptor(starting_register):
+            case UnsignedIntRegisterInputDescriptor():
                 result = _prepare_uint16(value)
-            case SignedIntRegisterInputDescriptor(starting_register):
+            case SignedIntRegisterInputDescriptor():
                 result = _prepare_int16(value)
-            case Float32RegisterInputDescriptor(starting_register):
+            case Float32RegisterInputDescriptor():
                 result = _prepare_float32(value)
-            case StringRegisterInputDescriptor(starting_register, number_of_bytes):
-                # TODO Support
-                # result = _read_str(
-                #    data.registers[
-                #        starting_register : starting_register + number_of_bytes + 1
-                #    ]
-                # )
-                result = []
+            case StringRegisterInputDescriptor():
+                result = _prepare_str(value)
+            case TimeRegisterInputDescriptor(value):
+                result = _prepare_time(value)
+            case StrEnumInputDescriptor():
+                result = _prepare_str(value.value)  # type: ignore  # noqa: PGH003
+            case IntEnumInputDescriptor():
+                result = _prepare_byte(value.value)  # type: ignore  # noqa: PGH003
             case _:
                 LOGGER.error("Cannot read number input from descriptor %r", desc)
                 result = []
@@ -238,82 +236,47 @@ class AskoHeatModbusApiClient:
             }.items()
             if v is not None
         }
+        text_inputs = {
+            k: v
+            for k, v in {
+                item.key: _read_register_string_input(data, item.api_descriptor)  # type: ignore  # noqa: PGH003
+                for item in descr.text_inputs
+            }.items()
+            if v is not None
+        }
+        time_inputs = {
+            k: v
+            for k, v in {
+                item.key: _read_register_time_input(data, item.api_descriptor)  # type: ignore  # noqa: PGH003
+                for item in descr.time_inputs
+            }.items()
+            if v is not None
+        }
+        select_inputs = {
+            k: v
+            for k, v in {
+                item.key: _read_register_enum_input(data, item.api_descriptor)  # type: ignore  # noqa: PGH003
+                for item in descr.select_inputs
+            }.items()
+            if v is not None
+        }
         return AskoheatDataBlock(
             binary_sensors=binary_sensors,
             sensors=sensors,
             switches=switches,
             number_inputs=number_inputs,
+            text_inputs=text_inputs,
+            time_inputs=time_inputs,
+            select_inputs=select_inputs,
         )
-
-    def __map_config_data(self, data: ModbusPDU) -> AskoheatDataBlock:
-        """Map modbus result of config data block."""
-        return AskoheatDataBlock(
-            number_inputs={},
-            switches={},
-            # TODO: Move/merge to api_conf_desc.py
-            time_inputs={
-                TimeAttrKey.CON_LEGIO_PROTECTION_PREFERRED_START_TIME: _read_time(
-                    register_value_hours=data.registers[12],
-                    register_value_minutes=data.registers[13],
-                ),
-                TimeAttrKey.CON_LOW_TARIFF_START_TIME: time(
-                    hour=_read_byte(data.registers[52]),
-                    minute=_read_byte(data.registers[53]),
-                ),
-                TimeAttrKey.CON_LOW_TARIFF_END_TIME: time(
-                    hour=_read_byte(data.registers[54]),
-                    minute=_read_byte(data.registers[55]),
-                ),
-            },
-            # TODO: Move/merge to api_conf_desc.py
-            text_inputs={
-                TextAttrKey.CON_INFO_STRING: _read_str(data.registers[22:38]),
-            },
-            # TODO: Move/merge to api_conf_desc.py
-            select_inputs={
-                SelectAttrKey.CON_RTU_BAUDRATE: _read_enum(
-                    data.registers[46:49], Baurate
-                ),
-                SelectAttrKey.CON_ENERGY_METER_TYPE: EnergyMeterType(
-                    _read_byte(data.registers[51])
-                ),
-            },
-        )
-
-    def _map_register_to_status(
-        self, register_value: int
-    ) -> dict[BinarySensorAttrKey, bool]:
-        """Map modbus register status."""
-        return {
-            # low byte values
-            BinarySensorAttrKey.HEATER1_ACTIVE: _read_flag(register_value, 0),
-            BinarySensorAttrKey.HEATER2_ACTIVE: _read_flag(register_value, 1),
-            BinarySensorAttrKey.HEATER3_ACTIVE: _read_flag(register_value, 2),
-            BinarySensorAttrKey.PUMP_ACTIVE: _read_flag(register_value, 3),
-            BinarySensorAttrKey.RELAY_BOARD_CONNECTED: _read_flag(register_value, 4),
-            # bit 5 ignored
-            BinarySensorAttrKey.HEAT_PUMP_REQUEST_ACTIVE: _read_flag(register_value, 6),
-            BinarySensorAttrKey.EMERGENCY_MODE_ACTIVE: _read_flag(register_value, 7),
-            # high byte values
-            BinarySensorAttrKey.LEGIONELLA_PROTECTION_ACTIVE: _read_flag(
-                register_value, 8
-            ),
-            BinarySensorAttrKey.ANALOG_INPUT_ACTIVE: _read_flag(register_value, 9),
-            BinarySensorAttrKey.SETPOINT_ACTIVE: _read_flag(register_value, 10),
-            BinarySensorAttrKey.LOAD_FEEDIN_ACTIVE: _read_flag(register_value, 11),
-            BinarySensorAttrKey.AUTOHEATER_ACTIVE: _read_flag(register_value, 12),
-            BinarySensorAttrKey.PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE: _read_flag(
-                register_value, 13
-            ),
-            BinarySensorAttrKey.TEMP_LIMIT_REACHED: _read_flag(register_value, 14),
-            BinarySensorAttrKey.ERROR_OCCURED: _read_flag(register_value, 15),
-        }
 
 
 def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> object:
     match desc:
         case FlagRegisterInputDescriptor(starting_register, bit):
             result = _read_flag(data.registers[starting_register], bit)
+        case IntEnumInputDescriptor(starting_register, factory):
+            result = factory(_read_byte(data.registers[starting_register]))
         case ByteRegisterInputDescriptor(starting_register):
             result = _read_byte(data.registers[starting_register])
         case UnsignedIntRegisterInputDescriptor(starting_register):
@@ -324,11 +287,22 @@ def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> obje
             result = _read_float32(
                 data.registers[starting_register : starting_register + 2]
             )
-        case StringRegisterInputDescriptor(starting_register, number_of_bytes):
+        case StrEnumInputDescriptor(starting_register, number_of_words, factory):
+            result = factory(
+                _read_str(
+                    data.registers[
+                        starting_register : starting_register + number_of_words
+                    ]
+                )
+            )
+        case StringRegisterInputDescriptor(starting_register, number_of_words):
             result = _read_str(
-                data.registers[
-                    starting_register : starting_register + number_of_bytes + 1
-                ]
+                data.registers[starting_register : starting_register + number_of_words]
+            )
+        case TimeRegisterInputDescriptor(starting_register):
+            result = _read_time(
+                register_value_hours=data.registers[starting_register],
+                register_value_minutes=data.registers[starting_register + 1],
             )
         case _:
             LOGGER.error("Cannot read number input from descriptor %r", desc)
@@ -369,11 +343,67 @@ def _read_register_number_input(
     return None
 
 
+def _read_register_string_input(
+    data: ModbusPDU, desc: RegisterInputDescriptor
+) -> str | None:
+    result = _read_register_input(data, desc)
+    if isinstance(result, str):
+        return result
+
+    LOGGER.error(
+        "Cannot read str input from descriptor %r, unsupported value %r",
+        desc,
+        result,
+    )
+    return None
+
+
+def _read_register_time_input(
+    data: ModbusPDU, desc: RegisterInputDescriptor
+) -> time | None:
+    result = _read_register_input(data, desc)
+    if isinstance(result, time):
+        return result
+
+    LOGGER.error(
+        "Cannot read time input from descriptor %r, unsupported value %r",
+        desc,
+        result,
+    )
+    return None
+
+
+def _read_register_enum_input(
+    data: ModbusPDU, desc: RegisterInputDescriptor
+) -> ReprEnum | None:
+    result = _read_register_input(data, desc)
+    if isinstance(result, ReprEnum):
+        return result
+
+    LOGGER.error(
+        "Cannot read enum input from descriptor %r, unsupported value %r",
+        desc,
+        result,
+    )
+    return None
+
+
 def _read_time(register_value_hours: int, register_value_minutes: int) -> time | None:
     """Read register values as string and parse as time."""
     hours = _read_uint16(register_value_hours)
     minutes = _read_uint16(register_value_minutes)
     return time(hour=hours, minute=minutes)
+
+
+def _prepare_time(value: object) -> list[int]:
+    """Prepare time represented as two register values for writing to registers."""
+    if not isinstance(value, time):
+        LOGGER.error(
+            "Cannot convert value %s as time, wrong datatype %r", value, type(value)
+        )
+        return []
+    time_value = cast(time, value)
+    return _prepare_uint16(time_value.hour).__add__(_prepare_uint16(time_value.minute))
 
 
 T = TypeVar("T")
@@ -387,13 +417,30 @@ def _read_enum(register_values: list[int], factory: Callable[[str], T]) -> T:
 
 def _read_str(register_values: list[int]) -> str:
     """Read register values as str."""
-    # custom implementation as strings a represented with little endian
+    # custom implementation as strings are represented with little endian
     byte_list = bytearray()
     for x in register_values:
         byte_list.extend(int.to_bytes(x, 2, "little"))
     if byte_list[-1:] == b"\00":
         byte_list = byte_list[:-1]
     return byte_list.decode("utf-8")
+
+
+def _prepare_str(value: object) -> list[int]:
+    """Prepare string value for writing to registers."""
+    if not isinstance(value, str):
+        LOGGER.error(
+            "Cannot convert value %s as string, wrong datatype %r", value, type(value)
+        )
+        return []
+    str_value = cast(str, value)
+    byte_list = str_value.encode("utf-8")
+    size = int(len(byte_list) / 2)
+    result = []
+    for index in range(0, size):
+        b = byte_list[index * 2 : index * 2 + 1]
+        result.append(int.from_bytes(b, "little"))
+    return result
 
 
 def _read_byte(register_value: int) -> np.byte:
@@ -406,12 +453,16 @@ def _read_byte(register_value: int) -> np.byte:
 
 
 def _prepare_byte(value: object) -> list[int]:
-    """Prepare byte value to be able to write to a register."""
-    if not isinstance(value, number | float):
+    """Prepare byte value for writing to registers."""
+    if not isinstance(value, number | float | bool):
         LOGGER.error(
             "Cannot convert value %s as byte, wrong datatype %r", value, type(value)
         )
         return []
+
+    # special case, map true to 1 and false to 0
+    if isinstance(value, bool):
+        value = 1 if value else 0
 
     return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.INT16)
 
@@ -426,7 +477,7 @@ def _read_int16(register_value: int) -> np.int16:
 
 
 def _prepare_int16(value: object) -> list[int]:
-    """Prepare signed int value to be able to write to a register."""
+    """Prepare signed int value for writing to registers."""
     if not isinstance(value, number | float):
         LOGGER.error(
             "Cannot convert value %s as signed int, wrong datatype %r",
@@ -447,7 +498,7 @@ def _read_uint16(register_value: int) -> np.uint16:
 
 
 def _prepare_uint16(value: object) -> list[int]:
-    """Prepare unsigned int value to be able to write to a register."""
+    """Prepare unsigned int value for writing to registers."""
     if not isinstance(value, number | float):
         LOGGER.error(
             "Cannot convert value %s as unsigned int, wrong datatype %r",
@@ -469,7 +520,7 @@ def _read_float32(register_values: list[int]) -> np.float32:
 
 
 def _prepare_float32(value: object) -> list[int]:
-    """Prepare float32 value to be able to write to a register."""
+    """Prepare float32 value writing to registers."""
     if not isinstance(value, number | float):
         LOGGER.error(
             "Cannot convert value %s as float32, wrong datatype %r", value, type(value)
@@ -486,7 +537,7 @@ def _read_flag(register_value: int, index: int) -> bool:
 
 
 def _prepare_flag(register_value: int, flag: object, index: int) -> list[int]:
-    """Prepare flag value to be able to write to a register, mask with current value."""
+    """Prepare flag value as mask with current value for writing to a register."""
     if not isinstance(flag, bool):
         LOGGER.error(
             "Cannot convert value %s as flag, wrong datatype %r",

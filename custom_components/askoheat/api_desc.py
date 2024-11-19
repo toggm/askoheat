@@ -5,8 +5,10 @@ from __future__ import annotations
 import typing
 from abc import ABC
 from dataclasses import dataclass, field
-from enum import StrEnum
-from typing import TYPE_CHECKING
+from enum import IntEnum, StrEnum
+from typing import TYPE_CHECKING, Callable, TypeVar
+
+import numpy
 
 if TYPE_CHECKING:
     from custom_components.askoheat.model import (
@@ -14,6 +16,9 @@ if TYPE_CHECKING:
         AskoheatNumberEntityDescription,
         AskoheatSensorEntityDescription,
         AskoheatSwitchEntityDescription,
+        AskoheatTimeEntityDescription,
+        AskoheatSelectEntityDescription,
+        AskoheatTextEntityDescription,
     )
 
 
@@ -59,7 +64,34 @@ class UnsignedIntRegisterInputDescriptor(RegisterInputDescriptor):
 class StringRegisterInputDescriptor(RegisterInputDescriptor):
     """Input register representing a string."""
 
-    number_of_bytes: int
+    number_of_words: int
+
+
+@dataclass(frozen=True)
+class TimeRegisterInputDescriptor(RegisterInputDescriptor):
+    """Input register representing a time string combined of two following registers."""
+
+
+E = TypeVar("E", bound=StrEnum)
+
+
+@dataclass(frozen=True)
+class StrEnumInputDescriptor[E](StringRegisterInputDescriptor):
+    """Input register representing a string based enum value."""
+
+    factory: Callable[[str], E]
+    values: list[E]
+
+
+E2 = TypeVar("E2", bound=IntEnum)
+
+
+@dataclass(frozen=True)
+class IntEnumInputDescriptor[E2](ByteRegisterInputDescriptor):
+    """Input register representing a int based enum value."""
+
+    factory: Callable[[numpy.byte], E2]
+    values: list[E2]
 
 
 @dataclass(frozen=True)
@@ -75,18 +107,10 @@ class RegisterBlockDescriptor:
     sensors: list[AskoheatSensorEntityDescription] = field(default_factory=list)
     switches: list[AskoheatSwitchEntityDescription] = field(default_factory=list)
     number_inputs: list[AskoheatNumberEntityDescription] = field(default_factory=list)
+    time_inputs: list[AskoheatTimeEntityDescription] = field(default_factory=list)
+    text_inputs: list[AskoheatTextEntityDescription] = field(default_factory=list)
+    select_inputs: list[AskoheatSelectEntityDescription] = field(default_factory=list)
 
     def absolute_register_index(self, desc: RegisterInputDescriptor) -> int:
         """Return absolute index of register."""
         return self.starting_register + desc.starting_register
-
-    # TODO: add more type of inputs as soon as supported
-    # text_inputs: list[TextAttrKey, RegisterInputDescriptor] = field(
-    #    default_factory=dict
-    # )
-    # select_inputs: dict[SelectAttrKey, RegisterInputDescriptor] = field(
-    #    default_factory=dict
-    # )
-    # time_inputs: dict[TimeAttrKey, RegisterInputDescriptor] = field(
-    #    default_factory=dict
-    # )
