@@ -12,12 +12,14 @@ from typing import TYPE_CHECKING
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.loader import async_get_loaded_integration
 
-from .api import AskoHeatModbusApiClient
 from .coordinator import (
     AskoheatConfigDataUpdateCoordinator,
     AskoheatEMADataUpdateCoordinator,
+    AskoheatParameterDataUpdateCoordinator,
 )
 from .data import AskoheatData
+
+from .api import AskoHeatModbusApiClient
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
@@ -42,6 +44,7 @@ async def async_setup_entry(
     entry: AskoheatConfigEntry,
 ) -> bool:
     """Set up this integration using UI."""
+    par_coordinator = AskoheatParameterDataUpdateCoordinator(hass=hass)
     ema_coordinator = AskoheatEMADataUpdateCoordinator(
         hass=hass,
     )
@@ -54,10 +57,12 @@ async def async_setup_entry(
         integration=async_get_loaded_integration(hass, entry.domain),
         ema_coordinator=ema_coordinator,
         config_coordinator=config_coordinator,
+        par_coordinator=par_coordinator,
     )
     await entry.runtime_data.client.connect()
 
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
+    await par_coordinator.async_config_entry_first_refresh()
     await ema_coordinator.async_config_entry_first_refresh()
     await config_coordinator.async_config_entry_first_refresh()
 

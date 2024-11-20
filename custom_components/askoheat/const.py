@@ -18,6 +18,8 @@ SCAN_INTERVAL_EMA = timedelta(seconds=5)
 SCAN_INTERVAL_CONFIG = timedelta(hours=1)
 SCAN_INTERVAL_DATA = timedelta(minutes=1)
 
+CONF_DEVICE_UNIQUE_ID = "device_unique_id"
+
 
 class NumberAttrKey(StrEnum):
     """Askoheat number entities attribute keys."""
@@ -257,7 +259,7 @@ class BinarySensorAttrKey(StrEnum):
     """Askoheat binary sensor attribute keys."""
 
     # -----------------------------------------------
-    # EMA block enums
+    # EMA block binary sensors
     # -----------------------------------------------
     # from status register -- begin
     HEATER1_ACTIVE = "status.heater1"
@@ -277,6 +279,19 @@ class BinarySensorAttrKey(StrEnum):
     ERROR_OCCURED = "status.error"
     # from status register -- end
 
+    # -----------------------------------------------
+    # PAR block binary sensors
+    # -----------------------------------------------
+    # from type register -- begin
+    PAR_TYPE_3_STAGE_VERSION = "type_3_stage_version"
+    PAR_TYPE_7_STAGE_VERSION = "type_7_stage_version"
+    PAR_HEATER_TYPE_FLANGE = "heater_type_flange"
+    PAR_HEATER_TYPE_SCREW_IN = "heater_type_screw_in"
+    PAR_WIRED_AS_STAR_CONNECTION = "wired_as_star_connection"
+    PAR_WIRED_AS_DELTA_CONECTION = "wired_as_delta_connection"
+    PAR_TYPE_OEM_VERSION = "oem_version"
+    # from type register -- end
+
 
 class SensorAttrKey(StrEnum):
     """Askoheat sensor attribute keys."""
@@ -290,6 +305,24 @@ class SensorAttrKey(StrEnum):
     EXTERNAL_TEMPERATUR_SENSOR2_VALUE = "external_temp_sensor2"
     EXTERNAL_TEMPERATUR_SENSOR3_VALUE = "external_temp_sensor3"
     EXTERNAL_TEMPERATUR_SENSOR4_VALUE = "external_temp_sensor4"
+
+    # -----------------------------------------------
+    # PAR block enums
+    # -----------------------------------------------
+    PAR_ID = "serial_number"
+    PAR_HEATER1_POWER = "heater1_power"
+    PAR_HEATER2_POWER = "heater2_power"
+    PAR_HEATER3_POWER = "heater3_power"
+    PAR_HEATER4_POWER = "heater4_power"
+    PAR_HEATER5_POWER = "heater5_power"
+    PAR_HEATER6_POWER = "heater6_power"
+    PAR_ARTICLE_NUMBER = "article_number"
+    PAR_ARTICLE_NAME = "article_name"
+    PAR_SOFTWARE_VERSION = "software_version"
+    PAR_HARDWARE_VERSION = "hardware_version"
+    PAR_NUMBER_OF_STEPS = "number_of_steps"
+    PAR_NUMBER_OF_HEATER = "number_of_heater"
+    PAR_MAX_POWER = "max_power"
 
 
 class Baudrate(StrEnum):

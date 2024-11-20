@@ -10,6 +10,7 @@ from homeassistant.core import callback
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_par_desc import PARAMETER_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.model import AskoheatSensorEntityDescription
 
 from .entity import AskoheatEntity
@@ -30,17 +31,24 @@ async def async_setup_entry(
     """Set up the sensor platform."""
     async_add_entities(
         AskoheatSensor(
-            coordinator=entry.runtime_data.ema_coordinator,
+            entry=entry,
+            coordinator=coordinator,
             entity_description=entity_description,
         )
-        for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.sensors
-    )
-    async_add_entities(
-        AskoheatSensor(
-            coordinator=entry.runtime_data.config_coordinator,
-            entity_description=entity_description,
-        )
-        for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.sensors
+        for entity_description, coordinator in {
+            **{
+                entity_description: entry.runtime_data.par_coordinator
+                for entity_description in PARAMETER_REGISTER_BLOCK_DESCRIPTOR.sensors
+            },
+            **{
+                entity_description: entry.runtime_data.ema_coordinator
+                for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.sensors
+            },
+            **{
+                entity_description: entry.runtime_data.config_coordinator
+                for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.sensors
+            },
+        }.items()
     )
 
 
@@ -51,12 +59,15 @@ class AskoheatSensor(AskoheatEntity[AskoheatSensorEntityDescription], SensorEnti
 
     def __init__(
         self,
+        entry: AskoheatConfigEntry,
         coordinator: AskoheatDataUpdateCoordinator,
         entity_description: AskoheatSensorEntityDescription,
     ) -> None:
         """Initialize the sensor class."""
-        super().__init__(coordinator, entity_description)
-        self.entity_id = ENTITY_ID_FORMAT.format(entity_description.key)
+        super().__init__(entry, coordinator, entity_description)
+        self.entity_id = ENTITY_ID_FORMAT.format(
+            f"{self._device_unique_id}_{entity_description.key}"
+        )
         self._attr_unique_id = self.entity_id
 
     @callback

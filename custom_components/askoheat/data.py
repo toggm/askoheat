@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from custom_components.askoheat.coordinator import (
         AskoheatConfigDataUpdateCoordinator,
         AskoheatEMADataUpdateCoordinator,
+        AskoheatParameterDataUpdateCoordinator,
     )
 
     from .api import AskoHeatModbusApiClient
@@ -40,6 +41,7 @@ class AskoheatData:
     client: AskoHeatModbusApiClient
     ema_coordinator: AskoheatEMADataUpdateCoordinator
     config_coordinator: AskoheatConfigDataUpdateCoordinator
+    par_coordinator: AskoheatParameterDataUpdateCoordinator
     integration: Integration
 
 

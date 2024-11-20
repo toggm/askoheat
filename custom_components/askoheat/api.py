@@ -25,6 +25,7 @@ from custom_components.askoheat.api_desc import (
     UnsignedIntRegisterInputDescriptor,
 )
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_par_desc import PARAMETER_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import (
     LOGGER,
 )
@@ -92,6 +93,15 @@ class AskoHeatModbusApiClient:
                 register_values,
             )
         return await self.async_read_ema_data()
+
+    async def async_read_par_data(self) -> AskoheatDataBlock:
+        """Read PAR states."""
+        data = await self.__async_read_input_registers_data(
+            PARAMETER_REGISTER_BLOCK_DESCRIPTOR.starting_register,
+            PARAMETER_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
+        )
+        LOGGER.debug("async_read_par_data %s", data)
+        return self.__map_data(PARAMETER_REGISTER_BLOCK_DESCRIPTOR, data)
 
     async def async_read_config_data(self) -> AskoheatDataBlock:
         """Read EMA states."""
@@ -407,12 +417,6 @@ def _prepare_time(value: object) -> list[int]:
 
 
 T = TypeVar("T")
-
-
-def _read_enum(register_values: list[int], factory: Callable[[str], T]) -> T:
-    """Read register values as enum."""
-    str_value = _read_str(register_values)
-    return factory(str_value)
 
 
 def _read_str(register_values: list[int]) -> str:

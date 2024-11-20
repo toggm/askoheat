@@ -10,8 +10,9 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.askoheat.model import AskoheatEntityDescription
 
-from .const import ATTRIBUTION, DeviceKey
+from .const import ATTRIBUTION, CONF_DEVICE_UNIQUE_ID, LOGGER, DeviceKey
 from .coordinator import AskoheatDataUpdateCoordinator
+from .data import AskoheatConfigEntry
 
 E = TypeVar("E", bound=AskoheatEntityDescription)
 
@@ -24,17 +25,18 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
 
     def __init__(
         self,
+        entry: AskoheatConfigEntry,
         coordinator: AskoheatDataUpdateCoordinator,
         entity_description: E,
     ) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self._attr_unique_id = coordinator.config_entry.entry_id
+        self._device_unique_id = entry.data.get(CONF_DEVICE_UNIQUE_ID) or "unkown"
         self._attr_device_info = DeviceInfo(
             identifiers={
                 (
                     coordinator.config_entry.domain,
-                    f"{entity_description.device_key}.{coordinator.config_entry.entry_id}",
+                    f"{entity_description.device_key}.{coordinator.config_entry.entry_id}",  # type: ignore  # noqa: PGH003
                 ),
             },
             translation_key=entity_description.device_key,  # type: ignore  # noqa: PGH003
@@ -44,6 +46,7 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
         self.translation_key = (
             entity_description.translation_key or entity_description.key.value  # type: ignore  # noqa: PGH003
         )
+        self.has_entity_name = True
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""

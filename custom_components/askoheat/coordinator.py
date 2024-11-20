@@ -9,6 +9,7 @@ import async_timeout
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
 from .api import (
+    AskoHeatModbusApiClient,
     AskoheatModbusApiClientError,
 )
 from .const import DOMAIN, LOGGER, SCAN_INTERVAL_CONFIG, SCAN_INTERVAL_EMA
@@ -31,7 +32,7 @@ class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
     config_entry: AskoheatConfigEntry
     _writing: bool = False
 
-    def __init__(self, hass: HomeAssistant, scan_interval: timedelta) -> None:
+    def __init__(self, hass: HomeAssistant, scan_interval: timedelta | None) -> None:
         """Initialize."""
         super().__init__(
             hass=hass,
@@ -53,8 +54,6 @@ class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
 
 class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
     """Class to manage fetching askoheat energymanager states."""
-
-    config_entry: AskoheatConfigEntry
 
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize."""
@@ -90,9 +89,7 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
 
 
 class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
-    """Class to manage fetching askoheat energymanager states."""
-
-    config_entry: AskoheatConfigEntry
+    """Class to manage fetching askoheat configuration states."""
 
     def __init__(self, hass: HomeAssistant) -> None:
         """Initialize."""
@@ -129,6 +126,31 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
             raise UpdateFailed(exception) from exception
         finally:
             self._writing = False
+
+
+class AskoheatParameterDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
+    """Class to manage fetching askoheat parameter states."""
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        """Initialize."""
+        super().__init__(hass=hass, scan_interval=None)
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Update parameter data via library."""
+        return await self.load_parameters(self.config_entry.runtime_data.client)
+
+    async def load_parameters(self, client: AskoHeatModbusApiClient) -> dict[str, Any]:
+        """Load askoheat parameters through provided client."""
+        try:
+            async with async_timeout.timeout(10):
+                data = await client.async_read_par_data()
+                return _map_data_block_to_dict(data)
+        except AskoheatModbusApiClientError as exception:
+            raise UpdateFailed(exception) from exception
+
+    async def async_write(self, _: RegisterInputDescriptor, __: object) -> None:
+        """Write parameter par block of Askoheat."""
+        raise UpdateFailed("Writing values to parameters not allowed")
 
 
 def _map_data_block_to_dict(data: AskoheatDataBlock) -> dict[str, Any]:

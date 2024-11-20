@@ -111,7 +111,8 @@ class AskoheatSensorEntityDescription(
         ByteRegisterInputDescriptor
         | UnsignedIntRegisterInputDescriptor
         | SignedIntRegisterInputDescriptor
-        | Float32RegisterInputDescriptor,
+        | Float32RegisterInputDescriptor
+        | StringRegisterInputDescriptor,
     ],
     SensorEntityDescription,
 ):
@@ -122,6 +123,9 @@ class AskoheatSensorEntityDescription(
     factor: float | None = None
     native_precision: int | None = None
     domain = DOMAIN
+
+    native_max_value: float | None = None
+    native_min_value: float | None = None
 
     @cached_property
     def data_key(self) -> str:

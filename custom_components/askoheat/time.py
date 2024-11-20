@@ -24,17 +24,20 @@ async def async_setup_entry(
     """Set up the text platform."""
     async_add_entities(
         AskoheatTime(
-            coordinator=entry.runtime_data.ema_coordinator,
+            entry=entry,
+            coordinator=coordinator,
             entity_description=entity_description,
         )
-        for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.time_inputs
-    )
-    async_add_entities(
-        AskoheatTime(
-            coordinator=entry.runtime_data.config_coordinator,
-            entity_description=entity_description,
-        )
-        for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.time_inputs
+        for entity_description, coordinator in {
+            **{
+                entity_description: entry.runtime_data.ema_coordinator
+                for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.time_inputs
+            },
+            **{
+                entity_description: entry.runtime_data.config_coordinator
+                for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.time_inputs
+            },
+        }.items()
     )
 
 
@@ -43,12 +46,15 @@ class AskoheatTime(AskoheatEntity[AskoheatTimeEntityDescription], TimeEntity):
 
     def __init__(
         self,
+        entry: AskoheatConfigEntry,
         coordinator: AskoheatDataUpdateCoordinator,
         entity_description: AskoheatTimeEntityDescription,
     ) -> None:
         """Initialize the time class."""
-        super().__init__(coordinator, entity_description)
-        self.entity_id = ENTITY_ID_FORMAT.format(entity_description.key)
+        super().__init__(entry, coordinator, entity_description)
+        self.entity_id = ENTITY_ID_FORMAT.format(
+            f"{self._device_unique_id}_{entity_description.key}"
+        )
         self._attr_unique_id = self.entity_id
 
     @callback

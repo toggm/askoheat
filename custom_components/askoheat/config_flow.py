@@ -7,12 +7,23 @@ from homeassistant import config_entries, data_entry_flow
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.helpers import selector
 
+from custom_components.askoheat.coordinator import (
+    AskoheatParameterDataUpdateCoordinator,
+)
+
 from .api import (
     AskoHeatModbusApiClient,
     AskoheatModbusApiClientCommunicationError,
     AskoheatModbusApiClientError,
 )
-from .const import DEFAULT_HOST, DEFAULT_PORT, DOMAIN, LOGGER
+from .const import (
+    CONF_DEVICE_UNIQUE_ID,
+    DEFAULT_HOST,
+    DEFAULT_PORT,
+    DOMAIN,
+    LOGGER,
+    SensorAttrKey,
+)
 
 PORT_SELECTOR = vol.All(
     selector.NumberSelector(
@@ -44,10 +55,14 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         _errors = {}
         if user_input is not None:
             try:
-                await self._test_connection(
-                    host=user_input[CONF_HOST],
-                    port=user_input[CONF_PORT],
+                client = AskoHeatModbusApiClient(
+                    host=user_input[CONF_HOST], port=user_input[CONF_PORT]
                 )
+                await client.connect()
+                coordinator = AskoheatParameterDataUpdateCoordinator(self.hass)
+                parameters = await coordinator.load_parameters(client)
+
+                client.close()
             except AskoheatModbusApiClientCommunicationError as exception:
                 LOGGER.error(exception)
                 _errors["base"] = "connection"
@@ -55,9 +70,25 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
+                article_name = parameters[f"sensors.{SensorAttrKey.PAR_ARTICLE_NAME}"]
+                article_number = parameters[
+                    f"sensors.{SensorAttrKey.PAR_ARTICLE_NUMBER}"
+                ]
+                serial_number = parameters[f"sensors.{SensorAttrKey.PAR_ID}"]
+                unique_id = serial_number.lower().replace("-", "_")
+
+                await self.async_set_unique_id(unique_id)
+                self._abort_if_unique_id_configured()
+
+                self._title = title = f"{article_name} {article_number} {serial_number}"
+                name = f"{title} ({user_input[CONF_HOST]}:{user_input[CONF_PORT]})"
+
+                self.context["data"][CONF_DEVICE_UNIQUE_ID] = unique_id
+
                 return self.async_create_entry(
-                    title=user_input[CONF_HOST],
+                    title=title,
                     data=user_input,
+                    description_placeholders={"name": name},
                 )
 
         return self.async_show_form(
@@ -65,9 +96,3 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=_errors,
         )
-
-    async def _test_connection(self, host: str, port: int) -> None:
-        """Validate connection settings."""
-        client = AskoHeatModbusApiClient(host=host, port=port)
-        await client.connect()
-        client.close()
