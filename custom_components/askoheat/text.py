@@ -6,6 +6,7 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_par_desc import PARAMETER_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import LOGGER
 from custom_components.askoheat.coordinator import AskoheatDataUpdateCoordinator
 from custom_components.askoheat.model import (
@@ -29,6 +30,10 @@ async def async_setup_entry(
             entity_description=entity_description,
         )
         for entity_description, coordinator in {
+            **{
+                entity_description: entry.runtime_data.par_coordinator
+                for entity_description in PARAMETER_REGISTER_BLOCK_DESCRIPTOR.text_inputs
+            },
             **{
                 entity_description: entry.runtime_data.ema_coordinator
                 for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.text_inputs

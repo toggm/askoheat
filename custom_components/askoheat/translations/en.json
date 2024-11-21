@@ -24,6 +24,22 @@
                     "16": "Carlo Gavazzi EM300 / ET300 SERIES (e.g. EM340)"
                 }
             }
+        },
+        "binary_sensor": {
+            "status.heater1": {
+                "name": "Status heater 1"
+            },
+            "status.heater2": {
+                "name": "Status heater 2"
+            },
+            "status.heater3": {
+                "name": "Status heater 3"
+            }
+        },
+        "text": {
+            "info_string": {
+                "name": "Info string"
+            }
         }
     }
 }

@@ -373,8 +373,8 @@ class DeviceKey(StrEnum):
     """Device keys."""
 
     MODBUS_MASTER = "modbus_master"
-    HEAT_PUMP = "heat_pump"
-    ANALOG_INPUT = "analog_input"
+    HEAT_PUMP_CONTROL_UNIT = "heat_pump_control_unit"
+    ANALOG_INPUT_CONTROL_UNIT = "analog_input_control_unit"
     ENERGY_MANAGER = "energy_manager"
-    WATER_BOILER = "water_boiler"
-    LEGIO_PROTECTION = "legio_protection"
+    WATER_HEATER_CONTROL_UNIT = "water_heater_control_unit"
+    LEGIO_PROTECTION_CONTROL_UNIT = "legio_protection_control_unit"

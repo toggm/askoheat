@@ -70,20 +70,22 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
-                article_name = parameters[f"sensors.{SensorAttrKey.PAR_ARTICLE_NAME}"]
+                LOGGER.debug(
+                    "Successfully connected to askoheat instance, received parameters: %s",
+                    parameters,
+                )
+                article_name = parameters[f"sensor.{SensorAttrKey.PAR_ARTICLE_NAME}"]
                 article_number = parameters[
-                    f"sensors.{SensorAttrKey.PAR_ARTICLE_NUMBER}"
+                    f"sensor.{SensorAttrKey.PAR_ARTICLE_NUMBER}"
                 ]
-                serial_number = parameters[f"sensors.{SensorAttrKey.PAR_ID}"]
-                unique_id = serial_number.lower().replace("-", "_")
+                serial_number = parameters[f"sensor.{SensorAttrKey.PAR_ID}"]
+                unique_id = serial_number.lower().replace("-", "_").replace(".", "_")
 
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured()
 
                 self._title = title = f"{article_name} {article_number} {serial_number}"
                 name = f"{title} ({user_input[CONF_HOST]}:{user_input[CONF_PORT]})"
-
-                self.context["data"][CONF_DEVICE_UNIQUE_ID] = unique_id
 
                 return self.async_create_entry(
                     title=title,

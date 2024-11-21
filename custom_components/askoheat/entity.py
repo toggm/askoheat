@@ -20,6 +20,7 @@ E = TypeVar("E", bound=AskoheatEntityDescription)
 class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
     """AskoheatEntity class."""
 
+    _attr_has_entity_name = True
     _attr_attribution = ATTRIBUTION
     entity_description: E
 
@@ -31,7 +32,7 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
     ) -> None:
         """Initialize."""
         super().__init__(coordinator)
-        self._device_unique_id = entry.data.get(CONF_DEVICE_UNIQUE_ID) or "unkown"
+        self._device_unique_id = entry.unique_id or "unkown"
         self._attr_device_info = DeviceInfo(
             identifiers={
                 (
@@ -40,13 +41,15 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
                 ),
             },
             translation_key=entity_description.device_key,  # type: ignore  # noqa: PGH003
-            via_device=(coordinator.config_entry.domain, DeviceKey.WATER_BOILER),
+            via_device=(
+                coordinator.config_entry.domain,
+                DeviceKey.WATER_HEATER_CONTROL_UNIT,
+            ),
         )
         self.entity_description = entity_description
         self.translation_key = (
             entity_description.translation_key or entity_description.key.value  # type: ignore  # noqa: PGH003
         )
-        self.has_entity_name = True
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""

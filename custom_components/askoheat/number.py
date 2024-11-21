@@ -39,6 +39,10 @@ async def async_setup_entry(
         )
         for entity_description, coordinator in {
             **{
+                entity_description: entry.runtime_data.par_coordinator
+                for entity_description in PARAMETER_REGISTER_BLOCK_DESCRIPTOR.number_inputs
+            },
+            **{
                 entity_description: entry.runtime_data.ema_coordinator
                 for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.number_inputs
             },

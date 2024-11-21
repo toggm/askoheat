@@ -81,8 +81,8 @@ E = TypeVar("E", bound=StrEnum)
 class StrEnumInputDescriptor[E](StringRegisterInputDescriptor):
     """Input register representing a string based enum value."""
 
-    factory: Callable[[str], E]
-    values: list[E]
+    factory: Callable[[str], E] = field(hash=False)
+    values: list[E] = field(hash=False)
 
 
 E2 = TypeVar("E2", bound=IntEnum)
@@ -92,8 +92,8 @@ E2 = TypeVar("E2", bound=IntEnum)
 class IntEnumInputDescriptor[E2](ByteRegisterInputDescriptor):
     """Input register representing a int based enum value."""
 
-    factory: Callable[[np.byte], E2]
-    values: list[E2]
+    factory: Callable[[np.byte], E2] = field(hash=False)
+    values: list[E2] = field(hash=False)
 
 
 @dataclass(frozen=True)

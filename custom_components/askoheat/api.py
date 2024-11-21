@@ -7,7 +7,7 @@ from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import numpy as np
-from numpy import number
+from numpy import byte, number
 from pymodbus.client import AsyncModbusTcpClient as ModbusClient
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
@@ -425,9 +425,9 @@ def _read_str(register_values: list[int]) -> str:
     byte_list = bytearray()
     for x in register_values:
         byte_list.extend(int.to_bytes(x, 2, "little"))
-    if byte_list[-1:] == b"\00":
+    while byte_list[-1:] == b"\00":
         byte_list = byte_list[:-1]
-    return byte_list.decode("utf-8")
+    return byte_list.decode("utf-8").strip(" ")
 
 
 def _prepare_str(value: object) -> list[int]:
