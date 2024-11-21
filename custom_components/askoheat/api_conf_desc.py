@@ -58,6 +58,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             mode=NumberMode.BOX,
             icon="mdi:timelapse",
             api_descriptor=UnsignedIntRegisterInputDescriptor(0),
+            entity_registry_enabled_default=False,
         ),
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_PUMP_SEC_COUNT_SECONDS,
@@ -70,6 +71,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             mode=NumberMode.BOX,
             icon="mdi:timelapse",
             api_descriptor=UnsignedIntRegisterInputDescriptor(1),
+            entity_registry_enabled_default=False,
         ),
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_AUTO_HEATER_OFF_MINUTES,

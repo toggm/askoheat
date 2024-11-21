@@ -27,19 +27,96 @@
         },
         "binary_sensor": {
             "status.heater1": {
-                "name": "Status heater 1"
+                "name": "Heater 1"
             },
             "status.heater2": {
-                "name": "Status heater 2"
+                "name": "Heater 2"
             },
             "status.heater3": {
-                "name": "Status heater 3"
+                "name": "Heater 3"
+            },
+            "status.pump":  {
+                "name": "Pump"
+            },
+            "status.relay_board_connected": {
+                "name": "Relay board connection"
+            },
+            "status.emergency_mode": {
+                "name": "Emergency mode"
+            },
+            "status.heat_pump_request": {
+                "name": "Heat pump request"
+            },
+            "status.legionella_protection": {
+                "name": "Legionella protection"
+            },
+            "status.analog_input": {
+                "name": "Analog input"
+            },
+            "status.setpoint":  {
+                "name": "Setpoint"
+            },
+            "status.load_feedin": {
+                "name": "Load feedin"
+            },
+            "status.autoheater": {
+                "name": "Auto-heater"
+            },
+            "status.pump_relay_follow_up_time_active": {
+                "name": "Pump relay follow-up time active"
+            },
+            "status.temp_limit_reached":  {
+                "name": "Temp. limit reached"
+            },
+            "status.error": {
+                "name": "Error"
+            },
+            "type_3_stage_version": {
+                "name": "3 stage version"
+            },
+            "type_7_stage_version": {
+                "name": "7 stage version"
+            },
+            "heater_type_flange": {
+                "name": "Heater type flange"
+            },
+            "heater_type_screw_in": {
+                "name": "Heater type screw-in"
+            },
+            "wired_as_star_connection": {
+                "name": "Wired as star-connection"
+            },
+            "wired_as_delta_connection": {
+                "name": "Wired as delta-connection"
+            },
+            "oem_version": {
+                "name": "OEM Version"
             }
         },
         "text": {
             "info_string": {
                 "name": "Info string"
             }
+        }
+    },
+    "device": {
+        "modbus_master": {
+            "name": "Askoheat+ modbus master unit"
+        },
+        "heat_pump_control_unit": {
+            "name": "Heat pump control unit"
+        },
+        "analog_input_control_unit": {
+            "name": "Analog input control unit"
+        },
+        "energy_manager": {
+            "name": "Energy manager unit"
+        },
+        "water_heater_control_unit": {
+            "name": "Water heater unit"
+        },
+        "legio_protection_control_unit": {
+            "name": "Legionella protection unit"
         }
     }
 }
