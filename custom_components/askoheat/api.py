@@ -4,6 +4,9 @@ from __future__ import annotations
 
 from datetime import time
 from enum import ReprEnum
+from struct import unpack
+import struct
+from tracemalloc import start
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import numpy as np
@@ -18,13 +21,16 @@ from custom_components.askoheat.api_desc import (
     IntEnumInputDescriptor,
     RegisterBlockDescriptor,
     RegisterInputDescriptor,
-    SignedIntRegisterInputDescriptor,
+    SignedInt16RegisterInputDescriptor,
     StrEnumInputDescriptor,
     StringRegisterInputDescriptor,
+    StructRegisterInputDescriptor,
     TimeRegisterInputDescriptor,
-    UnsignedIntRegisterInputDescriptor,
+    UnsignedInt16RegisterInputDescriptor,
+    UnsignedInt32RegisterInputDescriptor,
 )
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAMETER_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import (
     LOGGER,
@@ -135,6 +141,15 @@ class AskoHeatModbusApiClient:
             )
         return await self.async_read_config_data()
 
+    async def async_read_op_data(self) -> AskoheatDataBlock:
+        """Read OP data states."""
+        data = await self.__async_read_input_registers_data(
+            DATA_REGISTER_BLOCK_DESCRIPTOR.starting_register,
+            DATA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
+        )
+        LOGGER.debug("async_read_op_data %s", data)
+        return self.__map_data(DATA_REGISTER_BLOCK_DESCRIPTOR, data)
+
     async def __async_read_single_input_register(
         self,
         address: int,
@@ -192,9 +207,11 @@ class AskoHeatModbusApiClient:
                 )
             case ByteRegisterInputDescriptor():
                 result = _prepare_byte(value)
-            case UnsignedIntRegisterInputDescriptor():
+            case UnsignedInt16RegisterInputDescriptor():
                 result = _prepare_uint16(value)
-            case SignedIntRegisterInputDescriptor():
+            case UnsignedInt32RegisterInputDescriptor():
+                result = _prepare_uint32(value)
+            case SignedInt16RegisterInputDescriptor():
                 result = _prepare_int16(value)
             case Float32RegisterInputDescriptor():
                 result = _prepare_float32(value)
@@ -206,6 +223,8 @@ class AskoHeatModbusApiClient:
                 result = _prepare_str(value.value)  # type: ignore  # noqa: PGH003
             case IntEnumInputDescriptor():
                 result = _prepare_byte(value.value)  # type: ignore  # noqa: PGH003
+            case StructRegisterInputDescriptor(_, _, structure):
+                result = _prepare_struct(value, structure)
             case _:
                 LOGGER.error("Cannot read number input from descriptor %r", desc)
                 result = []
@@ -281,7 +300,7 @@ class AskoHeatModbusApiClient:
         )
 
 
-def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> object:
+def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> object:  # noqa: PLR0912
     match desc:
         case FlagRegisterInputDescriptor(starting_register, bit):
             result = _read_flag(data.registers[starting_register], bit)
@@ -289,9 +308,17 @@ def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> obje
             result = factory(_read_byte(data.registers[starting_register]))
         case ByteRegisterInputDescriptor(starting_register):
             result = _read_byte(data.registers[starting_register])
-        case UnsignedIntRegisterInputDescriptor(starting_register):
+        case UnsignedInt16RegisterInputDescriptor(starting_register):
             result = _read_uint16(data.registers[starting_register])
-        case SignedIntRegisterInputDescriptor(starting_register):
+        case UnsignedInt32RegisterInputDescriptor(starting_register):
+            result = _read_uint32(
+                data.registers[starting_register : starting_register + 2]
+            )
+        case UnsignedInt32RegisterInputDescriptor(starting_register):
+            result = _read_uint32(
+                data.registers[starting_register : starting_register + 2]
+            )
+        case SignedInt16RegisterInputDescriptor(starting_register):
             result = _read_int16(data.registers[starting_register])
         case Float32RegisterInputDescriptor(starting_register):
             result = _read_float32(
@@ -313,6 +340,10 @@ def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> obje
             result = _read_time(
                 register_value_hours=data.registers[starting_register],
                 register_value_minutes=data.registers[starting_register + 1],
+            )
+        case StructRegisterInputDescriptor(starting_register, bytes, structure):
+            result = _read_struct(
+                data.registers[starting_register : starting_register + bytes], structure
             )
         case _:
             LOGGER.error("Cannot read number input from descriptor %r", desc)
@@ -502,7 +533,7 @@ def _read_uint16(register_value: int) -> np.uint16:
 
 
 def _prepare_uint16(value: object) -> list[int]:
-    """Prepare unsigned int value for writing to registers."""
+    """Prepare unsigned int 16 value for writing to registers."""
     if not isinstance(value, number | float):
         LOGGER.error(
             "Cannot convert value %s as unsigned int, wrong datatype %r",
@@ -512,6 +543,28 @@ def _prepare_uint16(value: object) -> list[int]:
         return []
 
     return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.UINT16)
+
+
+def _read_uint32(register_values: list[int]) -> np.uint32:
+    """Read register value as uint32."""
+    return np.uint32(
+        ModbusClient.convert_from_registers(
+            register_values, ModbusClient.DATATYPE.UINT32
+        )
+    )
+
+
+def _prepare_uint32(value: object) -> list[int]:
+    """Prepare unsigned int 32 value for writing to registers."""
+    if not isinstance(value, number | float):
+        LOGGER.error(
+            "Cannot convert value %s as unsigned int, wrong datatype %r",
+            value,
+            type(value),
+        )
+        return []
+
+    return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.UINT32)
 
 
 def _read_float32(register_values: list[int]) -> np.float32:
@@ -556,3 +609,30 @@ def _prepare_flag(register_value: int, flag: object, index: int) -> list[int]:
 
     # minus flag from current registers value
     return [register_value - (True << index)]
+
+
+def _read_struct(register_values: list[int], structure: str | bytes) -> Any | None:
+    """Read register values and unpack using pyhton struct."""
+    byte_string = b"".join([x.to_bytes(2, byteorder="big") for x in register_values])
+    if byte_string == b"nan\x00":
+        return None
+
+    try:
+        val = struct.unpack(structure, byte_string)
+    except struct.error as err:
+        recv_size = len(register_values) * 2
+        msg = f"Received {recv_size} bytes, unpack error {err}"
+        LOGGER.error(msg)
+        return None
+    LOGGER.debug("read struct:%s, %s => %s", register_values, byte_string, val)
+    if len(val) == 1:
+        return val[0]
+    return val
+
+
+def _prepare_struct(value: object, structure: str | bytes) -> list[int]:
+    """Pack value based on python struct for writing to registers."""
+    as_bytes = struct.pack(structure, value)
+    return [
+        int.from_bytes(as_bytes[i : i + 2], "big") for i in range(0, len(as_bytes), 2)
+    ]

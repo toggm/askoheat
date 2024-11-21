@@ -23,11 +23,13 @@ from custom_components.askoheat.api_desc import (
     Float32RegisterInputDescriptor,
     IntEnumInputDescriptor,
     RegisterInputDescriptor,
-    SignedIntRegisterInputDescriptor,
+    SignedInt16RegisterInputDescriptor,
     StrEnumInputDescriptor,
     StringRegisterInputDescriptor,
+    StructRegisterInputDescriptor,
     TimeRegisterInputDescriptor,
-    UnsignedIntRegisterInputDescriptor,
+    UnsignedInt16RegisterInputDescriptor,
+    UnsignedInt32RegisterInputDescriptor,
 )
 from custom_components.askoheat.const import (
     DOMAIN,
@@ -109,10 +111,12 @@ class AskoheatSensorEntityDescription(
     AskoheatEntityDescription[
         SensorAttrKey,
         ByteRegisterInputDescriptor
-        | UnsignedIntRegisterInputDescriptor
-        | SignedIntRegisterInputDescriptor
+        | UnsignedInt16RegisterInputDescriptor
+        | UnsignedInt32RegisterInputDescriptor
+        | SignedInt16RegisterInputDescriptor
         | Float32RegisterInputDescriptor
-        | StringRegisterInputDescriptor,
+        | StringRegisterInputDescriptor
+        | StructRegisterInputDescriptor,
     ],
     SensorEntityDescription,
 ):
@@ -134,12 +138,17 @@ class AskoheatSensorEntityDescription(
 
 
 @dataclass(frozen=True)
+class AskoheatDurationSensorEntityDescription(AskoheatSensorEntityDescription):
+    """Class describing an askoheat specific duration sensor entity."""
+
+
+@dataclass(frozen=True)
 class AskoheatNumberEntityDescription(
     AskoheatEntityDescription[
         NumberAttrKey,
         ByteRegisterInputDescriptor
-        | UnsignedIntRegisterInputDescriptor
-        | SignedIntRegisterInputDescriptor
+        | UnsignedInt16RegisterInputDescriptor
+        | SignedInt16RegisterInputDescriptor
         | Float32RegisterInputDescriptor,
     ],
     NumberEntityDescription,

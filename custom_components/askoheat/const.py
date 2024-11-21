@@ -16,7 +16,7 @@ DEFAULT_SCAN_INTERVAL = 5
 # per coordinator scan intervals
 SCAN_INTERVAL_EMA = timedelta(seconds=5)
 SCAN_INTERVAL_CONFIG = timedelta(hours=1)
-SCAN_INTERVAL_DATA = timedelta(minutes=1)
+SCAN_INTERVAL_OP_DATA = timedelta(minutes=1)
 
 CONF_DEVICE_UNIQUE_ID = "device_unique_id"
 
@@ -104,9 +104,9 @@ class NumberAttrKey(StrEnum):
     CON_ANALOG_INPUT_7_THRESHOLD_TEMPERATURE = "analog_input_7_threshold_temperature"
 
     # 0-7
-    CON_HEAT_PUMP_REQUEST_OFF_STEP = "heat_pump_request_off_step"
+    CON_HEATPUMP_REQUEST_OFF_STEP = "heatpump_request_off_step"
     # 0-7
-    CON_HEAT_PUMP_REQUEST_ON_STEP = "heat_pump_request_on_step"
+    CON_HEATPUMP_REQUEST_ON_STEP = "heatpump_request_on_step"
     # 0-7
     CON_EMERGENCY_MODE_ON_STEP = "emergency_mode_on_step"
 
@@ -177,7 +177,7 @@ class SwitchAttrKey(StrEnum):
     CON_RESTART_IF_ENERGYMANAGER_CONNECTION_LOST = "restart_if_em_connection_lost"
     CON_AUTO_OFF_MODBUS_ENABLED = "auto_off_modbus_enabled"
     CON_AUTO_OFF_ANALOG_INPUT_ENABLED = "auto_off_analog_input_enabled"
-    CON_AUTO_OFF_HEAT_PUMP_REQUEST_ENABLED = "auto_off_heatpump_request_enabled"
+    CON_AUTO_OFF_HEATPUMP_REQUEST_ENABLED = "auto_off_heatpump_request_enabled"
     CON_AUTO_OFF_EMERGENCY_MODE_ENABLED = "auto_off_emergency_mode_enabled"
     # from auto heater off settings register -- end
 
@@ -190,7 +190,7 @@ class SwitchAttrKey(StrEnum):
     CON_HEATBUFFER_TYPE_PELLET_FIRING = "heatbuffer_type_pellet_firing"
     CON_HEATBUFFER_TYPE_GAS_BURNER = "heatbuffer_type_gas_burner"
     CON_HEATBUFFER_TYPE_OIL_BURNER = "heatbuffer_type_oil_burner"
-    CON_HEATBUFFER_TYPE_HEAT_PUMP = "heatbuffer_type_heat_pump"
+    CON_HEATBUFFER_TYPE_HEATPUMP = "heatbuffer_type_heatpump"
     CON_HEATBUFFER_TYPE_OTHER = "heatbuffer_type_other"
     # from heatbuffer type settings register -- end
 
@@ -268,7 +268,7 @@ class BinarySensorAttrKey(StrEnum):
     PUMP_ACTIVE = "status.pump"
     RELAY_BOARD_CONNECTED = "status.relay_board_connected"
     EMERGENCY_MODE_ACTIVE = "status.emergency_mode"
-    HEAT_PUMP_REQUEST_ACTIVE = "status.heat_pump_request"
+    HEATPUMP_REQUEST_ACTIVE = "status.heatpump_request"
     LEGIONELLA_PROTECTION_ACTIVE = "status.legionella_protection"
     ANALOG_INPUT_ACTIVE = "status.analog_input"
     SETPOINT_ACTIVE = "status.setpoint"
@@ -291,6 +291,23 @@ class BinarySensorAttrKey(StrEnum):
     PAR_WIRED_AS_DELTA_CONECTION = "wired_as_delta_connection"
     PAR_TYPE_OEM_VERSION = "oem_version"
     # from type register -- end
+
+    # -----------------------------------------------
+    # DATA block binary sensors
+    # -----------------------------------------------
+    # from legio status register -- begin
+    DATA_LEGIO_STATUS_HEATING_UP = "legio_status_heating_up"
+    DATA_LEGIO_STATUS_TEMPERATURE_REACHED = "legio_status_temp_reached"
+    DATA_LEGIO_STATUS_TEMP_REACHED_OUTSIDE_INTERVAL = (
+        "legio_status_temp_reached_outside_interval"
+    )
+    DATA_LEGIO_STATUS_UNEXPECTED_TEMP_DROP = "legio_status_unexpected_temp_drop"
+    DATA_LEGIO_STATUS_ERROR_NO_VALID_TEMP_SENSOR = (
+        "legio_status_error_no_valid_temp_sensor"
+    )
+    DATA_LEGIO_STATUS_ERROR_CANNOT_REACH_TEMP = "legio_status_error_cannot_reach_temp"
+    DATA_LEGIO_STATUS_ERROR_SETTINGS = "legio_status_error_settings"
+    # from legio status register -- end
 
 
 class SensorAttrKey(StrEnum):
@@ -323,6 +340,53 @@ class SensorAttrKey(StrEnum):
     PAR_NUMBER_OF_STEPS = "number_of_steps"
     PAR_NUMBER_OF_HEATER = "number_of_heater"
     PAR_MAX_POWER = "max_power"
+
+    # -----------------------------------------------
+    # DATA block enums
+    # -----------------------------------------------
+    DATA_OPERATING_TIME_MINUTES = "operating_time"
+    DATA_OPERATING_TIME_HEATER1_MINUTES = "operating_time_heater1"
+    DATA_OPERATING_TIME_HEATER2_MINUTES = "operating_time_heater2"
+    DATA_OPERATING_TIME_HEATER3_MINUTES = "operating_time_heater3"
+    DATA_OPERATING_TIME_PUMP_MINUTES = "operating_time_pump"
+    DATA_OPERATING_TIME_VALVE_MINUTES = "operating_time_valve"
+    DATA_SWITCH_COUNT_RELAY1 = "switch_count_relay1"
+    DATA_SWITCH_COUNT_RELAY2 = "switch_count_relay2"
+    DATA_SWITCH_COUNT_RELAY3 = "switch_count_relay3"
+    DATA_SWITCH_COUNT_RELAY4 = "switch_count_relay4"
+    DATA_SINCE_LAST_LEGIO_ACTIVATION_MINUTES = "legio_since_legio_activation"
+    DATA_LEGIO_PLATEAU_TIMER = "legio_plateau_timer"
+    DATA_ANALOG_INPUT_STEP = "analog_input_step"
+    DATA_ACTUAL_TEMP_LIMIT = "actual_temp_limit"
+    DATA_AUTO_HEATER_OFF_COUNTDOWN_MINUTES = "auto_heater_off_countdown"
+    DATA_EMERGENCY_OFF_COUNTDOWN_MINUTES = "emergency_off_countdown"
+    DATA_BOOT_COUNT = "boot_count"
+    DATA_OPERATING_TIME_SET_HEATER_STEP = "operating_time_set_heater_step"
+    DATA_OPERATING_TIME_LOAD_SETPOINT = "operating_time_load_setpoint"
+    DATA_OPERATING_TIME_LOAD_FEEDIN = "operating_time_load_feedin"
+    DATA_OPERATING_TIME_HEATPUMP_REQUEST = "operating_time_heatpump_request"
+    DATA_OPERATING_TIME_ANALOG_INPUT = "operating_time_analog_input"
+    DATA_OPERATING_TIME_EMERGENCY_MODE = "operating_time_emergency_mode"
+    DATA_OPERATING_TIME_LEGIO_PROTECTION = "operating_time_legio_protection"
+    DATA_OPERATING_TIME_LOW_TARIFF = "operating_time_low_tariff"
+    DATA_OPERATING_TIME_MINIMAL_TEMP = "operating_time_minimal_temp"
+    DATA_OPERATING_TIME_HEATER_STEP1 = "operating_time_heater_step1"
+    DATA_OPERATING_TIME_HEATER_STEP2 = "operating_time_heater_step2"
+    DATA_OPERATING_TIME_HEATER_STEP3 = "operating_time_heater_step3"
+    DATA_OPERATING_TIME_HEATER_STEP4 = "operating_time_heater_step4"
+    DATA_OPERATING_TIME_HEATER_STEP5 = "operating_time_heater_step5"
+    DATA_OPERATING_TIME_HEATER_STEP6 = "operating_time_heater_step6"
+    DATA_OPERATING_TIME_HEATER_STEP7 = "operating_time_heater_step7"
+    DATA_COUNT_SET_HEATER_STEP = "count_set_heater_step"
+    DATA_COUNT_LOAD_SETPOINT = "count_load_setpoint"
+    DATA_COUNT_LOAD_FEEDIN = "count_load_feedin"
+    DATA_COUNT_HEATPUMP_REQUEST = "count_heatpump_request"
+    DATA_COUNT_ANALOG_INPUT = "count_analog_input"
+    DATA_COUNT_EMERGENCY_MODE = "count_emergency_mode"
+    DATA_COUNT_LEGIO_PROTECTION = "count_legio_protection"
+    DATA_COUNT_LOW_TARIFF = "count_low_tariff"
+    DATA_COUNT_MINIMAL_TEMP = "count_minimal_temp"
+    DATA_MAX_MEASURED_TEMP = "max_measured_temp"
 
 
 class Baudrate(StrEnum):
@@ -373,7 +437,7 @@ class DeviceKey(StrEnum):
     """Device keys."""
 
     MODBUS_MASTER = "modbus_master"
-    HEAT_PUMP_CONTROL_UNIT = "heat_pump_control_unit"
+    HEATPUMP_CONTROL_UNIT = "heatpump_control_unit"
     ANALOG_INPUT_CONTROL_UNIT = "analog_input_control_unit"
     ENERGY_MANAGER = "energy_manager"
     WATER_HEATER_CONTROL_UNIT = "water_heater_control_unit"

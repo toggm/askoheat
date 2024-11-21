@@ -20,8 +20,8 @@ from custom_components.askoheat.api_desc import (
     FlagRegisterInputDescriptor,
     Float32RegisterInputDescriptor,
     RegisterBlockDescriptor,
-    SignedIntRegisterInputDescriptor,
-    UnsignedIntRegisterInputDescriptor,
+    SignedInt16RegisterInputDescriptor,
+    UnsignedInt16RegisterInputDescriptor,
 )
 from custom_components.askoheat.const import (
     BinarySensorAttrKey,
@@ -41,43 +41,43 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
     binary_sensors=[
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.HEATER1_ACTIVE,
-            device_key=DeviceKey.HEAT_PUMP_CONTROL_UNIT,
+            device_key=DeviceKey.HEATPUMP_CONTROL_UNIT,
             icon="mdi:power-plug",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=0),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.HEATER2_ACTIVE,
-            device_key=DeviceKey.HEAT_PUMP_CONTROL_UNIT,
+            device_key=DeviceKey.HEATPUMP_CONTROL_UNIT,
             icon="mdi:power-plug",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=1),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.HEATER3_ACTIVE,
-            device_key=DeviceKey.HEAT_PUMP_CONTROL_UNIT,
+            device_key=DeviceKey.HEATPUMP_CONTROL_UNIT,
             icon="mdi:power-plug",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=2),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PUMP_ACTIVE,
-            device_key=DeviceKey.HEAT_PUMP_CONTROL_UNIT,
+            device_key=DeviceKey.HEATPUMP_CONTROL_UNIT,
             icon="mdi:pump",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=3),
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.RELAY_BOARD_CONNECTED,
-            device_key=DeviceKey.HEAT_PUMP_CONTROL_UNIT,
+            device_key=DeviceKey.HEATPUMP_CONTROL_UNIT,
             icon="mdi:connection",
             device_class=BinarySensorDeviceClass.PROBLEM,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=4),
         ),
         # bit 5 ignored
         AskoheatBinarySensorEntityDescription(
-            key=BinarySensorAttrKey.HEAT_PUMP_REQUEST_ACTIVE,
-            device_key=DeviceKey.HEAT_PUMP_CONTROL_UNIT,
+            key=BinarySensorAttrKey.HEATPUMP_REQUEST_ACTIVE,
+            device_key=DeviceKey.HEATPUMP_CONTROL_UNIT,
             icon="mdi:heat-pump",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=6),
@@ -156,7 +156,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_class=SensorDeviceClass.POWER,
             native_unit_of_measurement=UnitOfPower.WATT,
             entity_category=None,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(17),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(17),
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.ANALOG_INPUT_VALUE,
@@ -246,7 +246,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_precision=0,
             native_unit_of_measurement=UnitOfPower.WATT,
             entity_category=None,
-            api_descriptor=SignedIntRegisterInputDescriptor(19),
+            api_descriptor=SignedInt16RegisterInputDescriptor(19),
         ),
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.LOAD_FEEDIN_VALUE,
@@ -257,7 +257,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_precision=0,
             native_unit_of_measurement=UnitOfPower.WATT,
             entity_category=None,
-            api_descriptor=SignedIntRegisterInputDescriptor(20),
+            api_descriptor=SignedInt16RegisterInputDescriptor(20),
         ),
     ],
 )

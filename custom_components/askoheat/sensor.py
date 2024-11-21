@@ -2,25 +2,54 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import date, datetime
+from decimal import Decimal
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
+from homeassistant.const import UnitOfTime
 from homeassistant.core import callback
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAMETER_REGISTER_BLOCK_DESCRIPTOR
-from custom_components.askoheat.model import AskoheatSensorEntityDescription
+from custom_components.askoheat.model import (
+    AskoheatDurationSensorEntityDescription,
+    AskoheatSensorEntityDescription,
+)
 
 from .entity import AskoheatEntity
+from custom_components.askoheat import entity
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from homeassistant.helpers.typing import StateType
 
     from .coordinator import AskoheatDataUpdateCoordinator
     from .data import AskoheatConfigEntry
+
+
+def _instanciate(
+    entry: AskoheatConfigEntry,
+    coordinator: AskoheatDataUpdateCoordinator,
+    entity_description: AskoheatSensorEntityDescription,
+) -> AskoheatSensor:
+    match entity_description:
+        case AskoheatDurationSensorEntityDescription():
+            return AskoheatDurationSensor(
+                entry=entry,
+                coordinator=coordinator,
+                entity_description=entity_description,
+            )
+        case _:
+            return AskoheatSensor(
+                entry=entry,
+                coordinator=coordinator,
+                entity_description=entity_description,
+            )
 
 
 async def async_setup_entry(
@@ -30,7 +59,7 @@ async def async_setup_entry(
 ) -> None:
     """Set up the sensor platform."""
     async_add_entities(
-        AskoheatSensor(
+        _instanciate(
             entry=entry,
             coordinator=coordinator,
             entity_description=entity_description,
@@ -47,6 +76,10 @@ async def async_setup_entry(
             **{
                 entity_description: entry.runtime_data.config_coordinator
                 for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.sensors
+            },
+            **{
+                entity_description: entry.runtime_data.data_coordinator
+                for entity_description in DATA_REGISTER_BLOCK_DESCRIPTOR.sensors
             },
         }.items()
     )
@@ -77,24 +110,58 @@ class AskoheatSensor(AskoheatEntity[AskoheatSensorEntityDescription], SensorEnti
         if data is None:
             return
 
-        self._attr_native_value = data[self.entity_description.data_key]
+        raw_value = data[self.entity_description.data_key]
 
-        if self._attr_native_value is None:
-            pass
+        if raw_value is None:
+            self._attr_native_value = None
 
-        elif isinstance(
-            self._attr_native_value, float | int | np.floating | np.integer
-        ) and (
-            self.entity_description.factor is not None
-            or self.entity_description.native_precision is not None
-        ):
-            float_value = float(self._attr_native_value)
-            if self.entity_description.factor is not None:
-                float_value *= self.entity_description.factor
-            if self.entity_description.native_precision is not None:
-                float_value = round(
-                    float_value, self.entity_description.native_precision
-                )
-            self._attr_native_value = float_value
+        else:
+            converted_value = self._convert_value(raw_value)
+
+            if isinstance(converted_value, float | int | np.floating | np.integer) and (
+                self.entity_description.factor is not None
+                or self.entity_description.native_precision is not None
+            ):
+                float_value = float(converted_value)
+                if self.entity_description.factor is not None:
+                    float_value *= self.entity_description.factor
+                if self.entity_description.native_precision is not None:
+                    float_value = round(
+                        float_value, self.entity_description.native_precision
+                    )
+                self._attr_native_value = float_value
+            else:
+                self._attr_native_value = converted_value
 
         super()._handle_coordinator_update()
+
+    def _convert_value(self, value: Any) -> StateType | date | datetime | Decimal:
+        return value
+
+
+class AskoheatDurationSensor(AskoheatSensor):
+    """askoheat Sensor class representing a duration."""
+
+    def __init__(
+        self,
+        entry: AskoheatConfigEntry,
+        coordinator: AskoheatDataUpdateCoordinator,
+        entity_description: AskoheatSensorEntityDescription,
+    ) -> None:
+        """Initialize the duration sensor class."""
+        super().__init__(entry, coordinator, entity_description)
+
+    def _convert_value(self, value: Any) -> StateType | date | datetime | Decimal:
+        time_as_int = int(value)
+        minutes = int(time_as_int / 2**0) & 0xFF
+        hours = int(time_as_int / 2**8) & 0xFF
+        days = int(time_as_int / 2**16) & 0xFFFF
+
+        match self.entity_description.native_unit_of_measurement:
+            case UnitOfTime.DAYS:
+                return (minutes / (60 * 24)) + (hours / 24) + days
+            case UnitOfTime.HOURS:
+                return (minutes / 60) + hours + (days * 24)
+            case _:
+                # by default convert to minutes
+                return minutes + (hours * 60) + (days * 24 * 60)

@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from custom_components.askoheat.coordinator import (
         AskoheatConfigDataUpdateCoordinator,
         AskoheatEMADataUpdateCoordinator,
+        AskoheatOperationDataUpdateCoordinator,
         AskoheatParameterDataUpdateCoordinator,
     )
 
@@ -42,6 +43,7 @@ class AskoheatData:
     ema_coordinator: AskoheatEMADataUpdateCoordinator
     config_coordinator: AskoheatConfigDataUpdateCoordinator
     par_coordinator: AskoheatParameterDataUpdateCoordinator
+    data_coordinator: AskoheatOperationDataUpdateCoordinator
     integration: Integration
 
 

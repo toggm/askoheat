@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import ctypes
+from struct import pack
 import typing
 from abc import ABC
 from dataclasses import dataclass, field
@@ -53,13 +55,18 @@ class Float32RegisterInputDescriptor(RegisterInputDescriptor):
 
 
 @dataclass(frozen=True)
-class SignedIntRegisterInputDescriptor(RegisterInputDescriptor):
-    """Input register representing a signed int."""
+class SignedInt16RegisterInputDescriptor(RegisterInputDescriptor):
+    """Input register representing a signed int16."""
 
 
 @dataclass(frozen=True)
-class UnsignedIntRegisterInputDescriptor(RegisterInputDescriptor):
-    """Input register representing an unsigned int."""
+class UnsignedInt16RegisterInputDescriptor(RegisterInputDescriptor):
+    """Input register representing an unsigned int 16."""
+
+
+@dataclass(frozen=True)
+class UnsignedInt32RegisterInputDescriptor(RegisterInputDescriptor):
+    """Input register representing an unsigned int 32."""
 
 
 @dataclass(frozen=True)
@@ -72,6 +79,15 @@ class StringRegisterInputDescriptor(RegisterInputDescriptor):
 @dataclass(frozen=True)
 class TimeRegisterInputDescriptor(RegisterInputDescriptor):
     """Input register representing a time string combined of two following registers."""
+
+
+@dataclass(frozen=True)
+class StructRegisterInputDescriptor(RegisterInputDescriptor):
+    """Input register packing and unpacking values based on pyhtons struct."""
+
+    number_of_bytes: int
+    # format as defined in pyhton struct https://docs.python.org/3/library/struct.html
+    structure: str | bytes
 
 
 E = TypeVar("E", bound=StrEnum)

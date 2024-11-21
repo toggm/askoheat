@@ -12,7 +12,13 @@ from .api import (
     AskoHeatModbusApiClient,
     AskoheatModbusApiClientError,
 )
-from .const import DOMAIN, LOGGER, SCAN_INTERVAL_CONFIG, SCAN_INTERVAL_EMA
+from .const import (
+    DOMAIN,
+    LOGGER,
+    SCAN_INTERVAL_CONFIG,
+    SCAN_INTERVAL_OP_DATA,
+    SCAN_INTERVAL_EMA,
+)
 
 if TYPE_CHECKING:
     from datetime import timedelta
@@ -151,6 +157,27 @@ class AskoheatParameterDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
     async def async_write(self, _: RegisterInputDescriptor, __: object) -> None:
         """Write parameter par block of Askoheat."""
         raise UpdateFailed("Writing values to parameters not allowed")
+
+
+class AskoheatOperationDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
+    """Class to manage fetching askoheat operation data states."""
+
+    def __init__(self, hass: HomeAssistant) -> None:
+        """Initialize."""
+        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_OP_DATA)
+
+    async def _async_update_data(self) -> dict[str, Any]:
+        """Update config data via library."""
+        try:
+            async with async_timeout.timeout(10):
+                data = await self.config_entry.runtime_data.client.async_read_op_data()
+                return _map_data_block_to_dict(data)
+        except AskoheatModbusApiClientError as exception:
+            raise UpdateFailed(exception) from exception
+
+    async def async_write(self, _: RegisterInputDescriptor, __: object) -> None:
+        """Write parameter data block of Askoheat."""
+        raise UpdateFailed("Writing values to data block not allowed")
 
 
 def _map_data_block_to_dict(data: AskoheatDataBlock) -> dict[str, Any]:

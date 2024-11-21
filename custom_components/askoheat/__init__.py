@@ -15,6 +15,7 @@ from homeassistant.loader import async_get_loaded_integration
 from .coordinator import (
     AskoheatConfigDataUpdateCoordinator,
     AskoheatEMADataUpdateCoordinator,
+    AskoheatOperationDataUpdateCoordinator,
     AskoheatParameterDataUpdateCoordinator,
 )
 from .data import AskoheatData
@@ -49,6 +50,7 @@ async def async_setup_entry(
         hass=hass,
     )
     config_coordinator = AskoheatConfigDataUpdateCoordinator(hass=hass)
+    data_coordinator = AskoheatOperationDataUpdateCoordinator(hass=hass)
     entry.runtime_data = AskoheatData(
         client=AskoHeatModbusApiClient(
             host=entry.data[CONF_HOST],
@@ -58,6 +60,7 @@ async def async_setup_entry(
         ema_coordinator=ema_coordinator,
         config_coordinator=config_coordinator,
         par_coordinator=par_coordinator,
+        data_coordinator=data_coordinator,
     )
     await entry.runtime_data.client.connect()
 
@@ -65,6 +68,7 @@ async def async_setup_entry(
     await par_coordinator.async_config_entry_first_refresh()
     await ema_coordinator.async_config_entry_first_refresh()
     await config_coordinator.async_config_entry_first_refresh()
+    await data_coordinator.async_config_entry_first_refresh()
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))

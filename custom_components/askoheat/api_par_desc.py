@@ -16,7 +16,7 @@ from custom_components.askoheat.api_desc import (
     FlagRegisterInputDescriptor,
     RegisterBlockDescriptor,
     StringRegisterInputDescriptor,
-    UnsignedIntRegisterInputDescriptor,
+    UnsignedInt16RegisterInputDescriptor,
 )
 from custom_components.askoheat.const import (
     BinarySensorAttrKey,
@@ -40,7 +40,7 @@ PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.PAR_HEATER1_POWER,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(17),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(17),
             native_min_value=250,
             native_max_value=10000,
             state_class=SensorStateClass.MEASUREMENT,
@@ -51,7 +51,7 @@ PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.PAR_HEATER2_POWER,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(18),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(18),
             native_min_value=250,
             native_max_value=10000,
             state_class=SensorStateClass.MEASUREMENT,
@@ -62,7 +62,7 @@ PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.PAR_HEATER3_POWER,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(19),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(19),
             native_min_value=250,
             native_max_value=10000,
             state_class=SensorStateClass.MEASUREMENT,
@@ -97,7 +97,7 @@ PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.PAR_HEATER4_POWER,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(50),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(50),
             native_min_value=250,
             native_max_value=10000,
             state_class=SensorStateClass.MEASUREMENT,
@@ -109,7 +109,7 @@ PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.PAR_HEATER5_POWER,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(51),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(51),
             native_min_value=250,
             native_max_value=10000,
             state_class=SensorStateClass.MEASUREMENT,
@@ -121,7 +121,7 @@ PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.PAR_HEATER6_POWER,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(52),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(52),
             native_min_value=250,
             native_max_value=10000,
             state_class=SensorStateClass.MEASUREMENT,
@@ -133,7 +133,7 @@ PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.PAR_NUMBER_OF_STEPS,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(53),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(53),
             native_min_value=6,
             native_max_value=19,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
@@ -141,7 +141,7 @@ PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.PAR_NUMBER_OF_HEATER,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(54),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(54),
             native_min_value=3,
             native_max_value=6,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
@@ -149,7 +149,7 @@ PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.PAR_MAX_POWER,
-            api_descriptor=UnsignedIntRegisterInputDescriptor(55),
+            api_descriptor=UnsignedInt16RegisterInputDescriptor(55),
             native_min_value=1750,
             native_max_value=20000,
             state_class=SensorStateClass.MEASUREMENT,

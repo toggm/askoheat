@@ -12,6 +12,7 @@ from homeassistant.core import callback
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAMETER_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.model import AskoheatBinarySensorEntityDescription
 
@@ -49,6 +50,10 @@ async def async_setup_entry(
             **{
                 entity_description: entry.runtime_data.config_coordinator
                 for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
+            },
+            **{
+                entity_description: entry.runtime_data.data_coordinator
+                for entity_description in DATA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
             },
         }.items()
     )
