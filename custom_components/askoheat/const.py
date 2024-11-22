@@ -195,9 +195,9 @@ class SwitchAttrKey(StrEnum):
     # from heatbuffer type settings register -- end
 
     # from heater position register -- begin
-    CON_HEATER_POSITION_BOTTOM = "heat_position_bottom"
-    CON_HEATER_POSITION_MIDDLE = "heat_position_middle"
-    CON_HEATER_POSITION_ASKOWALL = "heat_position_askowall"
+    CON_HEATER_POSITION_BOTTOM = "heater_position_bottom"
+    CON_HEATER_POSITION_MIDDLE = "heater_position_middle"
+    CON_HEATER_POSITION_ASKOWALL = "heater_position_askowall"
     # from heater position register -- end
 
     # from legio setting register -- begin
@@ -223,7 +223,7 @@ class SwitchAttrKey(StrEnum):
     CON_LEGIO_SETTINGS_INTERVAL_FORTNIGHTLY = "legio_settings_interval_fortnightly"
     CON_LEGIO_SETTINGS_INTERVAL_MONTHLY = "legio_settings_interval_monthly"
     CON_LEGIO_SETTINGS_PREFER_FEEDIN_ENERGY = "legio_settings_prefer_feedin_energy"
-    CON_LEGIO_SETTINGS_PROTECTION_ENABLED = "legio_Setting_protection_enabled"
+    CON_LEGIO_SETTINGS_PROTECTION_ENABLED = "legio_setting_protection_enabled"
     # from legio_settings register -- end
 
     # from house type register -- begin
@@ -354,7 +354,7 @@ class SensorAttrKey(StrEnum):
     DATA_SWITCH_COUNT_RELAY2 = "switch_count_relay2"
     DATA_SWITCH_COUNT_RELAY3 = "switch_count_relay3"
     DATA_SWITCH_COUNT_RELAY4 = "switch_count_relay4"
-    DATA_SINCE_LAST_LEGIO_ACTIVATION_MINUTES = "legio_since_legio_activation"
+    DATA_SINCE_LAST_LEGIO_ACTIVATION_MINUTES = "legio_since_last_activation"
     DATA_LEGIO_PLATEAU_TIMER = "legio_plateau_timer"
     DATA_ANALOG_INPUT_STEP = "analog_input_step"
     DATA_ACTUAL_TEMP_LIMIT = "actual_temp_limit"

@@ -15,16 +15,6 @@
         }
     },
     "entity": {
-        "select": {
-            "energy_meter_type": {
-                "state": {
-                    "0": "Not installed",
-                    "1": "Automation One A1EM.BIDMOD",
-                    "2": "Automation One A1EM.MOD",
-                    "16": "Carlo Gavazzi EM300 / ET300 SERIES (e.g. EM340)"
-                }
-            }
-        },
         "binary_sensor": {
             "status_heater1": {
                 "name": "Heater 1"
@@ -54,10 +44,10 @@
                 "name": "Analog input"
             },
             "status_setpoint":  {
-                "name": "Setpoint"
+                "name": "Set-point"
             },
             "status_load_feedin": {
-                "name": "Load feedin"
+                "name": "Load feed-in"
             },
             "status_autoheater": {
                 "name": "Auto-heater"
@@ -91,11 +81,570 @@
             },
             "oem_version": {
                 "name": "OEM Version"
+            },
+            "legio_status_heating_up": {
+                "name": "Heating up"
+            },
+            "legio_status_temp_reached":  {
+                "name": "Temperature reached"
+            },
+            "legio_status_temp_reached_outside_interval": {
+                "name": "Temp. reached outside interval"
+            },
+            "legio_status_unexpected_temp_drop":  {
+                "name": "Unexpected temp. drop"
+            },
+            "legio_status_error_no_valid_temp_sensor": {
+                "name": "No valid temp sensor"
+            },
+            "legio_status_error_cannot_reach_temp": {
+                "name": "Cannot reach temp"
+            },
+            "legio_status_error_settings": {
+                "name": "Invalid settings"
+            }
+        },
+        "number": {
+            "set_heater_step": {
+                "name": "Set heater step"
+            },
+            "load_setpoint": {
+                "name": "Load set-point"
+            },
+            "load_feedin": {
+                "name": "Load feed-in"
+            },
+            "relay_switch_on_inhibit_seconds": {
+                "name": "Relay switch on inhibit"
+            },
+            "pump_follow_up_time_seconds": {
+                "name": "Pump follow-up time"
+            },
+            "auto_heater_off_minutes": {
+                "name": "Auto heater off interval"
+            },
+            "cascade_priorization": {
+                "name": "Cascade priorization"
+            },
+            "heatbuffer_volume_liter": {
+                "name": "Heatbuffer volume"
+            },
+            "legio_protection_temperature": {
+                "name": "Target Temperature"
+            },
+            "legio_protection_heatup_minutes": {
+                "name": "Heat-up time"
+            },
+            "number_of_household_members": {
+                "name": "Houshold members"
+            },
+            "load_feedin_basic_energy_level": {
+                "name": "Load feed-in basic energy level"
+            },
+            "timezone_offset": {
+                "name": "Timezone offset"
+            },
+            "load_feedin_delay_seconds": {
+                "name": "Load feed-in delay"
+            },
+            "rtu_slave_id": {
+                "name": "Modbus slave id"
+            },
+            "analog_input_hysteresis": {
+                "name": "Input hysteresis"
+            },
+            "analog_input_0_threshold": {
+                "name": "Threshold 0"
+            },
+            "analog_input_0_threshold_step": {
+                "name": "Threshold 0 heater step"
+            },
+            "analog_input_0_threshold_temperature": {
+                "name": "Threshold 0 temperature limit"
+            },
+            "analog_input_1_threshold": {
+                "name": "Threshold 1"
+            },
+            "analog_input_1_threshold_step": {
+                "name": "Threshold 1 heater step"
+            },
+            "analog_input_1_threshold_temperature": {
+                "name": "Threshold 1 temperature limit"
+            },
+            "analog_input_2_threshold": {
+                "name": "Threshold 2"
+            },
+            "analog_input_2_threshold_step": {
+                "name": "Threshold 2 heater step"
+            },
+            "analog_input_2_threshold_temperature": {
+                "name": "Threshold 2 temperature limit"
+            },
+            "analog_input_3_threshold": {
+                "name": "Threshold 3"
+            },
+            "analog_input_3_threshold_step": {
+                "name": "Threshold 3 heater step"
+            },
+            "analog_input_3_threshold_temperature": {
+                "name": "Threshold 3 temperature limit"
+            },
+            "analog_input_4_threshold": {
+                "name": "Threshold 4"
+            },
+            "analog_input_4_threshold_step": {
+                "name": "Threshold 4 heater step"
+            },
+            "analog_input_4_threshold_temperature": {
+                "name": "Threshold 4 temperature limit"
+            },
+            "analog_input_5_threshold": {
+                "name": "Threshold 5"
+            },
+            "analog_input_5_threshold_step": {
+                "name": "Threshold 5 heater step"
+            },
+            "analog_input_5_threshold_temperature": {
+                "name": "Threshold 5 temperature limit"
+            },
+            "analog_input_6_threshold": {
+                "name": "Threshold 6"
+            },
+            "analog_input_6_threshold_step": {
+                "name": "Threshold 6 heater step"
+            },
+            "analog_input_6_threshold_temperature": {
+                "name": "Threshold 6 temperature limit"
+            },
+            "analog_input_7_threshold": {
+                "name": "Threshold 7"
+            },
+            "analog_input_7_threshold_step": {
+                "name": "Threshold 7 heater step"
+            },
+            "analog_input_7_threshold_temperature": {
+                "name": "Threshold 7 temperature limit"
+            },
+            "heatpump_request_off_step": {
+                "name": "Off step"
+            },
+            "heatpump_request_on_step": {
+                "name": "On step"
+            },
+            "emergency_mode_on_step": {
+                "name": "On step emergency mode"
+            },
+            "temperature_hysteresis": {
+                "name": "Temperature hysteresis"
+            },
+            "minimal_temperature": {
+                "name": "Minimal temperature"
+            },
+            "set_heater_step_temp_limit":  {
+                "name": "Temp. limit set heater step"
+            },
+            "load_feedin_or_setpoint_temp_limit": {
+                "name": "Temp. limit feed-in or set-point"
+            },
+            "low_tariff_temp_limit": {
+                "name": "Temp. limit low tariff"
+            },
+            "heatpump_request_temp_limit": {
+                "name": "Temp. limit"
+            }
+        },
+        "sensor": {
+            "heater_load": {
+                "name": "Heater load"
+            },
+            "analog_input": {
+                "name": "Analog input"
+            },
+            "internal_temp_sensor": {
+                "name": "Int. temp. sensor"
+            },
+            "external_temp_sensor1": {
+                "name": "Ext. temp. sensor 1"
+            },
+            "external_temp_sensor2": {
+                "name": "Ext. temp. sensor 2"
+            },
+            "external_temp_sensor3": {
+                "name": "Ext. temp. sensor 3"
+            },
+            "external_temp_sensor4": {
+                "name": "Ext. temp. sensor 4"
+            },
+            "serial_number":  {
+                "name": "Serial number"
+            },
+            "heater1_power": {
+                "name": "Heater 1 power"
+            },
+            "heater2_power": {
+                "name": "Heater 2 power"
+            },
+            "heater3_power": {
+                "name": "Heater 3 power"
+            },
+            "heater4_power": {
+                "name": "Heater 4 power"
+            },
+            "heater5_power": {
+                "name": "Heater 5 power"
+            },
+            "heater6_power": {
+                "name": "Heater 6 power"
+            },
+            "article_name": {
+                "name": "Article name"
+            },
+            "article_number": {
+                "name": "Article number"
+            },
+            "software_version": {
+                "name": "Software version"
+            },
+            "hardware_version":  {
+                "name": "Hardware version"
+            },
+            "number_of_steps": {
+                "name": "Number of steps supported"
+            },
+            "number_of_heater":  {
+                "name": "Number of heater"
+            },
+            "max_power": {
+                "name": "Max power"
+            },
+            "operating_time": {
+                "name": "Total operating time"
+            },
+            "operating_time_heater1": {
+                "name": "Heater 1 Operating time"
+            },
+            "operating_time_heater2": {
+                "name": "Heater 2 operating time"
+            },
+            "operating_time_heater3": {
+                "name": "Heater 3 operating time"
+            },
+            "operating_time_pump": {
+                "name": "Pump operating time"
+            },
+            "operating_time_valve": {
+                "name": "Valve operating time"
+            },
+            "switch_count_relay1": {
+                "name": "Relay 1 switch count"
+            },
+            "switch_count_relay2": {
+                "name": "Relay 2 switch count"
+            },
+            "switch_count_relay3": {
+                "name": "Relay 3 switch count"
+            },
+            "switch_count_relay4": {
+                "name": "Relay 4 switch count"
+            },
+            "legio_since_last_activation": {
+                "name": "Last activation"
+            },
+            "legio_plateau_timer": {
+                "name": "Plateau timer"
+            },
+            "analog_input_step": {
+                "name": "Step"
+            },
+            "actual_temp_limit": {
+                "name": "Actual temperature limit"
+            },
+            "auto_heater_off_countdown": {
+                "name": "Auto heater off countdown"
+            },
+            "emergency_off_countdown": {
+                "name": "Emergency off countdown"
+            },
+            "boot_count": {
+                "name": "Boot count"
+            },
+            "operating_time_set_heater_step":  {
+                "name": "Set heater step operating time"
+            },
+            "operating_time_load_feedin": {
+                "name": "Load feed-in operating time"
+            },
+            "operating_time_load_setpoint": {
+                "name": "Load set-point operating time"
+            },
+            "operating_time_heatpump_request": {
+                "name": "Operating time"
+            },
+            "operating_time_analog_input": {
+                "name": "Operating time"
+            },
+            "operating_time_emergency_mode": {
+                "name": "Emergency mode operating time"
+            },
+            "operating_time_legio_protection": {
+                "name": "Operating time"
+            },
+            "operating_time_low_tariff": {
+                "name": "Low tariff operating time"
+            },
+            "operating_time_minimal_temp": {
+                "name": "Minimal temp. operating time"
+            },
+            "operating_time_heater_step1": {
+                "name": "Heater step 1 operating time"
+            },
+            "operating_time_heater_step2": {
+                "name": "Heater step 2 operating time"
+            },
+            "operating_time_heater_step3": {
+                "name": "Heater step 3 operating time"
+            },
+            "operating_time_heater_step4": {
+                "name": "Heater step 4 operating time"
+            },
+            "operating_time_heater_step5": {
+                "name": "Heater step 5 operating time"
+            },
+            "operating_time_heater_step6": {
+                "name": "Heater step 6 operating time"
+            },
+            "operating_time_heater_step7": {
+                "name": "Heater step 7 operating time"
+            },
+            "count_set_heater_step": {
+                "name": "Set heater step usage count"
+            },
+            "count_load_setpoint": {
+                "name": "Load set-point usage count"
+            },
+            "count_load_feedin": {
+                "name": "Load feed-in usage count"
+            },
+            "count_heatpump_request": {
+                "name": "Usage count"
+            },
+            "count_analog_input": {
+                "name": "Usage count"
+            },
+            "count_emergency_mode": {
+                "name": "Emergency mode usage count"
+            },
+            "count_legio_protection": {
+                "name": "Usage count"
+            },
+            "count_low_tariff": {
+                "name": "Low tariff usage count"
+            },
+            "count_minimal_temp": {
+                "name": "Minimal temp. usage count"
+            },
+            "max_measured_temp": {
+                "name": "Max. measured temperature"
+            }
+        },
+        "select": {
+            "rtu_baudrate": {
+                "name": "Baudraute"
+            },
+            "smart_meter_type": {
+                "name": "Smart meter type"
+            },
+            "energy_meter_type": {
+                "name": "Energy meter type",
+                "state": {
+                    "0": "Not installed",
+                    "1": "Automation One A1EM.BIDMOD",
+                    "2": "Automation One A1EM.MOD",
+                    "16": "Carlo Gavazzi EM300 / ET300 SERIES (e.g. EM340)"
+                }
+            }
+        },
+        "switch": {
+            "missing_current_flow_triggers_error": {
+                "name": "Missing current flow triggers error"
+            },
+            "heater_load_value_only_if_current_flows": {
+                "name": "Heater load value only if current flows"
+            },
+            "load_feedin_value_enabled": {
+                "name": "Load feed-in mode"
+            },
+            "load_setpoint_value_enabled": {
+                "name": "Load set-point mode"
+            },
+            "set_heater_step_value_enabled": {
+                "name": "Set heater step mode"
+            },
+            "analog_input_enabled": {
+                "name": "Mode"
+            },
+            "heatpump_request_enabled": {
+                "name": "Heatpump request mode"
+            },
+            "emergency_mode_enabled": {
+                "name": "Emergency mode"
+            },
+            "low_tariff_option_enabled": {
+                "name": "Low tariff mode"
+            },
+            "hold_minimal_temperature_enabled": {
+                "name": "Hold min. temp. mode"
+            },
+            "sw_control_sma_semp_enabled": {
+                "name": "SMA sw-control mode"
+            },
+            "sw_control_senec_home_enabled": {
+                "name": "SENEC sw-control mode"
+            },
+            "auto_off_modbus_timeout_enabled": {
+                "name": "Auto-off on modbus timeout"
+            },
+            "restart_if_em_connection_lost": {
+                "name": "Restart if energy manager connection lost"
+            },
+            "auto_off_modbus_enabled": {
+                "name": "Auto-off modbus control"
+            },
+            "auto_off_analog_input_enabled": {
+                "name": "Auto-off"
+            },
+            "auto_off_heatpump_request_enabled": {
+                "name": "Auto-off"
+            },
+            "auto_off_emergency_mode_enabled": {
+                "name": "Auto-off"
+            },
+            "heatbuffer_type_tap_water": {
+                "name": "Tap water"
+            },
+            "heatbuffer_type_heating_water": {
+                "name": "Heating water"
+            },
+            "heatbuffer_type_combined_heat_and_power_unit": {
+                "name": "Combined heat and power unit"
+            },
+            "heatbuffer_type_pellet_firing": {
+                "name": "Pellet firing"
+            },
+            "heatbuffer_type_gas_burner": {
+                "name": "Gas burner"
+            },
+            "heatbuffer_type_oil_burner": {
+                "name": "Oil burner"
+            },
+            "heatbuffer_type_heatpump": {
+                "name": "Heatpump"
+            },
+            "heatbuffer_type_other": {
+                "name": "Other type"
+            },
+            "heater_position_bottom": {
+                "name": "Heater position bottom"
+            },
+            "heater_position_middle": {
+                "name": "Heater position middle"
+            },
+            "heat_position_askowall": {
+                "name": "Heater position askowall"
+            },
+            "legio_settings_use_internal_temp_sensor": {
+                "name": "Int. temp. sensor for legio prot."
+            },
+            "legio_settings_use_external_temp_sensor1": {
+                "name": "Ext. temp. sensor 1 for legio prot."
+            },
+            "legio_settings_use_external_temp_sensor2": {
+                "name": "Ext. temp. sensor 2 for legio prot."
+            },
+            "legio_settings_use_external_temp_sensor3": {
+                "name": "Ext. temp. sensor 3 for legio prot."
+            },
+            "legio_settings_use_external_temp_sensor4": {
+                "name": "Ext. temp. sensor 4 for legio prot."
+            },
+            "legio_settings_interval_daily": {
+                "name": "Daily legion protection interval"
+            },
+            "legio_settings_interval_weekly": {
+                "name": "Weekly legio protection interval"
+            },
+            "legio_settings_interval_fortnightly": {
+                "name": "Fortnightly legio protection interval"
+            },
+            "legio_settings_interval_monthly": {
+                "name": "Monthly legio protection interval"
+            },
+            "legio_settings_prefer_feedin_energy": {
+                "name": "Prefer feed-in energy for legio protection"
+            },
+            "legio_setting_protection_enabled": {
+                "name": "Enabled"
+            },
+            "house_type_single_family_house": {
+                "name": "Single house"
+            },
+            "house_type_two_family_house": {
+                "name": "Two family house"
+            },
+            "house_type_appartment_building": {
+                "name": "Appartment building"
+            },
+            "house_type_commercial_building": {
+                "name": "Commercial building"
+            },
+            "is_summer_time": {
+                "name": "Is summer time"
+            },
+            "rtu_send_two_stop_bits": {
+                "name": "Send two stop bits"
+            },
+            "rtu_send_parity_even": {
+                "name": "Send parity even"
+            },
+            "rtu_send_parity_odd": {
+                "name": "Send parity odd"
+            },
+            "rtu_slave_mode_active": {
+                "name": "Modbus slave mode"
+            },
+            "rtu_master_mode_active": {
+                "name": "Modbus master mode"
+            },
+            "use_internal_temp_sensor": {
+                "name": "Use int. temp. sensor"
+            },
+            "use_external_temp_sensor1": {
+                "name": "Use ext. temp. sensor 1"
+            },
+            "use_external_temp_sensor2": {
+                "name": "Use ext. temp. sensor 2"
+            },
+            "use_external_temp_sensor3": {
+                "name": "Use ext. temp. sensor 3"
+            },
+            "use_external_temp_sensor4": {
+                "name": "Use ext. temp. sensor 4"
             }
         },
         "text": {
             "info_string": {
                 "name": "Info string"
+            }
+        },
+        "time": {
+            "legio_protection_preferred_start_time": {
+                "name": "Legio protection start time"
+            },
+            "low_tariff_start_time": {
+                "name": "Low tariff start time"
+            },
+            "low_tariff_end_time": {
+                "name": "Low tariff end time"
             }
         }
     },
