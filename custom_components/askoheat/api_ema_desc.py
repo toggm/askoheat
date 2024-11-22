@@ -142,7 +142,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.ERROR_OCCURED,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
-            icon="mdi:water-thermometer",
+            icon="mdi:alert-circle",
             device_class=BinarySensorDeviceClass.PROBLEM,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=15),
         ),

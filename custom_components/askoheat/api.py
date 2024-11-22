@@ -215,7 +215,7 @@ class AskoHeatModbusApiClient:
                 result = _prepare_float32(value)
             case StringRegisterInputDescriptor():
                 result = _prepare_str(value)
-            case TimeRegisterInputDescriptor(value):
+            case TimeRegisterInputDescriptor():
                 result = _prepare_time(value)
             case StrEnumInputDescriptor():
                 result = _prepare_str(value.value)  # type: ignore  # noqa: PGH003
@@ -456,7 +456,7 @@ def _read_str(register_values: list[int]) -> str:
         byte_list.extend(int.to_bytes(x, 2, "little"))
     while byte_list[-1:] == b"\00":
         byte_list = byte_list[:-1]
-    return byte_list.decode("utf-8").strip(" ")
+    return byte_list.decode().strip(" ")
 
 
 def _prepare_str(value: object) -> list[int]:
@@ -467,12 +467,13 @@ def _prepare_str(value: object) -> list[int]:
         )
         return []
     str_value = cast(str, value)
-    byte_list = str_value.encode("utf-8")
-    size = int(len(byte_list) / 2)
+    byte_list = str_value.encode()
+    size = float.__ceil__(len(byte_list) / 2)
     result = []
     for index in range(size):
-        b = byte_list[index * 2 : index * 2 + 1]
+        b = byte_list[index * 2 : index * 2 + 2]
         result.append(int.from_bytes(b, "little"))
+
     return result
 
 
@@ -532,7 +533,7 @@ def _read_uint16(register_value: int) -> np.uint16:
 
 def _prepare_uint16(value: object) -> list[int]:
     """Prepare unsigned int 16 value for writing to registers."""
-    if not isinstance(value, number | float):
+    if not isinstance(value, number | float | int):
         LOGGER.error(
             "Cannot convert value %s as unsigned int, wrong datatype %r",
             value,
@@ -554,7 +555,7 @@ def _read_uint32(register_values: list[int]) -> np.uint32:
 
 def _prepare_uint32(value: object) -> list[int]:
     """Prepare unsigned int 32 value for writing to registers."""
-    if not isinstance(value, number | float):
+    if not isinstance(value, number | float | int):
         LOGGER.error(
             "Cannot convert value %s as unsigned int, wrong datatype %r",
             value,
@@ -576,7 +577,7 @@ def _read_float32(register_values: list[int]) -> np.float32:
 
 def _prepare_float32(value: object) -> list[int]:
     """Prepare float32 value writing to registers."""
-    if not isinstance(value, number | float):
+    if not isinstance(value, number | float | int):
         LOGGER.error(
             "Cannot convert value %s as float32, wrong datatype %r", value, type(value)
         )
@@ -622,7 +623,6 @@ def _read_struct(register_values: list[int], structure: str | bytes) -> Any | No
         msg = f"Received {recv_size} bytes, unpack error {err}"
         LOGGER.error(msg)
         return None
-    LOGGER.debug("read struct:%s, %s => %s", register_values, byte_string, val)
     if len(val) == 1:
         return val[0]
     return val
