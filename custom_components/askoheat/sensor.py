@@ -14,7 +14,7 @@ from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIP
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
-from custom_components.askoheat.const import LOGGER, AttributeKeys
+from custom_components.askoheat.const import AttributeKeys
 from custom_components.askoheat.model import (
     AskoheatDurationSensorEntityDescription,
     AskoheatSensorEntityDescription,
