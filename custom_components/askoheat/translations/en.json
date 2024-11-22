@@ -26,49 +26,49 @@
             }
         },
         "binary_sensor": {
-            "status.heater1": {
+            "status_heater1": {
                 "name": "Heater 1"
             },
-            "status.heater2": {
+            "status_heater2": {
                 "name": "Heater 2"
             },
-            "status.heater3": {
+            "status_heater3": {
                 "name": "Heater 3"
             },
-            "status.pump":  {
+            "status_pump":  {
                 "name": "Pump"
             },
-            "status.relay_board_connected": {
+            "status_relay_board_connected": {
                 "name": "Relay board connection"
             },
-            "status.emergency_mode": {
+            "status_emergency_mode": {
                 "name": "Emergency mode"
             },
-            "status.heat_pump_request": {
+            "status_heat_pump_request": {
                 "name": "Heat pump request"
             },
-            "status.legionella_protection": {
+            "status_legionella_protection": {
                 "name": "Legionella protection"
             },
-            "status.analog_input": {
+            "status_analog_input": {
                 "name": "Analog input"
             },
-            "status.setpoint":  {
+            "status_setpoint":  {
                 "name": "Setpoint"
             },
-            "status.load_feedin": {
+            "status_load_feedin": {
                 "name": "Load feedin"
             },
-            "status.autoheater": {
+            "status_autoheater": {
                 "name": "Auto-heater"
             },
-            "status.pump_relay_follow_up_time_active": {
+            "status_pump_relay_follow_up_time_active": {
                 "name": "Pump relay follow-up time active"
             },
-            "status.temp_limit_reached":  {
+            "status_temp_limit_reached":  {
                 "name": "Temp. limit reached"
             },
-            "status.error": {
+            "status_error": {
                 "name": "Error"
             },
             "type_3_stage_version": {

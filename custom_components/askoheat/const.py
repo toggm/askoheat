@@ -262,21 +262,21 @@ class BinarySensorAttrKey(StrEnum):
     # EMA block binary sensors
     # -----------------------------------------------
     # from status register -- begin
-    HEATER1_ACTIVE = "status.heater1"
-    HEATER2_ACTIVE = "status.heater2"
-    HEATER3_ACTIVE = "status.heater3"
-    PUMP_ACTIVE = "status.pump"
-    RELAY_BOARD_CONNECTED = "status.relay_board_connected"
-    EMERGENCY_MODE_ACTIVE = "status.emergency_mode"
-    HEATPUMP_REQUEST_ACTIVE = "status.heatpump_request"
-    LEGIONELLA_PROTECTION_ACTIVE = "status.legionella_protection"
-    ANALOG_INPUT_ACTIVE = "status.analog_input"
-    SETPOINT_ACTIVE = "status.setpoint"
-    LOAD_FEEDIN_ACTIVE = "status.load_feedin"
-    AUTOHEATER_ACTIVE = "status.autoheater"
-    PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE = "status.pump_relay_follow_up_time_active"
-    TEMP_LIMIT_REACHED = "status.temp_limit_reached"
-    ERROR_OCCURED = "status.error"
+    HEATER1_ACTIVE = "status_heater1"
+    HEATER2_ACTIVE = "status_heater2"
+    HEATER3_ACTIVE = "status_heater3"
+    PUMP_ACTIVE = "status_pump"
+    RELAY_BOARD_CONNECTED = "status_relay_board_connected"
+    EMERGENCY_MODE_ACTIVE = "status_emergency_mode"
+    HEATPUMP_REQUEST_ACTIVE = "status_heatpump_request"
+    LEGIONELLA_PROTECTION_ACTIVE = "status_legionella_protection"
+    ANALOG_INPUT_ACTIVE = "status_analog_input"
+    SETPOINT_ACTIVE = "status_setpoint"
+    LOAD_FEEDIN_ACTIVE = "status_load_feedin"
+    AUTOHEATER_ACTIVE = "status_autoheater"
+    PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE = "status_pump_relay_follow_up_time_active"
+    TEMP_LIMIT_REACHED = "status_temp_limit_reached"
+    ERROR_OCCURED = "status_error"
     # from status register -- end
 
     # -----------------------------------------------
