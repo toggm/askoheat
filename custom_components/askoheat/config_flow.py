@@ -17,7 +17,6 @@ from .api import (
     AskoheatModbusApiClientError,
 )
 from .const import (
-    CONF_DEVICE_UNIQUE_ID,
     DEFAULT_HOST,
     DEFAULT_PORT,
     DOMAIN,
@@ -71,7 +70,8 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 _errors["base"] = "unknown"
             else:
                 LOGGER.debug(
-                    "Successfully connected to askoheat instance, received parameters: %s",
+                    "Successfully connected to askoheat instance, "
+                    "received parameters: %s",
                     parameters,
                 )
                 article_name = parameters[f"sensor.{SensorAttrKey.PAR_ARTICLE_NAME}"]

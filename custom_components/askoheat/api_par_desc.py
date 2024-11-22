@@ -28,7 +28,7 @@ from custom_components.askoheat.model import (
     AskoheatSensorEntityDescription,
 )
 
-PARAMETER_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
+PARAM_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
     starting_register=400,
     number_of_registers=56,
     sensors=[

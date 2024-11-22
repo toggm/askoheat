@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -10,9 +10,11 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.askoheat.model import AskoheatEntityDescription
 
-from .const import ATTRIBUTION, CONF_DEVICE_UNIQUE_ID, LOGGER, DeviceKey
+from .const import ATTRIBUTION, DeviceKey
 from .coordinator import AskoheatDataUpdateCoordinator
-from .data import AskoheatConfigEntry
+
+if TYPE_CHECKING:
+    from .data import AskoheatConfigEntry
 
 E = TypeVar("E", bound=AskoheatEntityDescription)
 

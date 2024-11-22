@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import date, datetime
-from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -14,16 +12,18 @@ from homeassistant.core import callback
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
-from custom_components.askoheat.api_par_desc import PARAMETER_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.model import (
     AskoheatDurationSensorEntityDescription,
     AskoheatSensorEntityDescription,
 )
 
 from .entity import AskoheatEntity
-from custom_components.askoheat import entity
 
 if TYPE_CHECKING:
+    from datetime import date, datetime
+    from decimal import Decimal
+
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
     from homeassistant.helpers.typing import StateType
@@ -67,7 +67,7 @@ async def async_setup_entry(
         for entity_description, coordinator in {
             **{
                 entity_description: entry.runtime_data.par_coordinator
-                for entity_description in PARAMETER_REGISTER_BLOCK_DESCRIPTOR.sensors
+                for entity_description in PARAM_REGISTER_BLOCK_DESCRIPTOR.sensors
             },
             **{
                 entity_description: entry.runtime_data.ema_coordinator

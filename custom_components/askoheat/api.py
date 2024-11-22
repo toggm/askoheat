@@ -2,15 +2,13 @@
 
 from __future__ import annotations
 
+import struct
 from datetime import time
 from enum import ReprEnum
-from struct import unpack
-import struct
-from tracemalloc import start
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import numpy as np
-from numpy import byte, number
+from numpy import number
 from pymodbus.client import AsyncModbusTcpClient as ModbusClient
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
@@ -31,7 +29,7 @@ from custom_components.askoheat.api_desc import (
 )
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
-from custom_components.askoheat.api_par_desc import PARAMETER_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import (
     LOGGER,
 )
@@ -103,11 +101,11 @@ class AskoHeatModbusApiClient:
     async def async_read_par_data(self) -> AskoheatDataBlock:
         """Read PAR states."""
         data = await self.__async_read_input_registers_data(
-            PARAMETER_REGISTER_BLOCK_DESCRIPTOR.starting_register,
-            PARAMETER_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
+            PARAM_REGISTER_BLOCK_DESCRIPTOR.starting_register,
+            PARAM_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
         )
         LOGGER.debug("async_read_par_data %s", data)
-        return self.__map_data(PARAMETER_REGISTER_BLOCK_DESCRIPTOR, data)
+        return self.__map_data(PARAM_REGISTER_BLOCK_DESCRIPTOR, data)
 
     async def async_read_config_data(self) -> AskoheatDataBlock:
         """Read EMA states."""

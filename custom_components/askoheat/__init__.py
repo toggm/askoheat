@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.loader import async_get_loaded_integration
 
+from .api import AskoHeatModbusApiClient
 from .coordinator import (
     AskoheatConfigDataUpdateCoordinator,
     AskoheatEMADataUpdateCoordinator,
@@ -19,8 +20,6 @@ from .coordinator import (
     AskoheatParameterDataUpdateCoordinator,
 )
 from .data import AskoheatData
-
-from .api import AskoHeatModbusApiClient
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant

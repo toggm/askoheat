@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import ctypes
-from struct import pack
 import typing
 from abc import ABC
 from dataclasses import dataclass, field

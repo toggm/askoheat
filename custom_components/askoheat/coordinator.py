@@ -16,8 +16,8 @@ from .const import (
     DOMAIN,
     LOGGER,
     SCAN_INTERVAL_CONFIG,
-    SCAN_INTERVAL_OP_DATA,
     SCAN_INTERVAL_EMA,
+    SCAN_INTERVAL_OP_DATA,
 )
 
 if TYPE_CHECKING:
@@ -156,7 +156,8 @@ class AskoheatParameterDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
 
     async def async_write(self, _: RegisterInputDescriptor, __: object) -> None:
         """Write parameter par block of Askoheat."""
-        raise UpdateFailed("Writing values to parameters not allowed")
+        msg = "Writing values to parameters not allowed"
+        raise UpdateFailed(msg)
 
 
 class AskoheatOperationDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
@@ -177,7 +178,8 @@ class AskoheatOperationDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
 
     async def async_write(self, _: RegisterInputDescriptor, __: object) -> None:
         """Write parameter data block of Askoheat."""
-        raise UpdateFailed("Writing values to data block not allowed")
+        msg = "Writing values to data block not allowed"
+        raise UpdateFailed(msg)
 
 
 def _map_data_block_to_dict(data: AskoheatDataBlock) -> dict[str, Any]:
