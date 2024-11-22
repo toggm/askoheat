@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -13,6 +14,7 @@ from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIP
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.const import LOGGER, AttributeKeys
 from custom_components.askoheat.model import (
     AskoheatDurationSensorEntityDescription,
     AskoheatSensorEntityDescription,
@@ -142,6 +144,8 @@ class AskoheatSensor(AskoheatEntity[AskoheatSensorEntityDescription], SensorEnti
 class AskoheatDurationSensor(AskoheatSensor):
     """askoheat Sensor class representing a duration."""
 
+    _unrecorded_attributes = frozenset({AttributeKeys.FORMATTED})
+
     def __init__(
         self,
         entry: AskoheatConfigEntry,
@@ -150,6 +154,7 @@ class AskoheatDurationSensor(AskoheatSensor):
     ) -> None:
         """Initialize the duration sensor class."""
         super().__init__(entry, coordinator, entity_description)
+        self._attr_extra_state_attributes[AttributeKeys.FORMATTED] = None
 
     def _convert_value(self, value: Any) -> StateType | date | datetime | Decimal:
         time_as_int = int(value)
@@ -157,11 +162,18 @@ class AskoheatDurationSensor(AskoheatSensor):
         hours = int(time_as_int / 2**8) & 0xFF
         days = int(time_as_int / 2**16) & 0xFFFF
 
+        # write formatted value additionally to attributes
+        self._attr_extra_state_attributes[AttributeKeys.FORMATTED] = timedelta(
+            days=days, hours=hours, minutes=minutes
+        ).__str__()
+
         match self.entity_description.native_unit_of_measurement:
             case UnitOfTime.DAYS:
-                return (minutes / (60 * 24)) + (hours / 24) + days
+                converted_value = (minutes / (60 * 24)) + (hours / 24) + days
             case UnitOfTime.HOURS:
-                return (minutes / 60) + hours + (days * 24)
+                converted_value = (minutes / 60) + hours + (days * 24)
             case _:
                 # by default convert to minutes
-                return minutes + (hours * 60) + (days * 24 * 60)
+                converted_value = minutes + (hours * 60) + (days * 24 * 60)
+
+        return converted_value

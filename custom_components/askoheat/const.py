@@ -442,3 +442,10 @@ class DeviceKey(StrEnum):
     ENERGY_MANAGER = "energy_manager"
     WATER_HEATER_CONTROL_UNIT = "water_heater_control_unit"
     LEGIO_PROTECTION_CONTROL_UNIT = "legio_protection_control_unit"
+
+
+class AttributeKeys(StrEnum):
+    """Additional attributes keys."""
+
+    API_DESCRIPTOR = "api_descriptor"
+    FORMATTED = "formatted"

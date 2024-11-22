@@ -10,7 +10,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.askoheat.model import AskoheatEntityDescription
 
-from .const import ATTRIBUTION, DeviceKey
+from .const import ATTRIBUTION, AttributeKeys, DeviceKey
 from .coordinator import AskoheatDataUpdateCoordinator
 
 if TYPE_CHECKING:
@@ -25,6 +25,8 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
     _attr_has_entity_name = True
     _attr_attribution = ATTRIBUTION
     entity_description: E
+
+    _unrecorded_attributes = frozenset({AttributeKeys.API_DESCRIPTOR})
 
     def __init__(
         self,
@@ -48,6 +50,9 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
                 DeviceKey.WATER_HEATER_CONTROL_UNIT,
             ),
         )
+        self._attr_extra_state_attributes = {
+            AttributeKeys.API_DESCRIPTOR: f"{entity_description.api_descriptor}"  # type: ignore  # noqa: PGH003
+        }
         self.entity_description = entity_description
         self.translation_key = (
             entity_description.translation_key or entity_description.key.value  # type: ignore  # noqa: PGH003
