@@ -79,7 +79,10 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     f"sensor.{SensorAttrKey.PAR_ARTICLE_NUMBER}"
                 ]
                 serial_number = parameters[f"sensor.{SensorAttrKey.PAR_ID}"]
-                unique_id = serial_number.lower().replace("-", "_").replace(".", "_")
+                cleaned_serial_number = (
+                    serial_number.lower().replace("-", "_").replace(".", "_")
+                )
+                unique_id = f"{DOMAIN}_{cleaned_serial_number}"
 
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured()
