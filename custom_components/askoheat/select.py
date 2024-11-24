@@ -45,6 +45,8 @@ async def async_setup_entry(
                 for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.select_inputs
             },
         }.items()
+        if entity_description.device_key is None
+        or entity_description.device_key in entry.runtime_data.supported_devices
     )
 
 

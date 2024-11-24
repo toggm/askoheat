@@ -172,7 +172,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         ),
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_RTU_SLAVE_ID,
-            device_key=DeviceKey.ENERGY_MANAGER,
+            device_key=DeviceKey.MODBUS_MASTER,
             native_min_value=0,
             native_max_value=240,
             entity_category=EntityCategory.CONFIG,

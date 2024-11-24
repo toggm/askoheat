@@ -12,7 +12,16 @@ from typing import TYPE_CHECKING
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.loader import async_get_loaded_integration
 
+from custom_components.askoheat.const import DeviceKey
+
 from .api import AskoHeatModbusApiClient
+from .const import (
+    CONF_ANALOG_INPUT_UNIT,
+    CONF_DEVICE_UNITS,
+    CONF_HEATPUMP_UNIT,
+    CONF_LEGIONELLA_PROTECTION_UNIT,
+    CONF_MODBUS_MASTER_UNIT,
+)
 from .coordinator import (
     AskoheatConfigDataUpdateCoordinator,
     AskoheatEMADataUpdateCoordinator,
@@ -50,6 +59,20 @@ async def async_setup_entry(
     )
     config_coordinator = AskoheatConfigDataUpdateCoordinator(hass=hass)
     data_coordinator = AskoheatOperationDataUpdateCoordinator(hass=hass)
+
+    # default devices
+    supported_devices = [DeviceKey.WATER_HEATER_CONTROL_UNIT, DeviceKey.ENERGY_MANAGER]
+    # add devices based on configuration
+    additional_devices = entry.data[CONF_DEVICE_UNITS]
+    if additional_devices[CONF_LEGIONELLA_PROTECTION_UNIT]:
+        supported_devices.append(DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT)
+    if additional_devices[CONF_ANALOG_INPUT_UNIT]:
+        supported_devices.append(DeviceKey.ANALOG_INPUT_CONTROL_UNIT)
+    if additional_devices[CONF_MODBUS_MASTER_UNIT]:
+        supported_devices.append(DeviceKey.MODBUS_MASTER)
+    if additional_devices[CONF_HEATPUMP_UNIT]:
+        supported_devices.append(DeviceKey.HEATPUMP_CONTROL_UNIT)
+
     entry.runtime_data = AskoheatData(
         client=AskoHeatModbusApiClient(
             host=entry.data[CONF_HOST],
@@ -60,6 +83,7 @@ async def async_setup_entry(
         config_coordinator=config_coordinator,
         par_coordinator=par_coordinator,
         data_coordinator=data_coordinator,
+        supported_devices=supported_devices,
     )
     await entry.runtime_data.client.connect()
 

@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
     from custom_components.askoheat.const import (
         BinarySensorAttrKey,
+        DeviceKey,
         NumberAttrKey,
         SelectAttrKey,
         SensorAttrKey,
@@ -45,6 +46,7 @@ class AskoheatData:
     par_coordinator: AskoheatParameterDataUpdateCoordinator
     data_coordinator: AskoheatOperationDataUpdateCoordinator
     integration: Integration
+    supported_devices: list[DeviceKey]
 
 
 @dataclass

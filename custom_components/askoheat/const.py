@@ -18,7 +18,11 @@ SCAN_INTERVAL_EMA = timedelta(seconds=5)
 SCAN_INTERVAL_CONFIG = timedelta(hours=1)
 SCAN_INTERVAL_OP_DATA = timedelta(minutes=1)
 
-CONF_DEVICE_UNIQUE_ID = "device_unique_id"
+CONF_DEVICE_UNITS = "devices"
+CONF_ANALOG_INPUT_UNIT = "analog_input_unit"
+CONF_LEGIONELLA_PROTECTION_UNIT = "legionella_protection_unit"
+CONF_MODBUS_MASTER_UNIT = "modbus_master_unit"
+CONF_HEATPUMP_UNIT = "heatpump_unit"
 
 
 class NumberAttrKey(StrEnum):

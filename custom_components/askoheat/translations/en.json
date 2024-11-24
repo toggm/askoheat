@@ -6,6 +6,17 @@
                 "data": {
                     "host": "host",
                     "port": "port"
+                },
+                "sections": {
+                    "devices": {
+                        "name": "Enable additional device units",
+                        "data": {
+                            "legionella_protection_unit": "Legionella protection",
+                            "heatpump_unit": "Heatpump control",
+                            "analog_input_unit": "Analog input control",
+                            "modbus_master_unit": "Modbus master"
+                        }
+                    }
                 }
             }
         },
