@@ -1,57 +1,112 @@
-# Notice
+# Askoheat+ integration
 
-The component and platforms in this repository are not meant to be used by a
-user, but as a "blueprint" that custom component developers can build
-upon, to make more awesome stuff.
+[![GitHub Release][releases-shield]][releases]
+[![GitHub Activity][commits-shield]][commits]
+[![License][license-shield]](LICENSE)
 
-HAVE FUN! 😎
+![Project Maintenance][maintenance-shield]
+[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
 
-## Why?
+[![Community Forum][forum-shield]][forum]
 
-This is simple, by having custom_components look (README + structure) the same
-it is easier for developers to help each other and for users to start using them.
+This integration integrates [Askoheat+ devices](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html) through modbus.
 
-If you are a developer and you want to add things to this "blueprint" that you think more
-developers will have use for, please open a PR to add it :)
+## There exist a modbus integration in home assistant core, why should I use this custom integration instead?
 
-## What?
+It's possible to integrate an Askoheat+ device using the core modbus integration but it's cumbersome as you will have to:
 
-This repository contains multiple files, here is a overview:
+- Go through the list of read/write registers manually and pick the once's you'd like to integrate
+- Map status registers through helpers to be able to map them to `binary_sensor` states
+- Write services to write values back to aksoheat+ device with the convertion needed manually
+- all registers listed in the modbus are queried independantly, even if it would be possible to scan all the states in one shot
 
-File | Purpose | Documentation
--- | -- | --
-`.devcontainer.json` | Used for development/testing with Visual Studio Code. | [Documentation](https://code.visualstudio.com/docs/remote/containers)
-`.github/ISSUE_TEMPLATE/*.yml` | Templates for the issue tracker | [Documentation](https://help.github.com/en/github/building-a-strong-community/configuring-issue-templates-for-your-repository)
-`.vscode/tasks.json` | Tasks for the devcontainer. | [Documentation](https://code.visualstudio.com/docs/editor/tasks)
-`custom_components/integration_blueprint/*` | Integration files, this is where everything happens. | [Documentation](https://developers.home-assistant.io/docs/creating_component_index)
-`CONTRIBUTING.md` | Guidelines on how to contribute. | [Documentation](https://help.github.com/en/github/building-a-strong-community/setting-guidelines-for-repository-contributors)
-`LICENSE` | The license file for the project. | [Documentation](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/licensing-a-repository)
-`README.md` | The file you are reading now, should contain info about the integration, installation and configuration instructions. | [Documentation](https://help.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax)
-`requirements.txt` | Python packages used for development/lint/testing this integration. | [Documentation](https://pip.pypa.io/en/stable/user_guide/#requirements-files)
+This integration provides support for the following modbus register data blocks defined by the manufacturer and queries all states of a data block with a single query using different predefined scan_intervals:
+| Data block | Scan interval |
+| --------------------- | ---------------------------------------------------- |
+| [Energymanager Block](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#EM_Block)| Polls every 5 seconds for state changes |
+| [Paramter Block](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Parameter_Block) | Read registers once on startup |
+| [Configuration Block](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Configuration_Block)| Polls registers once an hour |
+| [Data Values Block](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Data_Values_Block) | Polls registers once a minute |
 
-## How?
+Some of the states are exposed in more than one data block and are therefore integrated only once.
 
-1. Create a new repository in GitHub, using this repository as a template by clicking the "Use this template" button in the GitHub UI.
-1. Open your new repository in Visual Studio Code devcontainer (Preferably with the "`Dev Containers: Clone Repository in Named Container Volume...`" option).
-1. Rename all instances of the `integration_blueprint` to `custom_components/<your_integration_domain>` (e.g. `custom_components/awesome_integration`).
-1. Rename all instances of the `Integration Blueprint` to `<Your Integration Name>` (e.g. `Awesome Integration`).
-1. Run the `scripts/develop` to start HA and test out your new integration.
+## Device units
 
-## Next steps
+All the entities created by this integration are assigned to one of the following device units through which you can filter out not needed states based on the local Askoheat water boiler setup:
+| Device unit | Description |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Water heater | Required. Entities related to core water heater sensors and configuration parameters |
+| Energy manager | Required. Entities related to controlling the water heater through Home assistant as energy manager (i.e. load feed-in, etc.) |
+| Analog input | Optional. Exposes entities related to contrlling the askoheat+ water heater through analog input |
+| Heatpump | Optional. Exposes entities related to an integration with a connected heatpump sending heatpump requests |
+| Legionalla protection | Optional. Exposes entities related to the integration legionalla protection mechanism |
+| Modbus master | Optional. Exposes entities to use the askoheat water heater as a modbus master connecting to other slave devices |
 
-These are some next steps you may want to look into:
-- Add tests to your integration, [`pytest-homeassistant-custom-component`](https://github.com/MatthewFlamm/pytest-homeassistant-custom-component) can help you get started.
-- Add brand images (logo/icon) to https://github.com/home-assistant/brands.
-- Create your first release.
-- Share your integration on the [Home Assistant Forum](https://community.home-assistant.io/).
-- Submit your integration to [HACS](https://hacs.xyz/docs/publish/start).
+## 1. Installation
 
+### 1.1 HACS (recommended)
 
-## TODO
-- [ ] Integration configuration parameter sections
-- [ ] Integration data sensors
-- [ ] Integrate write operations for switches and number inputs
-- [ ] Add translations for en and de
-- [ ] Create service to start auto-feed linked to solar entity and a reserve
-- [ ] Provide meatures
-- [ ] Cleanup and document
+Add the custom repo to HACS
+
+1. Go to 'HACS > Integration'
+2. Select 'Custom repositories' from the top right menu
+3. Under Repository, enter '<https://github.com/toggm/askoheat>'
+4. Under Category, select 'Integration'
+5. Click 'Add'
+   The new integration will appear as a new integration and under 'Explore & Download Repositories' in the bottom right
+
+Install the integration
+
+1. Click on the new integration or find it under 'Explore & Download Repositories' in the bottom right with the search word 'askoheat'.
+2. Select 'download' at the bottom right.
+3. Restart Home Assistant
+
+### 1.2 Manual installation
+
+Add the integration to Home Assistant
+
+1. Download the latest release of the Askoheat integration from this repository
+2. In Home Assistant, create a folder 'config/custom_components'
+3. Add the Luxtronik integration to the 'custom_components' folder;
+4. Restart Home Assistant;
+
+Install the integration
+
+1. Add the Askoheat integration to Home Assistant (`Settings -> Devices & services -> Add integration`);
+2. Restart Home Assistant;
+
+## 2. Adding an Askoheat+ device
+
+#### Autodiscovery
+
+Your askoheat device should be autodiscovered only if the device is using it's standard dhcp name `askoheat.local`.
+
+Press `Configure` and follow the steps to the end by selecting the additional device units you want to be created and monitored through this integration.
+
+#### Manual
+
+If you are using multiple askoheat devices, you're using a different hostname or work with static ip addresses you have to add your device manually.
+
+To add the heatpump manually go to `Settings -> Devices & services -> Add integration` and add a new Adkoheat+ device.'
+
+Provide correct hostname and configure the additional device units you want to be created and monitored through this integration.
+
+> ℹ️ If you access you're device by IP address, ensure the IP address is static. This can be configured in your router.
+
+## Contributions are welcome!
+
+If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
+
+---
+
+[askoheat]: https://github.com/toggm/askoheat
+[buymecoffee]: https://www.buymeacoffee.com/toggm
+[buymecoffeebadge]: https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg?style=for-the-badge
+[commits-shield]: https://img.shields.io/github/commit-activity/y/toggm/askoheat.svg?style=for-the-badge
+[commits]: https://github.com/toggm/askoheat/commits/main
+[forum-shield]: https://img.shields.io/badge/community-forum-brightgreen.svg?style=for-the-badge
+[forum]: https://community.home-assistant.io/
+[license-shield]: https://img.shields.io/github/license/toggm/askoheat.svg?style=for-the-badge
+[maintenance-shield]: https://img.shields.io/badge/maintainer-toggm-blue.svg?style=for-the-badge
+[releases-shield]: https://img.shields.io/github/release/toggm/askoheat.svg?style=for-the-badge
+[releases]: https://github.com/toggm/askoheat/releases

@@ -6,11 +6,16 @@
   ],
   "config_flow": true,
   "dhcp": [
-    { "hostname": "askoheat" },
-    { "hostname": "askoheat.local" }
+    {
+      "hostname": "askoheat"
+    },
+    {
+      "hostname": "askoheat.local"
+    }
   ],
   "documentation": "https://github.com/toggm/askoheat",
-  "iot_class": "cloud_polling",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
   "issue_tracker": "https://github.com/toggm/askoheat/issues",
   "version": "0.0.1-beta"
 }
