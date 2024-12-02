@@ -21,6 +21,7 @@ from .const import (
     CONF_HEATPUMP_UNIT,
     CONF_LEGIONELLA_PROTECTION_UNIT,
     CONF_MODBUS_MASTER_UNIT,
+    LOGGER,
 )
 from .coordinator import (
     AskoheatConfigDataUpdateCoordinator,
@@ -63,15 +64,16 @@ async def async_setup_entry(
     # default devices
     supported_devices = [DeviceKey.WATER_HEATER_CONTROL_UNIT, DeviceKey.ENERGY_MANAGER]
     # add devices based on configuration
-    additional_devices = entry.data[CONF_DEVICE_UNITS]
-    if additional_devices[CONF_LEGIONELLA_PROTECTION_UNIT]:
+    additional_devices = entry.data.get(CONF_DEVICE_UNITS) or {}
+    if additional_devices.get(CONF_LEGIONELLA_PROTECTION_UNIT):
         supported_devices.append(DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT)
-    if additional_devices[CONF_ANALOG_INPUT_UNIT]:
+    if additional_devices.get(CONF_ANALOG_INPUT_UNIT):
         supported_devices.append(DeviceKey.ANALOG_INPUT_CONTROL_UNIT)
-    if additional_devices[CONF_MODBUS_MASTER_UNIT]:
+    if additional_devices.get(CONF_MODBUS_MASTER_UNIT):
         supported_devices.append(DeviceKey.MODBUS_MASTER)
-    if additional_devices[CONF_HEATPUMP_UNIT]:
+    if additional_devices.get(CONF_HEATPUMP_UNIT):
         supported_devices.append(DeviceKey.HEATPUMP_CONTROL_UNIT)
+    LOGGER.error("supported devices:%s:%s", additional_devices, supported_devices)
 
     entry.runtime_data = AskoheatData(
         client=AskoHeatModbusApiClient(
@@ -86,6 +88,11 @@ async def async_setup_entry(
         supported_devices=supported_devices,
     )
     await entry.runtime_data.client.connect()
+
+    par_coordinator.config_entry = entry
+    ema_coordinator.config_entry = entry
+    config_coordinator.config_entry = entry
+    data_coordinator.config_entry = entry
 
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
     await par_coordinator.async_config_entry_first_refresh()

@@ -35,6 +35,18 @@ from custom_components.askoheat.model import (
     AskoheatSensorEntityDescription,
 )
 
+EMA_FEED_IN_VALUE_NUMBER_ENTITY_DESCRIPTOR = AskoheatNumberEntityDescription(
+    key=NumberAttrKey.LOAD_FEEDIN_VALUE,
+    device_key=DeviceKey.ENERGY_MANAGER,
+    icon="mdi:solar-power",
+    native_min_value=-30000,
+    native_max_value=30000,
+    native_precision=0,
+    native_unit_of_measurement=UnitOfPower.WATT,
+    entity_category=None,
+    api_descriptor=SignedInt16RegisterInputDescriptor(20),
+)
+
 EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
     starting_register=300,
     number_of_registers=37,
@@ -248,16 +260,6 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             entity_category=None,
             api_descriptor=SignedInt16RegisterInputDescriptor(19),
         ),
-        AskoheatNumberEntityDescription(
-            key=NumberAttrKey.LOAD_FEEDIN_VALUE,
-            device_key=DeviceKey.ENERGY_MANAGER,
-            icon="mdi:solar-power",
-            native_min_value=-30000,
-            native_max_value=30000,
-            native_precision=0,
-            native_unit_of_measurement=UnitOfPower.WATT,
-            entity_category=None,
-            api_descriptor=SignedInt16RegisterInputDescriptor(20),
-        ),
+        EMA_FEED_IN_VALUE_NUMBER_ENTITY_DESCRIPTOR,
     ],
 )

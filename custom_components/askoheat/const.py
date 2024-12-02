@@ -18,11 +18,14 @@ SCAN_INTERVAL_EMA = timedelta(seconds=5)
 SCAN_INTERVAL_CONFIG = timedelta(hours=1)
 SCAN_INTERVAL_OP_DATA = timedelta(minutes=1)
 
+CONF_FEED_IN = "auto-feed-in"
 CONF_DEVICE_UNITS = "devices"
 CONF_ANALOG_INPUT_UNIT = "analog_input_unit"
 CONF_LEGIONELLA_PROTECTION_UNIT = "legionella_protection_unit"
 CONF_MODBUS_MASTER_UNIT = "modbus_master_unit"
 CONF_HEATPUMP_UNIT = "heatpump_unit"
+CONF_POWER_ENTITY_ID = "power_entity_id"
+CONF_POWER_INVERT = "power_invert"
 
 
 class NumberAttrKey(StrEnum):
@@ -126,6 +129,8 @@ class NumberAttrKey(StrEnum):
     CON_LOW_TARIFF_TEMPERATURE_LIMIT = "low_tariff_temp_limit"
     # 0-95 degree
     CON_HEATPUMP_REQUEST_TEMPERATURE_LIMIT = "heatpump_request_temp_limit"
+
+    EMA_AUTO_FEEDIN_BUFFER = "auto_feedin_buffer"
 
 
 class TimeAttrKey(StrEnum):
@@ -257,6 +262,8 @@ class SwitchAttrKey(StrEnum):
     CON_USE_EXTERNAL_TEMP_SENSOR3 = "use_external_temp_sensor3"
     CON_USE_EXTERNAL_TEMP_SENSOR4 = "use_external_temp_sensor4"
     # from temp settings register -- end
+
+    EMA_AUTO_FEEDIN_SWITCH = "auto_feedin"
 
 
 class BinarySensorAttrKey(StrEnum):

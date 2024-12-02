@@ -33,14 +33,28 @@ Some of the states are exposed in more than one data block and are therefore int
 ## Device units
 
 All the entities created by this integration are assigned to one of the following device units through which you can filter out not needed states based on the local Askoheat water boiler setup:
-| Device unit | Description |
+| Device unit           | Description |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Water heater | Required. Entities related to core water heater sensors and configuration parameters |
-| Energy manager | Required. Entities related to controlling the water heater through Home assistant as energy manager (i.e. load feed-in, etc.) |
-| Analog input | Optional. Exposes entities related to contrlling the askoheat+ water heater through analog input |
-| Heatpump | Optional. Exposes entities related to an integration with a connected heatpump sending heatpump requests |
+| Water heater          | Required. Entities related to core water heater sensors and configuration parameters |
+| Energy manager        | Required. Entities related to controlling the water heater through Home assistant as energy manager (i.e. load feed-in, etc.) |
+| Analog input          | Optional. Exposes entities related to contrlling the askoheat+ water heater through analog input |
+| Heatpump              | Optional. Exposes entities related to an integration with a connected heatpump sending heatpump requests |
 | Legionalla protection | Optional. Exposes entities related to the integration legionalla protection mechanism |
-| Modbus master | Optional. Exposes entities to use the askoheat water heater as a modbus master connecting to other slave devices |
+| Modbus master         | Optional. Exposes entities to use the askoheat water heater as a modbus master connecting to other slave devices |
+
+## Auto feed-in
+
+To use HA to control auto feed-in (solar) mode of the askoheat device, a power sensor needs to be configured in the setup or later configuration of the device integration. An additional parameter
+defines if the provided value of the configures power device should get inverted. If not, the askoheat device assumes negative values of the power entity if energy is fed back to the grid and could
+be used to heat up the water instead.
+
+In the energy manager device two additional entities are provided to enable controlling the auto feed-in support based.
+
+| Entity Id Pattern                                  | Description |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| number.askoheat_{serial_number}_auto_feedin_buffer | Buffer of feed-back energy use for short term loads. Will be added to the value of the energy fed back (assuming fead-back value has a negative value) |
+| switch.askoheat_{serial_number}_auto_feedin        | Switch to enable auto feed-in mode. Will observe the power entity and send changes continously to the askoheat device |
+
 
 ## 1. Installation
 

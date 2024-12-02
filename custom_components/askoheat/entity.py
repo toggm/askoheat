@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, TypeVar
 
 from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from custom_components.askoheat.model import AskoheatEntityDescription
@@ -19,12 +20,40 @@ if TYPE_CHECKING:
 E = TypeVar("E", bound=AskoheatEntityDescription)
 
 
-class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
-    """AskoheatEntity class."""
+class AskoheatBaseEntity[E](Entity):
+    """Base entity."""
 
     _attr_has_entity_name = True
-    _attr_attribution = ATTRIBUTION
     entity_description: E
+
+    def __init__(self, entry: AskoheatConfigEntry, entity_description: E) -> None:
+        """Initialize."""
+        self._device_unique_id = entry.unique_id or "unkown"
+        self._attr_device_info = DeviceInfo(
+            identifiers={
+                (
+                    entry.domain,
+                    f"{entity_description.device_key}.{entry.entry_id}",  # type: ignore  # noqa: PGH003
+                ),
+            },
+            translation_key=entity_description.device_key,  # type: ignore  # noqa: PGH003
+            via_device=(
+                entry.domain,
+                DeviceKey.WATER_HEATER_CONTROL_UNIT,
+            ),
+        )
+        self.entity_description = entity_description
+        self.translation_key = (
+            entity_description.translation_key or entity_description.key.value  # type: ignore  # noqa: PGH003
+        )
+
+
+class AskoheatEntity[E](
+    CoordinatorEntity[AskoheatDataUpdateCoordinator], AskoheatBaseEntity[E]
+):
+    """AskoheatEntity class."""
+
+    _attr_attribution = ATTRIBUTION
 
     _unrecorded_attributes = frozenset({AttributeKeys.API_DESCRIPTOR})
 
@@ -35,28 +64,14 @@ class AskoheatEntity[E](CoordinatorEntity[AskoheatDataUpdateCoordinator]):
         entity_description: E,
     ) -> None:
         """Initialize."""
-        super().__init__(coordinator)
-        self._device_unique_id = entry.unique_id or "unkown"
-        self._attr_device_info = DeviceInfo(
-            identifiers={
-                (
-                    coordinator.config_entry.domain,
-                    f"{entity_description.device_key}.{coordinator.config_entry.entry_id}",  # type: ignore  # noqa: PGH003
-                ),
-            },
-            translation_key=entity_description.device_key,  # type: ignore  # noqa: PGH003
-            via_device=(
-                coordinator.config_entry.domain,
-                DeviceKey.WATER_HEATER_CONTROL_UNIT,
-            ),
+        super().__init__(coordinator=coordinator)
+        AskoheatBaseEntity.__init__(
+            self=self, entry=entry, entity_description=entity_description
         )
+        self._device_unique_id = entry.unique_id or "unkown"
         self._attr_extra_state_attributes = {
             AttributeKeys.API_DESCRIPTOR: f"{entity_description.api_descriptor}"  # type: ignore  # noqa: PGH003
         }
-        self.entity_description = entity_description
-        self.translation_key = (
-            entity_description.translation_key or entity_description.key.value  # type: ignore  # noqa: PGH003
-        )
 
     async def async_added_to_hass(self) -> None:
         """When entity is added to hass."""

@@ -4,12 +4,52 @@
             "user": {
                 "description": "If you need help with the configuration have a look here: https://github.com/toggm/askoheat",
                 "data": {
-                    "host": "host",
-                    "port": "port"
+                    "host": "Host",
+                    "port": "Port"
                 },
                 "sections": {
+                    "auto-feed-in": {
+                        "name": "Auto Feed-in",
+                        "description": "Additional information when using solar to feed-in binding",
+                        "data": {
+                            "power_entity_id": "Power entity to track for auto feed-in",
+                            "power_invert": "Invert tracked power"
+                        }
+                    },
                     "devices": {
-                        "name": "Enable additional device units",
+                        "name": "Device units",
+                        "description": "Enable additional device units. If you disable an alread added device unit, the entities assigned to this device unit must be removed manually.",
+                        "data": {
+                            "legionella_protection_unit": "Legionella protection",
+                            "heatpump_unit": "Heatpump control",
+                            "analog_input_unit": "Analog input control",
+                            "modbus_master_unit": "Modbus master"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "options":{
+        "step": {
+            "init": {
+                "description": "If you need help with the configuration have a look here: https://github.com/toggm/askoheat",
+                "data": {
+                    "host": "Host",
+                    "port": "Port"
+                },
+                "sections": {
+                    "auto-feed-in": {
+                        "name": "Auto Feed-in",
+                        "description": "Additional information when using solar to feed-in binding",
+                        "data": {
+                            "power_entity_id": "Power entity to track for auto feed-in",
+                            "power_invert": "Invert tracked power"
+                        }
+                    },
+                    "devices": {
+                        "name": "Device units",
+                        "description": "Enable additional device units",
                         "data": {
                             "legionella_protection_unit": "Legionella protection",
                             "heatpump_unit": "Heatpump control",
@@ -262,6 +302,9 @@
             },
             "heatpump_request_temp_limit": {
                 "name": "Temp. limit"
+            },
+            "auto_feedin_buffer": {
+                "name": "Auto feed-in buffer"
             }
         },
         "sensor": {
@@ -640,6 +683,9 @@
             },
             "use_external_temp_sensor4": {
                 "name": "Use ext. temp. sensor 4"
+            },
+            "auto_feedin": {
+                "name": "Auto feed-in"
             }
         },
         "text": {

@@ -43,6 +43,14 @@ from custom_components.askoheat.model import (
     AskoheatTimeEntityDescription,
 )
 
+CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR = AskoheatSwitchEntityDescription(
+    key=SwitchAttrKey.CON_LOAD_FEEDIN_VALUE_ENABLED,
+    device_key=DeviceKey.ENERGY_MANAGER,
+    entity_category=EntityCategory.CONFIG,
+    icon="mdi:solar-power",
+    api_descriptor=FlagRegisterInputDescriptor(2, 2),
+)
+
 CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
     starting_register=500,
     number_of_registers=100,
@@ -570,13 +578,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             icon="mdi:home-lightning-bolt",
             api_descriptor=FlagRegisterInputDescriptor(2, 1),
         ),
-        AskoheatSwitchEntityDescription(
-            key=SwitchAttrKey.CON_LOAD_FEEDIN_VALUE_ENABLED,
-            device_key=DeviceKey.ENERGY_MANAGER,
-            entity_category=EntityCategory.CONFIG,
-            icon="mdi:solar-power",
-            api_descriptor=FlagRegisterInputDescriptor(2, 2),
-        ),
+        CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR,
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_LOAD_SETPOINT_VALUE_ENABLED,
             device_key=DeviceKey.ENERGY_MANAGER,

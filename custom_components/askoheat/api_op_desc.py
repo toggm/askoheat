@@ -136,7 +136,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_class=SensorDeviceClass.DURATION,
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=UnitOfTime.MINUTES,
-            icon="mdi:progress-clock",
+            icon="mdi:shield-home",
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_LEGIO_PLATEAU_TIMER,
