@@ -84,7 +84,7 @@ class OptionalEntitySelector(selector.EntitySelector):
         """Validate the passed selection."""
         if data is None:
             return None
-        return selector.EntitySelector.__call__(data)
+        return selector.EntitySelector.__call__(self, data)
 
 
 def _step_user_data_schema(
