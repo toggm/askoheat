@@ -73,7 +73,6 @@ async def async_setup_entry(
         supported_devices.append(DeviceKey.MODBUS_MASTER)
     if additional_devices.get(CONF_HEATPUMP_UNIT):
         supported_devices.append(DeviceKey.HEATPUMP_CONTROL_UNIT)
-    LOGGER.error("supported devices:%s:%s", additional_devices, supported_devices)
 
     entry.runtime_data = AskoheatData(
         client=AskoHeatModbusApiClient(
