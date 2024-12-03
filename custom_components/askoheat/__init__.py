@@ -21,7 +21,6 @@ from .const import (
     CONF_HEATPUMP_UNIT,
     CONF_LEGIONELLA_PROTECTION_UNIT,
     CONF_MODBUS_MASTER_UNIT,
-    LOGGER,
 )
 from .coordinator import (
     AskoheatConfigDataUpdateCoordinator,
