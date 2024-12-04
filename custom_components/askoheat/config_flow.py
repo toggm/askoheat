@@ -25,6 +25,7 @@ from homeassistant.helpers import selector
 from custom_components.askoheat.coordinator import (
     AskoheatParameterDataUpdateCoordinator,
 )
+from custom_components.askoheat.data import AskoheatDeviceInfos
 
 from .api import (
     AskoHeatModbusApiClient,
@@ -44,7 +45,6 @@ from .const import (
     DEFAULT_PORT,
     DOMAIN,
     LOGGER,
-    SensorAttrKey,
 )
 
 if TYPE_CHECKING:
@@ -231,16 +231,18 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     "received parameters: %s",
                     parameters,
                 )
-                article_name = parameters[f"sensor.{SensorAttrKey.PAR_ARTICLE_NAME}"]
-                article_number = parameters[
-                    f"sensor.{SensorAttrKey.PAR_ARTICLE_NUMBER}"
-                ]
-                serial_number = parameters[f"sensor.{SensorAttrKey.PAR_ID}"]
+                device_infos = AskoheatDeviceInfos(parameters)
                 cleaned_serial_number = (
-                    serial_number.lower().replace("-", "_").replace(".", "_")
+                    device_infos.serial_number.lower()
+                    .replace("-", "_")
+                    .replace(".", "_")
                 )
                 unique_id = f"{DOMAIN}_{cleaned_serial_number}"
-                self._title = title = f"{article_name} {article_number} {serial_number}"
+                self._title = title = "{} {} {}".format(
+                    *device_infos.article_name,
+                    device_infos.article_number,
+                    device_infos.serial_number,
+                )
 
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured(updates=user_input)

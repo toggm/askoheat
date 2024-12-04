@@ -3,7 +3,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
+
+from custom_components.askoheat.const import (
+    SensorAttrKey,
+)
 
 if TYPE_CHECKING:
     from datetime import time
@@ -18,7 +22,6 @@ if TYPE_CHECKING:
         DeviceKey,
         NumberAttrKey,
         SelectAttrKey,
-        SensorAttrKey,
         SwitchAttrKey,
         TextAttrKey,
         TimeAttrKey,
@@ -48,6 +51,11 @@ class AskoheatData:
     integration: Integration
     supported_devices: list[DeviceKey]
 
+    @property
+    def device_info(self) -> AskoheatDeviceInfos:
+        """Resolve and return askoheat device infos."""
+        return AskoheatDeviceInfos(self.par_coordinator.data)
+
 
 @dataclass
 class AskoheatDataBlock:
@@ -60,3 +68,37 @@ class AskoheatDataBlock:
     select_inputs: dict[SelectAttrKey, ReprEnum] | None = None
     number_inputs: dict[NumberAttrKey, number] | None = None
     time_inputs: dict[TimeAttrKey, time] | None = None
+
+
+@dataclass
+class AskoheatDeviceInfos:
+    """Data class describing the askoheat device."""
+
+    def __init__(self, data: dict[str, Any]) -> None:
+        """Initialize device infos."""
+        self._data = data
+
+    @property
+    def serial_number(self) -> str:
+        """Return serial number of the device."""
+        return self._data[f"sensor.{SensorAttrKey.PAR_ID}"]
+
+    @property
+    def article_name(self) -> str:
+        """Return article name of the device."""
+        return self._data[f"sensor.{SensorAttrKey.PAR_ARTICLE_NAME}"]
+
+    @property
+    def article_number(self) -> str:
+        """Return article number of the device."""
+        return self._data[f"sensor.{SensorAttrKey.PAR_ARTICLE_NUMBER}"]
+
+    @property
+    def software_version(self) -> str:
+        """Return software version of the device."""
+        return self._data[f"sensor.{SensorAttrKey.PAR_SOFTWARE_VERSION}"]
+
+    @property
+    def hardwareware_version(self) -> str:
+        """Return hardware version of the device."""
+        return self._data[f"sensor.{SensorAttrKey.PAR_HARDWARE_VERSION}"]

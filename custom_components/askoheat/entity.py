@@ -38,6 +38,12 @@ class AskoheatBaseEntity[E](Entity):
                 ),
             },
             translation_key=entity_description.device_key,  # type: ignore  # noqa: PGH003
+            manufacturer="Askoma AG",
+            model=entry.runtime_data.device_info.article_name,
+            model_id=entry.runtime_data.device_info.article_number,
+            sw_version=entry.runtime_data.device_info.software_version,
+            hw_version=entry.runtime_data.device_info.hardwareware_version,
+            serial_number=entry.runtime_data.device_info.serial_number,
             via_device=(
                 entry.domain,
                 DeviceKey.WATER_HEATER_CONTROL_UNIT,

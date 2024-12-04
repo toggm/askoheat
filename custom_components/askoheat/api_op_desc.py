@@ -81,6 +81,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.TOTAL_INCREASING,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:progress-clock",
+            entity_registry_enabled_default=False,
         ),
         AskoheatDurationSensorEntityDescription(
             key=SensorAttrKey.DATA_OPERATING_TIME_VALVE_MINUTES,
@@ -91,6 +92,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.TOTAL_INCREASING,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:counter",
+            entity_registry_enabled_default=False,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_SWITCH_COUNT_RELAY1,
@@ -216,6 +218,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:progress-clock",
+            entity_registry_enabled_default=False,
         ),
         AskoheatDurationSensorEntityDescription(
             key=SensorAttrKey.DATA_OPERATING_TIME_LOAD_FEEDIN,
@@ -296,6 +299,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:progress-clock",
+            entity_registry_enabled_default=False,
         ),
         AskoheatDurationSensorEntityDescription(
             key=SensorAttrKey.DATA_OPERATING_TIME_HEATER_STEP2,
@@ -306,6 +310,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:progress-clock",
+            entity_registry_enabled_default=False,
         ),
         AskoheatDurationSensorEntityDescription(
             key=SensorAttrKey.DATA_OPERATING_TIME_HEATER_STEP3,
@@ -316,6 +321,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:progress-clock",
+            entity_registry_enabled_default=False,
         ),
         AskoheatDurationSensorEntityDescription(
             key=SensorAttrKey.DATA_OPERATING_TIME_HEATER_STEP4,
@@ -326,6 +332,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:progress-clock",
+            entity_registry_enabled_default=False,
         ),
         AskoheatDurationSensorEntityDescription(
             key=SensorAttrKey.DATA_OPERATING_TIME_HEATER_STEP5,
@@ -336,6 +343,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:progress-clock",
+            entity_registry_enabled_default=False,
         ),
         AskoheatDurationSensorEntityDescription(
             key=SensorAttrKey.DATA_OPERATING_TIME_HEATER_STEP6,
@@ -346,6 +354,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:progress-clock",
+            entity_registry_enabled_default=False,
         ),
         AskoheatDurationSensorEntityDescription(
             key=SensorAttrKey.DATA_OPERATING_TIME_HEATER_STEP7,
@@ -356,6 +365,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             state_class=SensorStateClass.MEASUREMENT,
             native_unit_of_measurement=UnitOfTime.MINUTES,
             icon="mdi:progress-clock",
+            entity_registry_enabled_default=False,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_SET_HEATER_STEP,
@@ -376,6 +386,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_min_value=0,
             native_max_value=100000,
             icon="mdi:counter",
+            entity_registry_enabled_default=False,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_LOAD_FEEDIN,

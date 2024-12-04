@@ -78,6 +78,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             icon="mdi:pump",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=3),
+            entity_registry_enabled_default=False,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.RELAY_BOARD_CONNECTED,
@@ -85,6 +86,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             icon="mdi:connection",
             device_class=BinarySensorDeviceClass.PROBLEM,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=4),
+            entity_registry_enabled_default=False,
         ),
         # bit 5 ignored
         AskoheatBinarySensorEntityDescription(
@@ -143,6 +145,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             icon="mdi:water-boiler-auto",
             device_class=BinarySensorDeviceClass.RUNNING,
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=13),
+            entity_registry_enabled_default=False,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.TEMP_LIMIT_REACHED,
@@ -202,6 +205,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(27),
+            entity_registry_enabled_default=False,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR2_VALUE,
@@ -213,6 +217,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(29),
+            entity_registry_enabled_default=False,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR3_VALUE,
@@ -224,6 +229,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(31),
+            entity_registry_enabled_default=False,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR4_VALUE,
@@ -235,6 +241,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(33),
+            entity_registry_enabled_default=False,
         ),
     ],
     number_inputs=[
@@ -259,6 +266,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_unit_of_measurement=UnitOfPower.WATT,
             entity_category=None,
             api_descriptor=SignedInt16RegisterInputDescriptor(19),
+            entity_registry_enabled_default=False,
         ),
         EMA_FEED_IN_VALUE_NUMBER_ENTITY_DESCRIPTOR,
     ],
