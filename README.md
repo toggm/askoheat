@@ -117,9 +117,30 @@ detail page.
 
 > ℹ️ Be aware that the device units energy manager and water heater can't be deleted.
 
+## Known limitations
+
+It is currently not possible, to turn on the emergency mode through modbus.
+
 ## Contributions are welcome!
 
 If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
+
+## Troubleshooting
+
+### Sometimes the connection is lost
+The hardware of the askoheat device seems to be very sensible. Check the network plug and the outlets for any damage or try a different outlet or cable.
+
+### Cannot connect to the askoheat device after rebooting the device
+Check that the device is either configured with a static IP address or your local DNS can still resolve the configured hostname.
+
+## Examples
+
+### Use solar power to heaten up the water boiler
+The askoheat device support a so called feed-in functionality. The device will itself start to heaten up the water in different power steps, depending on
+the solar power fed back to the grid. The integration provides a switch which automatically forwards any changes of the solar power to the device.
+As the device does figure out the maximum power level by slowly incresing the levels and checking the feed-in power, it might come to toggling on and off
+the power shortly before sunset and after sunrise, you can define an automation which toggles the auto feed-in switch depending on the state of the sun
+(i.e. toggle on an hour after sunrise, toggle off an hour before sunset).
 
 ---
 
