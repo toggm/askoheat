@@ -22,6 +22,7 @@ from .const import (
     CONF_HEATPUMP_UNIT,
     CONF_LEGIONELLA_PROTECTION_UNIT,
     CONF_MODBUS_MASTER_UNIT,
+    DOMAIN,
     LOGGER,
 )
 from .coordinator import (
@@ -34,6 +35,7 @@ from .data import AskoheatData
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
+    from homeassistant.helpers import device_registry as dr
 
     from .data import AskoheatConfigEntry
 
@@ -113,6 +115,28 @@ async def async_setup_entry(
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 
     return True
+
+
+async def async_remove_config_entry_device(
+    hass: HomeAssistant,  # noqa: ARG001
+    config_entry: AskoheatConfigEntry,
+    device_entry: dr.DeviceEntry,
+) -> bool:
+    """Remove a config entry from a device."""
+    return any(
+        device_unit
+        for device_unit in [
+            identifier[1].split(".")[0]
+            for identifier in device_entry.identifiers
+            if identifier[0] == DOMAIN
+        ]
+        # Cannot remove core units
+        if device_unit
+        not in (DeviceKey.ENERGY_MANAGER, DeviceKey.WATER_HEATER_CONTROL_UNIT)
+        # nor if the device is still selected in the configuration
+        and config_entry.data.get(CONF_DEVICE_UNITS)
+        and config_entry.data[CONF_DEVICE_UNITS].get(device_unit) is not True
+    )
 
 
 async def async_unload_entry(

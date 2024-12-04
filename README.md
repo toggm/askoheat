@@ -111,6 +111,12 @@ Provide correct hostname and configure the additional device units you want to b
 
 This integration follows standard integration removal. No extra steps are required.
 
+## Removing of a device unit
+To be able to delete a device unit, you first need to deactive the device unit in the integration. After deactivating the device unit can get deleted in the device
+detail page.
+
+> ℹ️ Be aware that the device units energy manager and water heater can't be deleted.
+
 ## Contributions are welcome!
 
 If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
