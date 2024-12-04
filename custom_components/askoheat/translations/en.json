@@ -65,6 +65,9 @@
             "unknown": "Unknown error occurred."
         }
     },
+    "exceptions":{
+        "not_connected": "Cannot read or write data, modbus client is not connected"
+    },
     "entity": {
         "binary_sensor": {
             "status_heater1": {

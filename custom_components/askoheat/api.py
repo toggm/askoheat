@@ -8,6 +8,7 @@ from enum import ReprEnum
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 import numpy as np
+from homeassistant.exceptions import HomeAssistantError
 from numpy import number
 from pymodbus.client import AsyncModbusTcpClient as ModbusClient
 
@@ -31,6 +32,7 @@ from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTO
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import (
+    DOMAIN,
     LOGGER,
 )
 from custom_components.askoheat.data import AskoheatDataBlock
@@ -41,7 +43,7 @@ if TYPE_CHECKING:
     from pymodbus.pdu import ModbusPDU
 
 
-class AskoheatModbusApiClientError(Exception):
+class AskoheatModbusApiClientError(HomeAssistantError):
     """Exception to indicate a general API error."""
 
 
@@ -174,8 +176,10 @@ class AskoHeatModbusApiClient:
     ) -> ModbusPDU:
         """Read holding registers through modbus."""
         if not self._client.connected:
-            msg = "cannot read holding registers, not connected"
-            raise AskoheatModbusApiClientCommunicationError(msg)
+            msg = "not_connected"
+            raise AskoheatModbusApiClientCommunicationError(
+                translation_domain=DOMAIN, translation_key=msg
+            )
 
         try:
             return await self._client.read_input_registers(address=address, count=count)
@@ -193,8 +197,10 @@ class AskoHeatModbusApiClient:
     ) -> ModbusPDU:
         """Read input registers through modbus."""
         if not self._client.connected:
-            msg = "cannot read input registers, not connected"
-            raise AskoheatModbusApiClientCommunicationError(msg)
+            msg = "not_connected"
+            raise AskoheatModbusApiClientCommunicationError(
+                translation_domain=DOMAIN, translation_key=msg
+            )
 
         try:
             return await self._client.read_holding_registers(
@@ -208,8 +214,10 @@ class AskoHeatModbusApiClient:
     ) -> ModbusPDU:
         """Write a register value throug modbus."""
         if not self._client.connected:
-            msg = "cannot write register value, not connected"
-            raise AskoheatModbusApiClientCommunicationError(msg)
+            msg = "not_connected"
+            raise AskoheatModbusApiClientCommunicationError(
+                translation_domain=DOMAIN, translation_key=msg
+            )
 
         try:
             return await self._client.write_registers(address=address, values=values)
