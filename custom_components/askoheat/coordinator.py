@@ -75,7 +75,11 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 data = await self.config_entry.runtime_data.client.async_read_ema_data()
                 return _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
+            self.config_entry.runtime_data.client.last_communication_failed()
             raise UpdateFailed(exception) from exception
+        except TimeoutError as error:
+            self.config_entry.runtime_data.client.last_communication_failed()
+            raise error from error
 
     async def async_write(
         self, api_desc: RegisterInputDescriptor, value: object
@@ -89,7 +93,21 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 )
                 self.data = _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
-            raise UpdateFailed(exception) from exception
+            LOGGER.info(
+                "Could not write state %s to askoheat register %s => %s",
+                value,
+                api_desc,
+                exception,
+            )
+            self.config_entry.runtime_data.client.last_communication_failed()
+        except TimeoutError as error:
+            LOGGER.info(
+                "Could not write state %s to askoheat register %s => %s",
+                value,
+                api_desc,
+                error,
+            )
+            self.config_entry.runtime_data.client.last_communication_failed()
         finally:
             self._writing = False
 
@@ -113,7 +131,11 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 )
                 return _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
+            self.config_entry.runtime_data.client.last_communication_failed()
             raise UpdateFailed(exception) from exception
+        except TimeoutError as error:
+            self.config_entry.runtime_data.client.last_communication_failed()
+            raise error from error
 
     async def async_write(
         self, api_desc: RegisterInputDescriptor, value: object
@@ -129,7 +151,21 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 )
                 self.data = _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
-            raise UpdateFailed(exception) from exception
+            LOGGER.info(
+                "Could not write state %s to askoheat register %s => %s",
+                value,
+                api_desc,
+                exception,
+            )
+            self.config_entry.runtime_data.client.last_communication_failed()
+        except TimeoutError as error:
+            LOGGER.info(
+                "Could not write state %s to askoheat register %s => %s",
+                value,
+                api_desc,
+                error,
+            )
+            self.config_entry.runtime_data.client.last_communication_failed()
         finally:
             self._writing = False
 
@@ -152,7 +188,11 @@ class AskoheatParameterDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 data = await client.async_read_par_data()
                 return _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
+            self.config_entry.runtime_data.client.last_communication_failed()
             raise UpdateFailed(exception) from exception
+        except TimeoutError as error:
+            self.config_entry.runtime_data.client.last_communication_failed()
+            raise error from error
 
     async def async_write(self, _: RegisterInputDescriptor, __: object) -> None:
         """Write parameter par block of Askoheat."""
@@ -174,7 +214,11 @@ class AskoheatOperationDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 data = await self.config_entry.runtime_data.client.async_read_op_data()
                 return _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
+            self.config_entry.runtime_data.client.last_communication_failed()
             raise UpdateFailed(exception) from exception
+        except TimeoutError as error:
+            self.config_entry.runtime_data.client.last_communication_failed()
+            raise error from error
 
     async def async_write(self, _: RegisterInputDescriptor, __: object) -> None:
         """Write parameter data block of Askoheat."""

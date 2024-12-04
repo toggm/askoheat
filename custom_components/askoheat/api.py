@@ -59,10 +59,25 @@ class AskoHeatModbusApiClient:
         self._host = host
         self._port = port
         self._client = ModbusClient(host=host, port=port)
+        self._last_communication_success = True
 
     async def connect(self) -> Any:
         """Connect to modbus client."""
         return await self._client.connect()
+
+    @property
+    def is_connected(self) -> bool:
+        """Return connection status."""
+        return self._client.connected
+
+    @property
+    def is_ready(self) -> bool:
+        """Return true if connected and no communcation error occured."""
+        return self.is_connected and self._last_communication_success
+
+    def last_communication_failed(self) -> None:
+        """Mark last communication with the API as failed."""
+        self._last_communication_success = False
 
     def close(self) -> None:
         """Close comnection to modbus client."""
@@ -162,7 +177,10 @@ class AskoHeatModbusApiClient:
             msg = "cannot read holding registers, not connected"
             raise AskoheatModbusApiClientCommunicationError(msg)
 
-        return await self._client.read_input_registers(address=address, count=count)
+        try:
+            return await self._client.read_input_registers(address=address, count=count)
+        finally:
+            self._last_communication_success = True
 
     async def __async_read_single_holding_register(
         self,
@@ -178,7 +196,12 @@ class AskoHeatModbusApiClient:
             msg = "cannot read input registers, not connected"
             raise AskoheatModbusApiClientCommunicationError(msg)
 
-        return await self._client.read_holding_registers(address=address, count=count)
+        try:
+            return await self._client.read_holding_registers(
+                address=address, count=count
+            )
+        finally:
+            self._last_communication_success = True
 
     async def __async_write_register_values(
         self, address: int, values: list[bytes | int]
@@ -188,7 +211,10 @@ class AskoHeatModbusApiClient:
             msg = "cannot write register value, not connected"
             raise AskoheatModbusApiClientCommunicationError(msg)
 
-        return await self._client.write_registers(address=address, values=values)
+        try:
+            return await self._client.write_registers(address=address, values=values)
+        finally:
+            self._last_communication_success = True
 
     async def _prepare_register_value(
         self,

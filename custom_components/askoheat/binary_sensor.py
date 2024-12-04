@@ -82,6 +82,14 @@ class AskoheatBinarySensor(
         )
         self._attr_unique_id = self.entity_id
 
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return (
+            super().available
+            and self.entity_description.data_key in self.coordinator.data
+        )
+
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""

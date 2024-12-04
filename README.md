@@ -107,6 +107,10 @@ Provide correct hostname and configure the additional device units you want to b
 
 > ℹ️ If you access you're device by IP address, ensure the IP address is static. This can be configured in your router.
 
+## Removing the integration
+
+This integration follows standard integration removal. No extra steps are required.
+
 ## Contributions are welcome!
 
 If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)

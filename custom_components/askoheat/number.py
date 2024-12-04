@@ -104,6 +104,14 @@ class AskoheatNumber(AskoheatEntity[AskoheatNumberEntityDescription], NumberEnti
         )
         self._attr_unique_id = self.entity_id
 
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return (
+            super().available
+            and self.entity_description.data_key in self.coordinator.data
+        )
+
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
@@ -119,7 +127,6 @@ class AskoheatNumber(AskoheatEntity[AskoheatNumberEntityDescription], NumberEnti
                 self._attr_native_value = round(
                     self._attr_native_value, self.entity_description.native_precision
                 )
-        self.async_write_ha_state()
         super()._handle_coordinator_update()
 
     async def async_set_native_value(self, value: float) -> None:

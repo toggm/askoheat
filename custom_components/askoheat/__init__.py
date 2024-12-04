@@ -10,6 +10,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.loader import async_get_loaded_integration
 
 from custom_components.askoheat.const import DeviceKey
@@ -21,6 +22,7 @@ from .const import (
     CONF_HEATPUMP_UNIT,
     CONF_LEGIONELLA_PROTECTION_UNIT,
     CONF_MODBUS_MASTER_UNIT,
+    LOGGER,
 )
 from .coordinator import (
     AskoheatConfigDataUpdateCoordinator,
@@ -85,7 +87,16 @@ async def async_setup_entry(
         data_coordinator=data_coordinator,
         supported_devices=supported_devices,
     )
+    LOGGER.debug(
+        "Connect modbus client %s:%s",
+        entry.data[CONF_HOST],
+        entry.data[CONF_PORT],
+    )
     await entry.runtime_data.client.connect()
+
+    if not entry.runtime_data.client.is_connected:
+        msg = "Could not connect to modbus client"
+        raise ConfigEntryNotReady(msg)
 
     par_coordinator.config_entry = entry
     ema_coordinator.config_entry = entry

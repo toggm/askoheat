@@ -29,6 +29,7 @@ class AskoheatBaseEntity[E](Entity):
     def __init__(self, entry: AskoheatConfigEntry, entity_description: E) -> None:
         """Initialize."""
         self._device_unique_id = entry.unique_id or "unkown"
+        self.entry = entry
         self._attr_device_info = DeviceInfo(
             identifiers={
                 (
@@ -82,6 +83,11 @@ class AskoheatEntity[E](
     async def _data_update(self) -> None:
         self._handle_coordinator_update()
 
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        return self.entry.runtime_data.client.is_ready
+
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
@@ -97,4 +103,3 @@ class AskoheatEntity[E](
             self._attr_icon = descr.icon  # type: ignore  # noqa: PGH003
 
         super()._handle_coordinator_update()
-        self.async_write_ha_state()
