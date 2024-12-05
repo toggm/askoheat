@@ -229,7 +229,7 @@ class AskoheatAutoFeedInSwitch(AskoheatSwitch):
             and CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.data_key
             in self.coordinator.data
             and EMA_FEED_IN_VALUE_NUMBER_ENTITY_DESCRIPTOR.data_key
-            in self.coordinator.data
+            in self._ema_coordinator.data
         )
 
     @callback
