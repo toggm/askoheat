@@ -135,12 +135,16 @@ Check that the device is either configured with a static IP address or your loca
 
 ## Examples
 
-### Use solar power to heaten up the water boiler
+### Use solar power to heat up the water boiler
 The askoheat device support a so called feed-in functionality. The device will itself start to heaten up the water in different power steps, depending on
 the solar power fed back to the grid. The integration provides a switch which automatically forwards any changes of the solar power to the device.
 As the device does figure out the maximum power level by slowly incresing the levels and checking the feed-in power, it might come to toggling on and off
 the power shortly before sunset and after sunrise, you can define an automation which toggles the auto feed-in switch depending on the state of the sun
 (i.e. toggle on an hour after sunrise, toggle off an hour before sunset).
+More information are available [here](https://github.com/toggm/askoheat/discussions/10)
+
+### Share your examples
+Share your examples in the [discussion](https://github.com/toggm/askoheat/discussions/categories/show-and-tell) section
 
 ---
 
