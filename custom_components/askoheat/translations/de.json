@@ -1,0 +1,733 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "description": "Weitere Informationen und Unterstützung findest Du unter: https://github.com/toggm/askoheat",
+                "data": {
+                    "host": "Host",
+                    "port": "Port"
+                },
+                "sections": {
+                    "auto-feed-in": {
+                        "name": "Nutzung der überschüssigen Energie",
+                        "description": "Zusätzinformationen bei Nutzung der überschüssigen Strom-Einspeisung.",
+                        "data": {
+                            "power_entity_id": "Entität zum Überwachen des Stromflusses und Nutzung der Überschuss-Einspeisung",
+                            "power_invert": "Invertieren des überwachten Stromflusses"
+                        }
+                    },
+                    "devices": {
+                        "name": "Geräteeinheiten",
+                        "description": "Zuschalten von weiteren Geräteeinheiten. Wenn eine vorher aktivierte Geräteeinheit deaktiviert wird, müssen die dazugehörenden Entitäten und Geräte manuell gelöscht werden.",
+                        "data": {
+                            "legionella_protection_unit": "Legionellen-Schutz",
+                            "heatpump_unit": "Wärmepumpen-Kontrolle",
+                            "analog_input_unit": "Kontrolle via analogem Eingang",
+                            "modbus_master_unit": "Modbus master Einheit"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "options":{
+        "step": {
+            "init": {
+                "description": "Weitere Informationen und Unterstützung findest Du unter: https://github.com/toggm/askoheat",
+                "data": {
+                    "host": "Host",
+                    "port": "Port"
+                },
+                "sections": {
+                    "auto-feed-in": {
+                        "name": "Nutzung der überschüssigen Energie",
+                        "description": "Zusätzinformationen bei Nutzung der überschüssigen Strom-Einspeisung.",
+                        "data": {
+                            "power_entity_id": "Entität zum Überwachen des Stromflusses und Nutzung der Überschuss-Einspeisung",
+                            "power_invert": "Invertieren des überwachten Stromflusses"
+                        }
+                    },
+                    "devices": {
+                        "name": "Geräteeinheiten",
+                        "description": "Zuschalten von weiteren Geräteeinheiten. Wenn eine vorher aktivierte Geräteeinheit deaktiviert wird, müssen die dazugehörenden Entitäten und Geräte manuell gelöscht werden.",
+                        "data": {
+                            "legionella_protection_unit": "Legionellen-Schutz",
+                            "heatpump_unit": "Wärmepumpen-Kontrolle",
+                            "analog_input_unit": "Kontrolle via analogem Eingang",
+                            "modbus_master_unit": "Modbus master Einheit"
+                        }
+                    }
+                }
+            }
+        },
+        "error": {
+            "connection": "Es konnte keine Verbindung zum Askoheat+ Heizstab hergestellt werden.",
+            "unknown": "Es trat ein unerwarter Fehler auf."
+        }
+    },
+    "exceptions":{
+        "not_connected": {
+            "message": "Es können keine Daten gelesen oder geschrieben werden, da keine Modbus Verbindung besteht."
+        }
+    },
+    "entity": {
+        "binary_sensor": {
+            "status_heater1": {
+                "name": "Heizstab 1"
+            },
+            "status_heater2": {
+                "name": "Heizstab 2"
+            },
+            "status_heater3": {
+                "name": "Heizstab 3"
+            },
+            "status_pump":  {
+                "name": "Pumpe"
+            },
+            "status_relay_board_connected": {
+                "name": "Relay Board Verbindung"
+            },
+            "status_emergency_mode": {
+                "name": "Notfallheizung"
+            },
+            "status_heat_pump_request": {
+                "name": "Wärmepumpen-Anforderung"
+            },
+            "status_legionella_protection": {
+                "name": "Legionellen-Schutz"
+            },
+            "status_analog_input": {
+                "name": "Analoger-Eingang"
+            },
+            "status_setpoint":  {
+                "name": "Fixe Leistungsstufe"
+            },
+            "status_load_feedin": {
+                "name": "Überschuss-Nutzung"
+            },
+            "status_autoheater": {
+                "name": "Auto-Heizung"
+            },
+            "status_pump_relay_follow_up_time_active": {
+                "name": "Pumpen-Relay Nachlaufzeit aktiv"
+            },
+            "status_temp_limit_reached":  {
+                "name": "Temp. Limit erreicht"
+            },
+            "status_error": {
+                "name": "Fehler"
+            },
+            "type_3_stage_version": {
+                "name": "3-Stufen Modell"
+            },
+            "type_7_stage_version": {
+                "name": "7-Stufen Modell"
+            },
+            "heater_type_flange": {
+                "name": "Flansch-Heizeinsatz"
+            },
+            "heater_type_screw_in": {
+                "name": "Einschraube-Heizeinsatz"
+            },
+            "wired_as_star_connection": {
+                "name": "Stern-Verbindungs Anschluss"
+            },
+            "wired_as_delta_connection": {
+                "name": "Differenz-Verbindungs Anschluss"
+            },
+            "oem_version": {
+                "name": "OEM Version"
+            },
+            "legio_status_heating_up": {
+                "name": "Aufheizen"
+            },
+            "legio_status_temp_reached":  {
+                "name": "Temperatur erreicht"
+            },
+            "legio_status_temp_reached_outside_interval": {
+                "name": "Temp. ausserhalb Intervall erreicht"
+            },
+            "legio_status_unexpected_temp_drop":  {
+                "name": "Unerwarteter Temperatur-Sturz"
+            },
+            "legio_status_error_no_valid_temp_sensor": {
+                "name": "Kein gültiger Temp. Sensor konfiguriert"
+            },
+            "legio_status_error_cannot_reach_temp": {
+                "name": "Legio Temp. kann nicht erreicht werden"
+            },
+            "legio_status_error_settings": {
+                "name": "Ungültige Einstellungen"
+            }
+        },
+        "number": {
+            "set_heater_step": {
+                "name": "Leistungsstufe"
+            },
+            "load_setpoint": {
+                "name": "Fixe Leistungsstufe"
+            },
+            "load_feedin": {
+                "name": "Überschuss-Nutzung"
+            },
+            "relay_switch_on_inhibit_seconds": {
+                "name": "Einschaltverzögerung"
+            },
+            "pump_follow_up_time_seconds": {
+                "name": "Nachlaufzeit Pumpe"
+            },
+            "auto_heater_off_minutes": {
+                "name": "Auto Ausschaltzeit"
+            },
+            "cascade_priorization": {
+                "name": "Kaskade Priorisierung"
+            },
+            "heatbuffer_volume_liter": {
+                "name": "Heizspeicher-Volumen"
+            },
+            "legio_protection_temperature": {
+                "name": "Legio. Ziel-Temperatur"
+            },
+            "legio_protection_heatup_minutes": {
+                "name": "Legio. Aufheiz-Zeit"
+            },
+            "number_of_household_members": {
+                "name": "Personen im Haushalt"
+            },
+            "load_feedin_basic_energy_level": {
+                "name": "Überschuss Basis-Leistung"
+            },
+            "timezone_offset": {
+                "name": "Zeitzonen-Verschiebung"
+            },
+            "load_feedin_delay_seconds": {
+                "name": "Überschuss-Nutzungs Verzögerung"
+            },
+            "rtu_slave_id": {
+                "name": "Modbus Slave Id"
+            },
+            "analog_input_hysteresis": {
+                "name": "Eingangs-Hysterese"
+            },
+            "analog_input_0_threshold": {
+                "name": "Schwellwert 0"
+            },
+            "analog_input_0_threshold_step": {
+                "name": "Schwellwert 0 Leistungsstufe"
+            },
+            "analog_input_0_threshold_temperature": {
+                "name": "Schwellwert 0 Temp. Limit"
+            },
+            "analog_input_1_threshold": {
+                "name": "Schwellwert 1"
+            },
+            "analog_input_1_threshold_step": {
+                "name": "Schwellwert 1 Leistungsstufe"
+            },
+            "analog_input_1_threshold_temperature": {
+                "name": "Schwellwert 1 Temp. Limit"
+            },
+            "analog_input_2_threshold": {
+                "name": "Schwellwert 2"
+            },
+            "analog_input_2_threshold_step": {
+                "name": "Schwellwert 2 Leistungsstufe"
+            },
+            "analog_input_2_threshold_temperature": {
+                "name": "Schwellwert 2 Temp. Limit"
+            },
+            "analog_input_3_threshold": {
+                "name": "Schwellwert 3"
+            },
+            "analog_input_3_threshold_step": {
+                "name": "Schwellwert 3 Leistungsstufe"
+            },
+            "analog_input_3_threshold_temperature": {
+                "name": "Schwellwert 3 Temp. Limit"
+            },
+            "analog_input_4_threshold": {
+                "name": "Schwellwert 4"
+            },
+            "analog_input_4_threshold_step": {
+                "name": "Schwellwert 4 Leistungsstufe"
+            },
+            "analog_input_4_threshold_temperature": {
+                "name": "Schwellwert 4 Temp. Limit"
+            },
+            "analog_input_5_threshold": {
+                "name": "Schwellwert 5"
+            },
+            "analog_input_5_threshold_step": {
+                "name": "Schwellwert 5 Leistungsstufe"
+            },
+            "analog_input_5_threshold_temperature": {
+                "name": "Schwellwert 5 Temp. Limit"
+            },
+            "analog_input_6_threshold": {
+                "name": "Schwellwert 5"
+            },
+            "analog_input_6_threshold_step": {
+                "name": "Schwellwert 6 Leistungsstufe"
+            },
+            "analog_input_6_threshold_temperature": {
+                "name": "Schwellwert 6 Temp. Limit"
+            },
+            "analog_input_7_threshold": {
+                "name": "Schwellwert 7"
+            },
+            "analog_input_7_threshold_step": {
+                "name": "Schwellwert 7 Leistungsstufe"
+            },
+            "analog_input_7_threshold_temperature": {
+                "name": "Schwellwert 7 Temp. Limit"
+            },
+            "heatpump_request_off_step": {
+                "name": "WP-Aus Stufe"
+            },
+            "heatpump_request_on_step": {
+                "name": "WP-Ein Stufe"
+            },
+            "emergency_mode_on_step": {
+                "name": "Notfall-Ein Stufe"
+            },
+            "temperature_hysteresis": {
+                "name": "Temperatur-Hysterese"
+            },
+            "minimal_temperature": {
+                "name": "Minimale Temperatur"
+            },
+            "set_heater_step_temp_limit":  {
+                "name": "Temp. Limit bei Leistungsstufe"
+            },
+            "load_feedin_or_setpoint_temp_limit": {
+                "name": "Temp. Limit bei Überschuss-Nutzung"
+            },
+            "low_tariff_temp_limit": {
+                "name": "Temp. Limit bei Niedertarif-Nutzung"
+            },
+            "heatpump_request_temp_limit": {
+                "name": "Temp. Limit bei WP-Anforderung"
+            },
+            "auto_feedin_buffer": {
+                "name": "Überschuss-Nutzung Stromreserve"
+            }
+        },
+        "sensor": {
+            "heater_load": {
+                "name": "Heizung Stromverbrauch"
+            },
+            "analog_input": {
+                "name": "Analoger Eingang"
+            },
+            "internal_temp_sensor": {
+                "name": "Int. Temp. Sensor"
+            },
+            "external_temp_sensor1": {
+                "name": "Ext. Temp. Sensor 1"
+            },
+            "external_temp_sensor2": {
+                "name": "Ext. Temp. Sensor 2"
+            },
+            "external_temp_sensor3": {
+                "name": "Ext. Temp. Sensor 3"
+            },
+            "external_temp_sensor4": {
+                "name": "Ext. Temp. Sensor 4"
+            },
+            "serial_number":  {
+                "name": "Seriennummer"
+            },
+            "heater1_power": {
+                "name": "Leistung Heizelement 1"
+            },
+            "heater2_power": {
+                "name": "Leistung Heizelement 2"
+            },
+            "heater3_power": {
+                "name": "Leistung Heizelement 3"
+            },
+            "heater4_power": {
+                "name": "Leistung Heizelement 4"
+            },
+            "heater5_power": {
+                "name": "Leistung Heizelement 5"
+            },
+            "heater6_power": {
+                "name": "Leistung Heizelement 6"
+            },
+            "article_name": {
+                "name": "Produktbezeichnung"
+            },
+            "article_number": {
+                "name": "Produkt-Nummer"
+            },
+            "software_version": {
+                "name": "Software Version"
+            },
+            "hardware_version":  {
+                "name": "Hardware Version"
+            },
+            "number_of_steps": {
+                "name": "Anzahl Leistungsstufen"
+            },
+            "number_of_heater":  {
+                "name": "Anzahl Heizelemente"
+            },
+            "max_power": {
+                "name": "Max. Leistung"
+            },
+            "operating_time": {
+                "name": "Total Betriebsstunden"
+            },
+            "operating_time_heater1": {
+                "name": "Heizelement 1 Betriebsstunden"
+            },
+            "operating_time_heater2": {
+                "name": "Heizelement 2 Betriebsstunden"
+            },
+            "operating_time_heater3": {
+                "name": "Heizelement 3 Betriebsstunden"
+            },
+            "operating_time_pump": {
+                "name": "Pumpen-Betriebsstunden"
+            },
+            "operating_time_valve": {
+                "name": "Ventil-Betriebsstunden"
+            },
+            "switch_count_relay1": {
+                "name": "Relay 1 Schaltungen"
+            },
+            "switch_count_relay2": {
+                "name": "Relay 2 Schaltungen"
+            },
+            "switch_count_relay3": {
+                "name": "Relay 3 Schaltungen"
+            },
+            "switch_count_relay4": {
+                "name": "Relay 4 Schaltungen"
+            },
+            "legio_since_last_activation": {
+                "name": "Letzte Legio. aktivierung"
+            },
+            "legio_plateau_timer": {
+                "name": "Plateau Timer"
+            },
+            "analog_input_step": {
+                "name": "Analoge Eingangs-Stufe"
+            },
+            "actual_temp_limit": {
+                "name": "Aktuelles Temp. Limit"
+            },
+            "auto_heater_off_countdown": {
+                "name": "Auto-Ausschaltung Countdown"
+            },
+            "emergency_off_countdown": {
+                "name": "Notheizung-Aus Countdown"
+            },
+            "boot_count": {
+                "name": "Anzahl Neustarts"
+            },
+            "operating_time_set_heater_step":  {
+                "name": "Fixe Leistungsstufe Betriebsstunden"
+            },
+            "operating_time_load_feedin": {
+                "name": "Überschuss-Nutzung Betriebsstunden"
+            },
+            "operating_time_load_setpoint": {
+                "name": "Leistungsstufe Betriebsstunden"
+            },
+            "operating_time_heatpump_request": {
+                "name": "Wärmepumpen-Anforderung Betriebsstunden"
+            },
+            "operating_time_analog_input": {
+                "name": "Analoger Eingang Betriebsstunden"
+            },
+            "operating_time_emergency_mode": {
+                "name": "Notfallheizung Betriebsstunden"
+            },
+            "operating_time_legio_protection": {
+                "name": "Legio. Betriebsstunden"
+            },
+            "operating_time_low_tariff": {
+                "name": "Niedertarif Betriebsstunden"
+            },
+            "operating_time_minimal_temp": {
+                "name": "Minimale Temp. Betriebsstunden"
+            },
+            "operating_time_heater_step1": {
+                "name": "Heizstufe 1 Betriebsstunden"
+            },
+            "operating_time_heater_step2": {
+                "name": "Heizstufe 2 Betriebsstunden"
+            },
+            "operating_time_heater_step3": {
+                "name": "Heizstufe 3 Betriebsstunden"
+            },
+            "operating_time_heater_step4": {
+                "name": "Heizstufe 4 Betriebsstunden"
+            },
+            "operating_time_heater_step5": {
+                "name": "Heizstufe 5 Betriebsstunden"
+            },
+            "operating_time_heater_step6": {
+                "name": "Heizstufe 6 Betriebsstunden"
+            },
+            "operating_time_heater_step7": {
+                "name": "Heizstufe 7 Betriebsstunden"
+            },
+            "count_set_heater_step": {
+                "name": "Leistungsstufe Einschaltungen"
+            },
+            "count_load_setpoint": {
+                "name": "Fixe Leistungsstufe Einschaltungen"
+            },
+            "count_load_feedin": {
+                "name": "Überschuss-Nutzung Einschaltungen"
+            },
+            "count_heatpump_request": {
+                "name": "WP-Anforderung Einschaltungen"
+            },
+            "count_analog_input": {
+                "name": "Analoger Eingang Einschaltungen"
+            },
+            "count_emergency_mode": {
+                "name": "Notfallheizung Einschaltungen"
+            },
+            "count_legio_protection": {
+                "name": "Legio. Einschaltungen"
+            },
+            "count_low_tariff": {
+                "name": "Niedertarif Einschaltungen"
+            },
+            "count_minimal_temp": {
+                "name": "Min Temp. Einschaltungen"
+            },
+            "max_measured_temp": {
+                "name": "Max. gemessene Temperatur"
+            }
+        },
+        "select": {
+            "rtu_baudrate": {
+                "name": "Baudraute"
+            },
+            "smart_meter_type": {
+                "name": "Smart-Meter Typ"
+            },
+            "energy_meter_type": {
+                "name": "Energie-Meter Typ",
+                "state": {
+                    "0": "Nicht installiert",
+                    "1": "Automation One A1EM.BIDMOD",
+                    "2": "Automation One A1EM.MOD",
+                    "16": "Carlo Gavazzi EM300 / ET300 SERIES (e.g. EM340)"
+                }
+            }
+        },
+        "switch": {
+            "missing_current_flow_triggers_error": {
+                "name": "Fehler bei fehlendem Durchfluss"
+            },
+            "heater_load_value_only_if_current_flows": {
+                "name": "Heizleistung nur bei Durchfluss"
+            },
+            "load_feedin_value_enabled": {
+                "name": "Überschuss-Nutzung Steuerung"
+            },
+            "load_setpoint_value_enabled": {
+                "name": "Fixe Leistungsstufen Steuerung"
+            },
+            "set_heater_step_value_enabled": {
+                "name": "Leistungsstufen-Steuerung"
+            },
+            "analog_input_enabled": {
+                "name": "Analoger Eingangs-Steuerung"
+            },
+            "heatpump_request_enabled": {
+                "name": "WP-Anforderungs-Steuerung"
+            },
+            "emergency_mode_enabled": {
+                "name": "Notfallheizungs-Steuerung"
+            },
+            "low_tariff_option_enabled": {
+                "name": "Niedertarif Steuerung"
+            },
+            "hold_minimal_temperature_enabled": {
+                "name": "Min. Temp. Steuerung"
+            },
+            "sw_control_sma_semp_enabled": {
+                "name": "SMA SW Steuerung"
+            },
+            "sw_control_senec_home_enabled": {
+                "name": "SENEC SW Steuerung"
+            },
+            "auto_off_modbus_timeout_enabled": {
+                "name": "Auto-Ausschaltung bei Modbus Timeout"
+            },
+            "restart_if_em_connection_lost": {
+                "name": "Neustart bei Verbindungsverlust zu Energie-Manager"
+            },
+            "auto_off_modbus_enabled": {
+                "name": "Modbus Auto-Ausschaltung"
+            },
+            "auto_off_analog_input_enabled": {
+                "name": "Analoger Eingang Auto-Ausschaltung"
+            },
+            "auto_off_heatpump_request_enabled": {
+                "name": "WP-Anforderung Auto-Ausschaltung"
+            },
+            "auto_off_emergency_mode_enabled": {
+                "name": "Notfallheizung Auto-Ausschaltung"
+            },
+            "heatbuffer_type_tap_water": {
+                "name": "Brauchwasserspeicher"
+            },
+            "heatbuffer_type_heating_water": {
+                "name": "Heizwasserspeicher"
+            },
+            "heatbuffer_type_combined_heat_and_power_unit": {
+                "name": "Kombi Heiz- und Stromspeicher"
+            },
+            "heatbuffer_type_pellet_firing": {
+                "name": "Pellet-Heizungsspeicher"
+            },
+            "heatbuffer_type_gas_burner": {
+                "name": "Gas-Heizungsspeicher"
+            },
+            "heatbuffer_type_oil_burner": {
+                "name": "Öl-Heizungspeicher"
+            },
+            "heatbuffer_type_heatpump": {
+                "name": "Wärmepumpenspeicher"
+            },
+            "heatbuffer_type_other": {
+                "name": "Anderer Speicher"
+            },
+            "heater_position_bottom": {
+                "name": "Heizelement-Position unten"
+            },
+            "heater_position_middle": {
+                "name": "Heizelement-Position Mitte"
+            },
+            "heat_position_askowall": {
+                "name": "Heizelement-Position Askowall"
+            },
+            "legio_settings_use_internal_temp_sensor": {
+                "name": "Int. Temp. Sensor für Legio-Schutz"
+            },
+            "legio_settings_use_external_temp_sensor1": {
+                "name": "Ext. Temp. Sensor 1 für Legio-Schutz"
+            },
+            "legio_settings_use_external_temp_sensor2": {
+                "name": "Ext. Temp. Sensor 2 für Legio-Schutz"
+            },
+            "legio_settings_use_external_temp_sensor3": {
+                "name": "Ext. Temp. Sensor 3 für Legio-Schutz"
+            },
+            "legio_settings_use_external_temp_sensor4": {
+                "name": "Ext. Temp. Sensor 4 für Legio-Schutz"
+            },
+            "legio_settings_interval_daily": {
+                "name": "Täglicher Legio-Schutz"
+            },
+            "legio_settings_interval_weekly": {
+                "name": "Wöchentlicher Legio-Schutz"
+            },
+            "legio_settings_interval_fortnightly": {
+                "name": "Zweiwöchentlicher Legio-Schutz"
+            },
+            "legio_settings_interval_monthly": {
+                "name": "Monatlicher Legio-Schutz"
+            },
+            "legio_settings_prefer_feedin_energy": {
+                "name": "Bevorzugt Überschuss-Nutzung für Legio-Schutz"
+            },
+            "legio_setting_protection_enabled": {
+                "name": "Legio-Schutz"
+            },
+            "house_type_single_family_house": {
+                "name": "Einfamilienhaus"
+            },
+            "house_type_two_family_house": {
+                "name": "Zweifamilienhaus"
+            },
+            "house_type_appartment_building": {
+                "name": "Mehrfamilienhaus"
+            },
+            "house_type_commercial_building": {
+                "name": "Gewerbegebäude"
+            },
+            "is_summer_time": {
+                "name": "Sommerzeit aktiv"
+            },
+            "rtu_send_two_stop_bits": {
+                "name": "Sensen von zwei Stop-Bits"
+            },
+            "rtu_send_parity_even": {
+                "name": "Paritätsbit gerade"
+            },
+            "rtu_send_parity_odd": {
+                "name": "Paritätsbit ungerade"
+            },
+            "rtu_slave_mode_active": {
+                "name": "Modbus Slave Modus"
+            },
+            "rtu_master_mode_active": {
+                "name": "Modbus Master Modus"
+            },
+            "use_internal_temp_sensor": {
+                "name": "Nutze int. Temp. Sensor"
+            },
+            "use_external_temp_sensor1": {
+                "name": "Nutze ext. Temp. Sensor 1"
+            },
+            "use_external_temp_sensor2": {
+                "name": "Nutze ext. Temp. Sensor 2"
+            },
+            "use_external_temp_sensor3": {
+                "name": "Nutze ext. Temp. Sensor 3"
+            },
+            "use_external_temp_sensor4": {
+                "name": "Nutze ext. Temp. Sensor 4"
+            },
+            "auto_feedin": {
+                "name": "Überschuss-Nutzung"
+            }
+        },
+        "text": {
+            "info_string": {
+                "name": "Info Text"
+            }
+        },
+        "time": {
+            "legio_protection_preferred_start_time": {
+                "name": "Legio-Schutz Startzeit"
+            },
+            "low_tariff_start_time": {
+                "name": "Niedertarif Startzeit"
+            },
+            "low_tariff_end_time": {
+                "name": "Niedertarif Endzeit"
+            }
+        }
+    },
+    "device": {
+        "modbus_master": {
+            "name": "Askoheat+ Modbus Master Einheit"
+        },
+        "heat_pump_control_unit": {
+            "name": "Wärmepumpen Steuerungs-Einheit"
+        },
+        "analog_input_control_unit": {
+            "name": "Analoger Eingang Steuerungs-Einheit"
+        },
+        "energy_manager": {
+            "name": "Energie-Manager Einheit"
+        },
+        "water_heater_control_unit": {
+            "name": "Boiler Einheit"
+        },
+        "legio_protection_control_unit": {
+            "name": "Legionellen Schutz Einheit"
+        }
+    }
+}
