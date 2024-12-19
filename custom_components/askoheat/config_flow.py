@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING, Any, cast
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
-from homeassistant import config_entries, data_entry_flow
+from homeassistant import data_entry_flow
 from homeassistant.components.sensor.const import SensorDeviceClass
 from homeassistant.config_entries import (
+    ConfigFlow,
     ConfigFlowResult,
     OptionsFlow,
     OptionsFlowWithConfigEntry,
@@ -108,7 +109,8 @@ def _step_user_data_schema(
                                 filter=selector.EntityFilterSelectorConfig(
                                     domain=Platform.SENSOR,
                                     device_class=SensorDeviceClass.POWER,
-                                )
+                                ),
+                                multiple=False,
                             )
                         ),
                         vol.Required(
@@ -194,7 +196,7 @@ def _step_user_data_schema(
 STEP_USER_DATA_SCHEMA = _step_user_data_schema()
 
 
-class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
     """Config flow for Blueprint."""
 
     VERSION = 1
