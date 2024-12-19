@@ -1043,11 +1043,11 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.MODBUS_MASTER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:speedometer",
-            api_descriptor=StrEnumInputDescriptor(
+            api_descriptor=StrEnumInputDescriptor[Baudrate](
                 starting_register=46,
                 number_of_words=3,
                 factory=Baudrate,
-                values=[e.value for e in Baudrate],
+                values=list(Baudrate),
             ),
         ),
         AskoheatSelectEntityDescription(
@@ -1055,10 +1055,10 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:list-box",
-            api_descriptor=IntEnumInputDescriptor(
+            api_descriptor=IntEnumInputDescriptor[EnergyMeterType](
                 starting_register=51,
                 factory=EnergyMeterType,
-                values=[e.value for e in EnergyMeterType],
+                values=list(EnergyMeterType),
             ),
             entity_registry_enabled_default=False,
         ),

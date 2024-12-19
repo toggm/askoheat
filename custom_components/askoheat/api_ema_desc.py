@@ -5,15 +5,8 @@ from __future__ import annotations
 
 from homeassistant.components.binary_sensor import BinarySensorDeviceClass
 from homeassistant.components.number import NumberMode
-from homeassistant.components.sensor.const import (
-    SensorDeviceClass,
-    SensorStateClass,
-)
-from homeassistant.const import (
-    UnitOfElectricPotential,
-    UnitOfPower,
-    UnitOfTemperature,
-)
+from homeassistant.components.sensor.const import SensorDeviceClass, SensorStateClass
+from homeassistant.const import UnitOfElectricPotential, UnitOfPower, UnitOfTemperature
 
 from custom_components.askoheat.api_desc import (
     ByteRegisterInputDescriptor,
@@ -155,7 +148,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             api_descriptor=FlagRegisterInputDescriptor(starting_register=16, bit=14),
         ),
         AskoheatBinarySensorEntityDescription(
-            key=BinarySensorAttrKey.ERROR_OCCURED,
+            key=BinarySensorAttrKey.ERROR_OCCURRED,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             icon="mdi:alert-circle",
             device_class=BinarySensorDeviceClass.PROBLEM,

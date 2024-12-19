@@ -51,6 +51,8 @@ async def async_setup_entry(
 class AskoheatText(AskoheatEntity[AskoheatTextEntityDescription], TextEntity):
     """Askoheat text entity."""
 
+    entity_description: AskoheatTextEntityDescription
+
     def __init__(
         self,
         entry: AskoheatConfigEntry,

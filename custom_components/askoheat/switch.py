@@ -5,15 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.switch import ENTITY_ID_FORMAT, SwitchEntity
-from homeassistant.core import (
-    Event,
-    EventStateChangedData,
-    HomeAssistant,
-    callback,
-)
-from homeassistant.helpers.event import (
-    async_track_state_change_event,
-)
+from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
+from homeassistant.helpers.event import async_track_state_change_event
 
 from custom_components.askoheat.api_conf_desc import (
     CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR,
@@ -33,9 +26,7 @@ from custom_components.askoheat.const import (
     NumberAttrKey,
     SwitchAttrKey,
 )
-from custom_components.askoheat.model import (
-    AskoheatSwitchEntityDescription,
-)
+from custom_components.askoheat.model import AskoheatSwitchEntityDescription
 
 from .entity import AskoheatEntity
 
@@ -116,6 +107,8 @@ async def async_setup_entry(
 class AskoheatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEntity):
     """askoheat switch class."""
 
+    entity_description: AskoheatSwitchEntityDescription
+
     def __init__(
         self,
         entry: AskoheatConfigEntry,
@@ -147,7 +140,7 @@ class AskoheatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEnti
             self.entity_description.on_state is True
             or self.entity_description.on_state is False
         ) and self._attr_state is not None:
-            self._attr_state = bool(self._attr_state)  # type: ignore  # noqa: PGH003
+            self._attr_is_on = bool(self._attr_state)
         if self.entity_description.inverted:
             self._attr_is_on = self._attr_state != self.entity_description.on_state
         else:
@@ -254,7 +247,7 @@ class AskoheatAutoFeedInSwitch(AskoheatSwitch):
         match event.data["entity_id"]:
             case self._buffer_entity_id:
                 if new_state and new_state.state != "unknown":
-                    self._buffer = float(new_state.state)
+                    self._buffer = int(new_state.state)
                     current_power_value = self.hass.states.get(self._power_entity_id)
                     if self._attr_is_on and current_power_value is not None:
                         await self.send_feed_in(float(current_power_value.state))
@@ -282,7 +275,7 @@ class AskoheatAutoFeedInSwitch(AskoheatSwitch):
         """Turn on the feed-in."""
         # enable feed-in through api
         await self._set_state(CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.on_state)
-        # additionally provide current power value to evaluate if heating shouldbe
+        # additionally provide current power value to evaluate if heating should be
         # turned on immediately
         current_power_value = self.hass.states.get(self._power_entity_id)
         if current_power_value is not None:

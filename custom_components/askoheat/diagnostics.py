@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
-    from . import AskoheatConfigEntry
+    from .data import AskoheatConfigEntry
 
 
 async def async_get_config_entry_diagnostics(

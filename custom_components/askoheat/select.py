@@ -53,6 +53,8 @@ async def async_setup_entry(
 class AskoheatSelect(AskoheatEntity[AskoheatSelectEntityDescription], SelectEntity):
     """Askoheat select entity."""
 
+    entity_description: AskoheatSelectEntityDescription
+
     def __init__(
         self,
         entry: AskoheatConfigEntry,
@@ -84,7 +86,7 @@ class AskoheatSelect(AskoheatEntity[AskoheatSelectEntityDescription], SelectEnti
                 f"{self._entity_translation_key_base}.state.{e}"
             )
             or str(e): e
-            for e in self.entity_description.api_descriptor.values  # type: ignore  # noqa: PD011, PGH003
+            for e in self.entity_description.api_descriptor.values  # type: ignore  # noqa: PGH003
         }
 
     @cached_property

@@ -5,9 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any
 
-from custom_components.askoheat.const import (
-    SensorAttrKey,
-)
+from custom_components.askoheat.const import SensorAttrKey
 
 if TYPE_CHECKING:
     from datetime import time
@@ -33,7 +31,7 @@ if TYPE_CHECKING:
         AskoheatParameterDataUpdateCoordinator,
     )
 
-    from .api import AskoHeatModbusApiClient
+    from .api import AskoheatModbusApiClient
 
 
 type AskoheatConfigEntry = ConfigEntry[AskoheatData]
@@ -43,7 +41,7 @@ type AskoheatConfigEntry = ConfigEntry[AskoheatData]
 class AskoheatData:
     """Data for the Askoheat integration."""
 
-    client: AskoHeatModbusApiClient
+    client: AskoheatModbusApiClient
     ema_coordinator: AskoheatEMADataUpdateCoordinator
     config_coordinator: AskoheatConfigDataUpdateCoordinator
     par_coordinator: AskoheatParameterDataUpdateCoordinator
@@ -59,14 +57,14 @@ class AskoheatData:
 
 @dataclass
 class AskoheatDataBlock:
-    """Data returnes when querying EMA attributes of askoheat."""
+    """Data returns when querying EMA attributes of askoheat."""
 
     binary_sensors: dict[BinarySensorAttrKey, bool] | None = None
     sensors: dict[SensorAttrKey, object] | None = None
     switches: dict[SwitchAttrKey, bool] | None = None
     text_inputs: dict[TextAttrKey, str] | None = None
     select_inputs: dict[SelectAttrKey, ReprEnum] | None = None
-    number_inputs: dict[NumberAttrKey, number] | None = None
+    number_inputs: dict[NumberAttrKey, number[Any]] | None = None
     time_inputs: dict[TimeAttrKey, time] | None = None
 
 
@@ -81,24 +79,24 @@ class AskoheatDeviceInfos:
     @property
     def serial_number(self) -> str:
         """Return serial number of the device."""
-        return self._data[f"sensor.{SensorAttrKey.PAR_ID}"]
+        return str(self._data[f"sensor.{SensorAttrKey.PAR_ID}"])
 
     @property
     def article_name(self) -> str:
         """Return article name of the device."""
-        return self._data[f"sensor.{SensorAttrKey.PAR_ARTICLE_NAME}"]
+        return str(self._data[f"sensor.{SensorAttrKey.PAR_ARTICLE_NAME}"])
 
     @property
     def article_number(self) -> str:
         """Return article number of the device."""
-        return self._data[f"sensor.{SensorAttrKey.PAR_ARTICLE_NUMBER}"]
+        return str(self._data[f"sensor.{SensorAttrKey.PAR_ARTICLE_NUMBER}"])
 
     @property
     def software_version(self) -> str:
         """Return software version of the device."""
-        return self._data[f"sensor.{SensorAttrKey.PAR_SOFTWARE_VERSION}"]
+        return str(self._data[f"sensor.{SensorAttrKey.PAR_SOFTWARE_VERSION}"])
 
     @property
     def hardwareware_version(self) -> str:
         """Return hardware version of the device."""
-        return self._data[f"sensor.{SensorAttrKey.PAR_HARDWARE_VERSION}"]
+        return str(self._data[f"sensor.{SensorAttrKey.PAR_HARDWARE_VERSION}"])

@@ -3,23 +3,19 @@
 from __future__ import annotations
 
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant import config_entries, data_entry_flow
-from homeassistant.components.sensor.const import (
-    SensorDeviceClass,
-)
+from homeassistant.components.sensor.const import SensorDeviceClass
 from homeassistant.config_entries import (
     ConfigFlowResult,
     OptionsFlow,
     OptionsFlowWithConfigEntry,
 )
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
-from homeassistant.core import (
-    callback,
-)
+from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from custom_components.askoheat.coordinator import (
@@ -28,7 +24,7 @@ from custom_components.askoheat.coordinator import (
 from custom_components.askoheat.data import AskoheatDeviceInfos
 
 from .api import (
-    AskoHeatModbusApiClient,
+    AskoheatModbusApiClient,
     AskoheatModbusApiClientCommunicationError,
     AskoheatModbusApiClientError,
 )
@@ -70,7 +66,7 @@ def _get_section_entry_or_none(
     section_values = data.get(section)
     if section_values is None:
         return None
-    return section_values.get(entry)
+    return cast(str | None, section_values.get(entry))
 
 
 class OptionalEntitySelector(selector.EntitySelector):
@@ -80,10 +76,10 @@ class OptionalEntitySelector(selector.EntitySelector):
         """Instantiate a selector."""
         super().__init__(config)
 
-    def __call__(self, data: Any) -> str | list[str] | None:
+    def __call__(self, data: Any) -> str | list[str]:
         """Validate the passed selection."""
         if data is None:
-            return None
+            return []
         return selector.EntitySelector.__call__(self, data)
 
 
@@ -205,13 +201,13 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(
         self,
-        user_input: dict | None = None,
-    ) -> data_entry_flow.FlowResult:
+        user_input: dict[str, Any] | None = None,
+    ) -> ConfigFlowResult:
         """Handle a flow initialized by the user."""
         _errors = {}
         if user_input is not None:
             try:
-                client = AskoHeatModbusApiClient(
+                client = AskoheatModbusApiClient(
                     host=user_input[CONF_HOST], port=user_input[CONF_PORT]
                 )
                 await client.connect()
@@ -238,10 +234,8 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     .replace(".", "_")
                 )
                 unique_id = f"{DOMAIN}_{cleaned_serial_number}"
-                self._title = title = "{} {} {}".format(
-                    *device_infos.article_name,
-                    device_infos.article_number,
-                    device_infos.serial_number,
+                self._title = title = (
+                    f"{device_infos.article_name} {device_infos.article_number} {device_infos.serial_number}"  # noqa: E501
                 )
 
                 await self.async_set_unique_id(unique_id)
@@ -263,7 +257,7 @@ class AskoheatFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_dhcp(
         self, discovery_info: DhcpServiceInfo
-    ) -> data_entry_flow.FlowResult:
+    ) -> ConfigFlowResult:
         """Prepare configuration for a DHCP discovered Askoheat device."""
         LOGGER.info(
             "Found device with hostname '%s' IP '%s'",

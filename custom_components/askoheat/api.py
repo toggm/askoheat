@@ -5,7 +5,7 @@ from __future__ import annotations
 import struct
 from datetime import time
 from enum import ReprEnum
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from homeassistant.exceptions import HomeAssistantError
@@ -31,10 +31,7 @@ from custom_components.askoheat.api_desc import (
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
-from custom_components.askoheat.const import (
-    DOMAIN,
-    LOGGER,
-)
+from custom_components.askoheat.const import DOMAIN, LOGGER
 from custom_components.askoheat.data import AskoheatDataBlock
 
 if TYPE_CHECKING:
@@ -53,7 +50,7 @@ class AskoheatModbusApiClientCommunicationError(
     """Exception to indicate a communication error."""
 
 
-class AskoHeatModbusApiClient:
+class AskoheatModbusApiClient:
     """Sample API Client."""
 
     def __init__(self, host: str, port: int) -> None:
@@ -74,7 +71,7 @@ class AskoHeatModbusApiClient:
 
     @property
     def is_ready(self) -> bool:
-        """Return true if connected and no communcation error occured."""
+        """Return true if connected and no communication error occurred."""
         return self.is_connected and self._last_communication_success
 
     def last_communication_failed(self) -> None:
@@ -212,7 +209,7 @@ class AskoHeatModbusApiClient:
     async def __async_write_register_values(
         self, address: int, values: list[bytes | int]
     ) -> ModbusPDU:
-        """Write a register value throug modbus."""
+        """Write a register value through modbus."""
         if not self._client.connected:
             msg = "not_connected"
             raise AskoheatModbusApiClientCommunicationError(
@@ -332,12 +329,13 @@ class AskoHeatModbusApiClient:
         )
 
 
-def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> object:  # noqa: PLR0912
+def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> Any:  # noqa: PLR0912
+    result: Any = None
     match desc:
         case FlagRegisterInputDescriptor(starting_register, bit):
             result = _read_flag(data.registers[starting_register], bit)
         case IntEnumInputDescriptor(starting_register, factory):
-            result = factory(_read_byte(data.registers[starting_register]))
+            result = factory(int(_read_byte(data.registers[starting_register])))
         case ByteRegisterInputDescriptor(starting_register):
             result = _read_byte(data.registers[starting_register])
         case UnsignedInt16RegisterInputDescriptor(starting_register):
@@ -391,7 +389,7 @@ def _read_register_boolean_input(
         return result
 
     if isinstance(result, number):
-        return result == 1
+        return bool(result == 1)
 
     LOGGER.error(
         "Cannot read bool input from descriptor %r, unsupported value %r",
@@ -403,7 +401,7 @@ def _read_register_boolean_input(
 
 def _read_register_number_input(
     data: ModbusPDU, desc: RegisterInputDescriptor
-) -> number | None:
+) -> number[Any] | None:
     result = _read_register_input(data, desc)
     if isinstance(result, number):
         return result
@@ -475,11 +473,8 @@ def _prepare_time(value: object) -> list[int]:
             "Cannot convert value %s as time, wrong datatype %r", value, type(value)
         )
         return []
-    time_value = cast(time, value)
+    time_value = value
     return _prepare_uint16(time_value.hour).__add__(_prepare_uint16(time_value.minute))
-
-
-T = TypeVar("T")
 
 
 def _read_str(register_values: list[int]) -> str:
@@ -500,7 +495,7 @@ def _prepare_str(value: object) -> list[int]:
             "Cannot convert value %s as string, wrong datatype %r", value, type(value)
         )
         return []
-    str_value = cast(str, value)
+    str_value = value
     byte_list = str_value.encode()
     size = float.__ceil__(len(byte_list) / 2)
     result = []
@@ -645,7 +640,7 @@ def _prepare_flag(register_value: int, flag: object, index: int) -> list[int]:
 
 
 def _read_struct(register_values: list[int], structure: str | bytes) -> Any | None:
-    """Read register values and unpack using pyhton struct."""
+    """Read register values and unpack using python struct."""
     byte_string = b"".join([x.to_bytes(2, byteorder="big") for x in register_values])
     if byte_string == b"nan\x00":
         return None

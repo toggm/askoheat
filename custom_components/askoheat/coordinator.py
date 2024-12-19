@@ -8,10 +8,7 @@ from typing import TYPE_CHECKING, Any
 import async_timeout
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 
-from .api import (
-    AskoHeatModbusApiClient,
-    AskoheatModbusApiClientError,
-)
+from .api import AskoheatModbusApiClient, AskoheatModbusApiClientError
 from .const import (
     DOMAIN,
     LOGGER,
@@ -181,7 +178,7 @@ class AskoheatParameterDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
         """Update parameter data via library."""
         return await self.load_parameters(self.config_entry.runtime_data.client)
 
-    async def load_parameters(self, client: AskoHeatModbusApiClient) -> dict[str, Any]:
+    async def load_parameters(self, client: AskoheatModbusApiClient) -> dict[str, Any]:
         """Load askoheat parameters through provided client."""
         try:
             async with async_timeout.timeout(10):

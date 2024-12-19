@@ -148,7 +148,9 @@ class AskoheatNumber(AskoheatEntity[AskoheatNumberEntityDescription], NumberEnti
 class AskoheatAutoFeedInBufferNumber(
     AskoheatBaseEntity[AskoheatNumberEntityDescription], RestoreNumber, NumberEntity
 ):
-    """Representation of a buffer entity for the auto-feed-in mechnism."""
+    """Representation of a buffer entity for the auto-feed-in mechanism."""
+
+    entity_description: AskoheatNumberEntityDescription
 
     def __init__(
         self,

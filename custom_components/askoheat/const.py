@@ -287,7 +287,7 @@ class BinarySensorAttrKey(StrEnum):
     AUTOHEATER_ACTIVE = "status_autoheater"
     PUMP_RELAY_FOLLOW_UP_TIME_ACTIVE = "status_pump_relay_follow_up_time_active"
     TEMP_LIMIT_REACHED = "status_temp_limit_reached"
-    ERROR_OCCURED = "status_error"
+    ERROR_OCCURRED = "status_error"
     # from status register -- end
 
     # -----------------------------------------------

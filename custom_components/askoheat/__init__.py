@@ -15,7 +15,7 @@ from homeassistant.loader import async_get_loaded_integration
 
 from custom_components.askoheat.const import DeviceKey
 
-from .api import AskoHeatModbusApiClient
+from .api import AskoheatModbusApiClient
 from .const import (
     CONF_ANALOG_INPUT_UNIT,
     CONF_DEVICE_UNITS,
@@ -78,7 +78,7 @@ async def async_setup_entry(
         supported_devices.append(DeviceKey.HEATPUMP_CONTROL_UNIT)
 
     entry.runtime_data = AskoheatData(
-        client=AskoHeatModbusApiClient(
+        client=AskoheatModbusApiClient(
             host=entry.data[CONF_HOST],
             port=entry.data[CONF_PORT],
         ),

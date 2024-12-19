@@ -102,7 +102,7 @@ class AskoheatBinarySensor(
             self.entity_description.on_state is True
             or self.entity_description.on_state is False
         ) and self._attr_state is not None:
-            self._attr_state = bool(self._attr_state)  # type: ignore  # noqa: PGH003
+            self._attr_is_on = bool(self._attr_state)
         if self.entity_description.inverted:
             self._attr_is_on = self._attr_state != self.entity_description.on_state
         else:

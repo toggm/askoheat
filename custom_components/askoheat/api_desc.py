@@ -6,12 +6,10 @@ import typing
 from abc import ABC
 from dataclasses import dataclass, field
 from enum import IntEnum, StrEnum
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Callable
-
-    import numpy as np
 
     from custom_components.askoheat.model import (
         AskoheatBinarySensorEntityDescription,
@@ -81,33 +79,27 @@ class TimeRegisterInputDescriptor(RegisterInputDescriptor):
 
 @dataclass(frozen=True)
 class StructRegisterInputDescriptor(RegisterInputDescriptor):
-    """Input register packing and unpacking values based on pyhtons struct."""
+    """Input register packing and unpacking values based on pythons struct."""
 
     number_of_bytes: int
-    # format as defined in pyhton struct https://docs.python.org/3/library/struct.html
+    # format as defined in python struct https://docs.python.org/3/library/struct.html
     structure: str | bytes
 
 
-E = TypeVar("E", bound=StrEnum)
-
-
 @dataclass(frozen=True)
-class StrEnumInputDescriptor[E](StringRegisterInputDescriptor):
+class StrEnumInputDescriptor[E: StrEnum](StringRegisterInputDescriptor):
     """Input register representing a string based enum value."""
 
     factory: Callable[[str], E] = field(hash=False)
     values: list[E] = field(hash=False)
 
 
-E2 = TypeVar("E2", bound=IntEnum)
-
-
 @dataclass(frozen=True)
-class IntEnumInputDescriptor[E2](ByteRegisterInputDescriptor):
+class IntEnumInputDescriptor[E: IntEnum](ByteRegisterInputDescriptor):
     """Input register representing a int based enum value."""
 
-    factory: Callable[[np.byte], E2] = field(hash=False)
-    values: list[E2] = field(hash=False)
+    factory: Callable[[int], E] = field(hash=False)
+    values: list[E] = field(hash=False)
 
 
 @dataclass(frozen=True)

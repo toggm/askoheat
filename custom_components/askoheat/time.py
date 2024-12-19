@@ -51,6 +51,8 @@ async def async_setup_entry(
 class AskoheatTime(AskoheatEntity[AskoheatTimeEntityDescription], TimeEntity):
     """Askoheat time entity."""
 
+    entity_description: AskoheatTimeEntityDescription
+
     def __init__(
         self,
         entry: AskoheatConfigEntry,

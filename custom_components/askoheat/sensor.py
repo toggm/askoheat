@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
-from typing import TYPE_CHECKING, Any
+from datetime import date, datetime, timedelta
+from decimal import Decimal
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
 from homeassistant.const import UnitOfTime
 from homeassistant.core import callback
+from homeassistant.helpers.typing import StateType
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
@@ -23,12 +25,8 @@ from custom_components.askoheat.model import (
 from .entity import AskoheatEntity
 
 if TYPE_CHECKING:
-    from datetime import date, datetime
-    from decimal import Decimal
-
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
-    from homeassistant.helpers.typing import StateType
 
     from .coordinator import AskoheatDataUpdateCoordinator
     from .data import AskoheatConfigEntry
@@ -148,7 +146,7 @@ class AskoheatSensor(AskoheatEntity[AskoheatSensorEntityDescription], SensorEnti
         super()._handle_coordinator_update()
 
     def _convert_value(self, value: Any) -> StateType | date | datetime | Decimal:
-        return value
+        return cast(StateType | date | datetime | Decimal, value)
 
 
 class AskoheatDurationSensor(AskoheatSensor):

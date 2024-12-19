@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import StrEnum
 from functools import cached_property
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.binary_sensor import BinarySensorEntityDescription
 from homeassistant.components.number import NumberEntityDescription, NumberMode
@@ -48,12 +48,10 @@ if TYPE_CHECKING:
     from decimal import Decimal
 
 
-K = TypeVar("K", bound=StrEnum)
-A = TypeVar("A", bound=RegisterInputDescriptor)
-
-
 @dataclass(frozen=True)
-class AskoheatEntityDescription[K, A](EntityDescription):
+class AskoheatEntityDescription[K: StrEnum, A: RegisterInputDescriptor](
+    EntityDescription
+):
     """Class describing base askoheat entity."""
 
     key: K
@@ -213,7 +211,7 @@ class AskoheatTextEntityDescription(
 class AskoheatSelectEntityDescription(
     AskoheatEntityDescription[
         SelectAttrKey,
-        IntEnumInputDescriptor | StrEnumInputDescriptor,
+        IntEnumInputDescriptor[Any] | StrEnumInputDescriptor[Any],
     ],
     SelectEntityDescription,
 ):
