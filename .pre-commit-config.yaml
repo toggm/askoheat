@@ -49,8 +49,9 @@ repos:
     rev: v1.13.0
     hooks:
       - id: mypy
-        additional_dependencies: [pytest]
+        additional_dependencies: [pytest, homeassistant]
         args:
           - --pretty
           - --show-error-codes
           - --show-error-context
+          - -v

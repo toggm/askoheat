@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.switch import ENTITY_ID_FORMAT, SwitchEntity
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
+from homeassistant.exceptions import ConfigEntryError
 from homeassistant.helpers.event import async_track_state_change_event
 
 from custom_components.askoheat.api_conf_desc import (
@@ -78,7 +79,10 @@ async def async_setup_entry(
         if entity_description.device_key is None
         or entity_description.device_key in entry.runtime_data.supported_devices
     )
-    if power_entity_id is not None:
+    if power_entity_id is not None and power_entity_id != []:
+        if isinstance(power_entity_id, list) and len(power_entity_id) != 1:
+            msg = "Cannot track multiple power_entities"
+            raise ConfigEntryError(msg)
 
         def config_power_invert() -> bool | None:
             dev = entry.data.get(CONF_FEED_IN)
