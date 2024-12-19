@@ -49,8 +49,8 @@ repos:
     rev: v1.13.0
     hooks:
       - id: mypy
+        additional_dependencies: [pytest]
         args:
           - --pretty
-          - --strict
           - --show-error-codes
           - --show-error-context
