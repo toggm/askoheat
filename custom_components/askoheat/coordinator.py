@@ -25,17 +25,20 @@ if TYPE_CHECKING:
     from custom_components.askoheat.api_desc import RegisterInputDescriptor
     from custom_components.askoheat.data import AskoheatDataBlock
 
-    from .data import AskoheatConfigEntry
-
 
 # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
 class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching state of askoheat through a single API call."""
 
-    config_entry: AskoheatConfigEntry
+    _client: AskoheatModbusApiClient
     _writing: bool = False
 
-    def __init__(self, hass: HomeAssistant, scan_interval: timedelta | None) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        scan_interval: timedelta | None,
+        client: AskoheatModbusApiClient,
+    ) -> None:
         """Initialize."""
         super().__init__(
             hass=hass,
@@ -47,6 +50,7 @@ class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
             # being dispatched to listeners
             always_update=True,
         )
+        self._client = client
 
     @abstractmethod
     async def async_write(
@@ -58,9 +62,9 @@ class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
 class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
     """Class to manage fetching askoheat energymanager states."""
 
-    def __init__(self, hass: HomeAssistant) -> None:
+    def __init__(self, hass: HomeAssistant, client: AskoheatModbusApiClient) -> None:
         """Initialize."""
-        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_EMA)
+        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_EMA, client=client)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update ema data via library."""
@@ -69,13 +73,13 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
             return self.data
         try:
             async with async_timeout.timeout(10):
-                data = await self.config_entry.runtime_data.client.async_read_ema_data()
+                data = await self._client.async_read_ema_data()
                 return _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
             raise UpdateFailed(exception) from exception
         except TimeoutError as error:
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
             raise error from error
 
     async def async_write(
@@ -85,9 +89,7 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
         try:
             self._writing = True
             async with async_timeout.timeout(10):
-                data = await self.config_entry.runtime_data.client.async_write_ema_data(
-                    api_desc, value
-                )
+                data = await self._client.async_write_ema_data(api_desc, value)
                 self.data = _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
             LOGGER.info(
@@ -96,7 +98,7 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 api_desc,
                 exception,
             )
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
         except TimeoutError as error:
             LOGGER.info(
                 "Could not write state %s to askoheat register %s => %s",
@@ -104,7 +106,7 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 api_desc,
                 error,
             )
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
         finally:
             self._writing = False
 
@@ -112,9 +114,13 @@ class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
 class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
     """Class to manage fetching askoheat configuration states."""
 
-    def __init__(self, hass: HomeAssistant) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: AskoheatModbusApiClient,
+    ) -> None:
         """Initialize."""
-        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_CONFIG)
+        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_CONFIG, client=client)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update config data via library."""
@@ -123,15 +129,13 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
             return self.data
         try:
             async with async_timeout.timeout(10):
-                data = (
-                    await self.config_entry.runtime_data.client.async_read_config_data()
-                )
+                data = await self._client.async_read_config_data()
                 return _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
             raise UpdateFailed(exception) from exception
         except TimeoutError as error:
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
             raise error from error
 
     async def async_write(
@@ -141,11 +145,7 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
         try:
             self._writing = True
             async with async_timeout.timeout(10):
-                data = (
-                    await self.config_entry.runtime_data.client.async_write_config_data(
-                        api_desc, value
-                    )
-                )
+                data = await self._client.async_write_config_data(api_desc, value)
                 self.data = _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
             LOGGER.info(
@@ -154,7 +154,7 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 api_desc,
                 exception,
             )
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
         except TimeoutError as error:
             LOGGER.info(
                 "Could not write state %s to askoheat register %s => %s",
@@ -162,7 +162,7 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 api_desc,
                 error,
             )
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
         finally:
             self._writing = False
 
@@ -170,13 +170,17 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
 class AskoheatParameterDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
     """Class to manage fetching askoheat parameter states."""
 
-    def __init__(self, hass: HomeAssistant) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: AskoheatModbusApiClient,
+    ) -> None:
         """Initialize."""
-        super().__init__(hass=hass, scan_interval=None)
+        super().__init__(hass=hass, scan_interval=None, client=client)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update parameter data via library."""
-        return await self.load_parameters(self.config_entry.runtime_data.client)
+        return await self.load_parameters(self._client)
 
     async def load_parameters(self, client: AskoheatModbusApiClient) -> dict[str, Any]:
         """Load askoheat parameters through provided client."""
@@ -185,10 +189,10 @@ class AskoheatParameterDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
                 data = await client.async_read_par_data()
                 return _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
             raise UpdateFailed(exception) from exception
         except TimeoutError as error:
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
             raise error from error
 
     async def async_write(self, _: RegisterInputDescriptor, __: object) -> None:
@@ -200,21 +204,25 @@ class AskoheatParameterDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
 class AskoheatOperationDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
     """Class to manage fetching askoheat operation data states."""
 
-    def __init__(self, hass: HomeAssistant) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        client: AskoheatModbusApiClient,
+    ) -> None:
         """Initialize."""
-        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_OP_DATA)
+        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_OP_DATA, client=client)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update config data via library."""
         try:
             async with async_timeout.timeout(10):
-                data = await self.config_entry.runtime_data.client.async_read_op_data()
+                data = await self._client.async_read_op_data()
                 return _map_data_block_to_dict(data)
         except AskoheatModbusApiClientError as exception:
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
             raise UpdateFailed(exception) from exception
         except TimeoutError as error:
-            self.config_entry.runtime_data.client.last_communication_failed()
+            self._client.last_communication_failed()
             raise error from error
 
     async def async_write(self, _: RegisterInputDescriptor, __: object) -> None:

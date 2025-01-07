@@ -28,6 +28,9 @@ CONF_POWER_ENTITY_ID = "power_entity_id"
 CONF_POWER_INVERT = "power_invert"
 
 
+DATA_LEGIO_STATUS_REGISTER = 27
+
+
 class NumberAttrKey(StrEnum):
     """Askoheat number entities attribute keys."""
 

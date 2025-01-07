@@ -57,12 +57,28 @@ async def async_setup_entry(
     entry: AskoheatConfigEntry,
 ) -> bool:
     """Set up this integration using UI."""
-    par_coordinator = AskoheatParameterDataUpdateCoordinator(hass=hass)
-    ema_coordinator = AskoheatEMADataUpdateCoordinator(
-        hass=hass,
+    client = AskoheatModbusApiClient(
+        host=entry.data[CONF_HOST],
+        port=entry.data[CONF_PORT],
     )
-    config_coordinator = AskoheatConfigDataUpdateCoordinator(hass=hass)
-    data_coordinator = AskoheatOperationDataUpdateCoordinator(hass=hass)
+
+    await client.connect()
+
+    if not client.is_connected:
+        msg = "Could not connect to modbus client"
+        LOGGER.error(msg)
+        raise ConfigEntryNotReady(msg)
+
+    LOGGER.debug(
+        "Connect modbus client %s:%s",
+        entry.data[CONF_HOST],
+        entry.data[CONF_PORT],
+    )
+
+    par_coordinator = AskoheatParameterDataUpdateCoordinator(hass=hass, client=client)
+    ema_coordinator = AskoheatEMADataUpdateCoordinator(hass=hass, client=client)
+    config_coordinator = AskoheatConfigDataUpdateCoordinator(hass=hass, client=client)
+    data_coordinator = AskoheatOperationDataUpdateCoordinator(hass=hass, client=client)
 
     # default devices
     supported_devices = [DeviceKey.WATER_HEATER_CONTROL_UNIT, DeviceKey.ENERGY_MANAGER]
@@ -78,10 +94,7 @@ async def async_setup_entry(
         supported_devices.append(DeviceKey.HEATPUMP_CONTROL_UNIT)
 
     entry.runtime_data = AskoheatData(
-        client=AskoheatModbusApiClient(
-            host=entry.data[CONF_HOST],
-            port=entry.data[CONF_PORT],
-        ),
+        client=client,
         integration=async_get_loaded_integration(hass, entry.domain),
         ema_coordinator=ema_coordinator,
         config_coordinator=config_coordinator,
@@ -89,21 +102,6 @@ async def async_setup_entry(
         data_coordinator=data_coordinator,
         supported_devices=supported_devices,
     )
-    LOGGER.debug(
-        "Connect modbus client %s:%s",
-        entry.data[CONF_HOST],
-        entry.data[CONF_PORT],
-    )
-    await entry.runtime_data.client.connect()
-
-    if not entry.runtime_data.client.is_connected:
-        msg = "Could not connect to modbus client"
-        raise ConfigEntryNotReady(msg)
-
-    par_coordinator.config_entry = entry
-    ema_coordinator.config_entry = entry
-    config_coordinator.config_entry = entry
-    data_coordinator.config_entry = entry
 
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
     await par_coordinator.async_config_entry_first_refresh()

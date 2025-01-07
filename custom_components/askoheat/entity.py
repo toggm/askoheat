@@ -100,7 +100,7 @@ class AskoheatEntity[D: AskoheatEntityDescription[Any, Any]](
         # Calc icon:
         icon_state = self._attr_state
         if hasattr(self, "_attr_is_on"):
-            icon_state = self._attr_is_on
+            icon_state = self._attr_is_on  # type: ignore  # noqa: PGH003
         if descr.icon_by_state is not None and icon_state in descr.icon_by_state:
             self._attr_icon = descr.icon_by_state.get(icon_state)  # type: ignore  # noqa: PGH003
         else:

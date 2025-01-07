@@ -94,7 +94,7 @@ class AskoheatBinarySensor(
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         data = self.coordinator.data
-        if data is None:
+        if data is None or data.get(self.entity_description.data_key) is None:
             return
 
         self._attr_state = data[self.entity_description.data_key]

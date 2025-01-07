@@ -111,7 +111,7 @@ class AskoheatSelect(AskoheatEntity[AskoheatSelectEntityDescription], SelectEnti
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         data = self.coordinator.data
-        if data is None:
+        if data is None or data.get(self.entity_description.data_key) is None:
             return
         enum = data[self.entity_description.data_key]
         self.current_option = self._enum_to_options[enum]

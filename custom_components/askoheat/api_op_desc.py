@@ -18,6 +18,7 @@ from custom_components.askoheat.api_desc import (
     UnsignedInt32RegisterInputDescriptor,
 )
 from custom_components.askoheat.const import (
+    DATA_LEGIO_STATUS_REGISTER,
     BinarySensorAttrKey,
     DeviceKey,
     SensorAttrKey,
@@ -473,21 +474,21 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         # legio status flags
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.DATA_LEGIO_STATUS_HEATING_UP,
-            api_descriptor=FlagRegisterInputDescriptor(27, 0),
+            api_descriptor=FlagRegisterInputDescriptor(DATA_LEGIO_STATUS_REGISTER, 0),
             icon="mdi:thermometer-chevron-up",
             entity_category=EntityCategory.DIAGNOSTIC,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.DATA_LEGIO_STATUS_TEMPERATURE_REACHED,
-            api_descriptor=FlagRegisterInputDescriptor(27, 1),
+            api_descriptor=FlagRegisterInputDescriptor(DATA_LEGIO_STATUS_REGISTER, 1),
             icon="mdi:thermometer-check",
             entity_category=EntityCategory.DIAGNOSTIC,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.DATA_LEGIO_STATUS_TEMP_REACHED_OUTSIDE_INTERVAL,
-            api_descriptor=FlagRegisterInputDescriptor(27, 2),
+            api_descriptor=FlagRegisterInputDescriptor(DATA_LEGIO_STATUS_REGISTER, 2),
             icon="mdi:thermometer-check",
             entity_category=EntityCategory.DIAGNOSTIC,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
@@ -495,28 +496,28 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         # bit 3 ignored
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.DATA_LEGIO_STATUS_UNEXPECTED_TEMP_DROP,
-            api_descriptor=FlagRegisterInputDescriptor(27, 4),
+            api_descriptor=FlagRegisterInputDescriptor(DATA_LEGIO_STATUS_REGISTER, 4),
             icon="mdi:alert-circle",
             entity_category=EntityCategory.DIAGNOSTIC,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.DATA_LEGIO_STATUS_ERROR_NO_VALID_TEMP_SENSOR,
-            api_descriptor=FlagRegisterInputDescriptor(27, 5),
+            api_descriptor=FlagRegisterInputDescriptor(DATA_LEGIO_STATUS_REGISTER, 5),
             icon="mdi:alert-circle",
             entity_category=EntityCategory.DIAGNOSTIC,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.DATA_LEGIO_STATUS_ERROR_CANNOT_REACH_TEMP,
-            api_descriptor=FlagRegisterInputDescriptor(27, 6),
+            api_descriptor=FlagRegisterInputDescriptor(DATA_LEGIO_STATUS_REGISTER, 6),
             icon="mdi:alert-circle",
             entity_category=EntityCategory.DIAGNOSTIC,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.DATA_LEGIO_STATUS_ERROR_SETTINGS,
-            api_descriptor=FlagRegisterInputDescriptor(27, 7),
+            api_descriptor=FlagRegisterInputDescriptor(DATA_LEGIO_STATUS_REGISTER, 7),
             icon="mdi:alert-circle",
             entity_category=EntityCategory.DIAGNOSTIC,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,

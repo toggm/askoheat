@@ -213,7 +213,7 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
                     host=user_input[CONF_HOST], port=user_input[CONF_PORT]
                 )
                 await client.connect()
-                coordinator = AskoheatParameterDataUpdateCoordinator(self.hass)
+                coordinator = AskoheatParameterDataUpdateCoordinator(self.hass, client)
                 parameters = await coordinator.load_parameters(client)
 
                 client.close()

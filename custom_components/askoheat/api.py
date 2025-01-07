@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any, cast
 import numpy as np
 from homeassistant.exceptions import HomeAssistantError
 from numpy import number
-from pymodbus.client import AsyncModbusTcpClient as ModbusClient
+from pymodbus.client import AsyncModbusTcpClient
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_desc import (
@@ -57,8 +57,11 @@ class AskoheatModbusApiClient:
         """Askoheat Modbus API Client."""
         self._host = host
         self._port = port
-        self._client = ModbusClient(host=host, port=port)
+        self._client = self._create_client(host=host, port=port)
         self._last_communication_success = True
+
+    def _create_client(self, host: str, port: int) -> AsyncModbusTcpClient:
+        return AsyncModbusTcpClient(host=host, port=port)
 
     async def connect(self) -> Any:
         """Connect to modbus client."""
@@ -88,6 +91,11 @@ class AskoheatModbusApiClient:
             EMA_REGISTER_BLOCK_DESCRIPTOR.starting_register,
             EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
         )
+        if len(data.registers) != EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers:
+            msg = "Unexpected number of registers read."
+            raise AskoheatModbusApiClientCommunicationError(
+                translation_domain=DOMAIN, translation_key=msg
+            )
         LOGGER.debug("async_read_ema_data %s", data)
         return self.__map_data(EMA_REGISTER_BLOCK_DESCRIPTOR, data)
 
@@ -118,6 +126,11 @@ class AskoheatModbusApiClient:
             PARAM_REGISTER_BLOCK_DESCRIPTOR.starting_register,
             PARAM_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
         )
+        if len(data.registers) != PARAM_REGISTER_BLOCK_DESCRIPTOR.number_of_registers:
+            msg = "Unexpected number of registers read."
+            raise AskoheatModbusApiClientCommunicationError(
+                translation_domain=DOMAIN, translation_key=msg
+            )
         LOGGER.debug("async_read_par_data %s", data)
         return self.__map_data(PARAM_REGISTER_BLOCK_DESCRIPTOR, data)
 
@@ -127,6 +140,11 @@ class AskoheatModbusApiClient:
             CONF_REGISTER_BLOCK_DESCRIPTOR.starting_register,
             CONF_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
         )
+        if len(data.registers) != CONF_REGISTER_BLOCK_DESCRIPTOR.number_of_registers:
+            msg = "Unexpected number of registers read."
+            raise AskoheatModbusApiClientCommunicationError(
+                translation_domain=DOMAIN, translation_key=msg
+            )
         LOGGER.debug("async_read_config_data %s", data)
         return self.__map_data(CONF_REGISTER_BLOCK_DESCRIPTOR, data)
 
@@ -159,6 +177,11 @@ class AskoheatModbusApiClient:
             DATA_REGISTER_BLOCK_DESCRIPTOR.starting_register,
             DATA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
         )
+        if len(data.registers) != DATA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers:
+            msg = "Unexpected number of registers read."
+            raise AskoheatModbusApiClientCommunicationError(
+                translation_domain=DOMAIN, translation_key=msg
+            )
         LOGGER.debug("async_read_op_data %s", data)
         return self.__map_data(DATA_REGISTER_BLOCK_DESCRIPTOR, data)
 
@@ -335,7 +358,11 @@ def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> Any:
         case FlagRegisterInputDescriptor(starting_register, bit):
             result = _read_flag(data.registers[starting_register], bit)
         case IntEnumInputDescriptor(starting_register, factory):
-            result = factory(int(_read_byte(data.registers[starting_register])))
+            try:
+                result = factory(int(_read_byte(data.registers[starting_register])))
+            except ValueError as err:
+                LOGGER.warning(err)
+                result = None
         case ByteRegisterInputDescriptor(starting_register):
             result = _read_byte(data.registers[starting_register])
         case UnsignedInt16RegisterInputDescriptor(starting_register):
@@ -355,13 +382,18 @@ def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> Any:
                 data.registers[starting_register : starting_register + 2]
             )
         case StrEnumInputDescriptor(starting_register, number_of_words, factory):
-            result = factory(
-                _read_str(
-                    data.registers[
-                        starting_register : starting_register + number_of_words
-                    ]
+            try:
+                result = factory(
+                    _read_str(
+                        data.registers[
+                            starting_register : starting_register + number_of_words
+                        ]
+                    )
                 )
-            )
+            except ValueError as err:
+                LOGGER.warning(err)
+                result = None
+
         case StringRegisterInputDescriptor(starting_register, number_of_words):
             result = _read_str(
                 data.registers[starting_register : starting_register + number_of_words]
@@ -391,11 +423,12 @@ def _read_register_boolean_input(
     if isinstance(result, number):
         return bool(result == 1)
 
-    LOGGER.error(
-        "Cannot read bool input from descriptor %r, unsupported value %r",
-        desc,
-        result,
-    )
+    if result is not None:
+        LOGGER.error(
+            "Cannot read bool input from descriptor %r, unsupported value %r",
+            desc,
+            result,
+        )
     return None
 
 
@@ -406,11 +439,12 @@ def _read_register_number_input(
     if isinstance(result, number):
         return result
 
-    LOGGER.error(
-        "Cannot read number input from descriptor %r, unsupported value %r",
-        desc,
-        result,
-    )
+    if result is not None:
+        LOGGER.error(
+            "Cannot read number input from descriptor %r, unsupported value %r",
+            desc,
+            result,
+        )
     return None
 
 
@@ -421,11 +455,12 @@ def _read_register_string_input(
     if isinstance(result, str):
         return result
 
-    LOGGER.error(
-        "Cannot read str input from descriptor %r, unsupported value %r",
-        desc,
-        result,
-    )
+    if result is not None:
+        LOGGER.error(
+            "Cannot read str input from descriptor %r, unsupported value %r",
+            desc,
+            result,
+        )
     return None
 
 
@@ -436,11 +471,12 @@ def _read_register_time_input(
     if isinstance(result, time):
         return result
 
-    LOGGER.error(
-        "Cannot read time input from descriptor %r, unsupported value %r",
-        desc,
-        result,
-    )
+    if result is not None:
+        LOGGER.error(
+            "Cannot read time input from descriptor %r, unsupported value %r",
+            desc,
+            result,
+        )
     return None
 
 
@@ -451,11 +487,12 @@ def _read_register_enum_input(
     if isinstance(result, ReprEnum):
         return result
 
-    LOGGER.error(
-        "Cannot read enum input from descriptor %r, unsupported value %r",
-        desc,
-        result,
-    )
+    if result is not None:
+        LOGGER.error(
+            "Cannot read enum input from descriptor %r, unsupported value %r",
+            desc,
+            result,
+        )
     return None
 
 
@@ -509,8 +546,8 @@ def _prepare_str(value: object) -> list[int]:
 def _read_byte(register_value: int) -> np.byte:
     """Read register value as byte."""
     return np.byte(
-        ModbusClient.convert_from_registers(
-            [register_value], ModbusClient.DATATYPE.INT16
+        AsyncModbusTcpClient.convert_from_registers(
+            [register_value], AsyncModbusTcpClient.DATATYPE.INT16
         )
     )
 
@@ -527,14 +564,16 @@ def _prepare_byte(value: object) -> list[int]:
     if isinstance(value, bool):
         value = 1 if value else 0
 
-    return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.INT16)
+    return AsyncModbusTcpClient.convert_to_registers(
+        int(value), AsyncModbusTcpClient.DATATYPE.INT16
+    )
 
 
 def _read_int16(register_value: int) -> np.int16:
     """Read register value as int16."""
     return np.int16(
-        ModbusClient.convert_from_registers(
-            [register_value], ModbusClient.DATATYPE.INT16
+        AsyncModbusTcpClient.convert_from_registers(
+            [register_value], AsyncModbusTcpClient.DATATYPE.INT16
         )
     )
 
@@ -548,14 +587,16 @@ def _prepare_int16(value: object) -> list[int]:
             type(value),
         )
         return []
-    return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.INT16)
+    return AsyncModbusTcpClient.convert_to_registers(
+        int(value), AsyncModbusTcpClient.DATATYPE.INT16
+    )
 
 
 def _read_uint16(register_value: int) -> np.uint16:
     """Read register value as uint16."""
     return np.uint16(
-        ModbusClient.convert_from_registers(
-            [register_value], ModbusClient.DATATYPE.UINT16
+        AsyncModbusTcpClient.convert_from_registers(
+            [register_value], AsyncModbusTcpClient.DATATYPE.UINT16
         )
     )
 
@@ -570,14 +611,16 @@ def _prepare_uint16(value: object) -> list[int]:
         )
         return []
 
-    return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.UINT16)
+    return AsyncModbusTcpClient.convert_to_registers(
+        int(value), AsyncModbusTcpClient.DATATYPE.UINT16
+    )
 
 
 def _read_uint32(register_values: list[int]) -> np.uint32:
     """Read register value as uint32."""
     return np.uint32(
-        ModbusClient.convert_from_registers(
-            register_values, ModbusClient.DATATYPE.UINT32
+        AsyncModbusTcpClient.convert_from_registers(
+            register_values, AsyncModbusTcpClient.DATATYPE.UINT32
         )
     )
 
@@ -592,14 +635,16 @@ def _prepare_uint32(value: object) -> list[int]:
         )
         return []
 
-    return ModbusClient.convert_to_registers(int(value), ModbusClient.DATATYPE.UINT32)
+    return AsyncModbusTcpClient.convert_to_registers(
+        int(value), AsyncModbusTcpClient.DATATYPE.UINT32
+    )
 
 
 def _read_float32(register_values: list[int]) -> np.float32:
     """Read register value as uint16."""
     return np.float32(
-        ModbusClient.convert_from_registers(
-            register_values, ModbusClient.DATATYPE.FLOAT32
+        AsyncModbusTcpClient.convert_from_registers(
+            register_values, AsyncModbusTcpClient.DATATYPE.FLOAT32
         )
     )
 
@@ -611,8 +656,8 @@ def _prepare_float32(value: object) -> list[int]:
             "Cannot convert value %s as float32, wrong datatype %r", value, type(value)
         )
         return []
-    return ModbusClient.convert_to_registers(
-        float(value), ModbusClient.DATATYPE.FLOAT32
+    return AsyncModbusTcpClient.convert_to_registers(
+        float(value), AsyncModbusTcpClient.DATATYPE.FLOAT32
     )
 
 
