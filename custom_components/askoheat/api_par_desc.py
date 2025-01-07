@@ -19,6 +19,7 @@ from custom_components.askoheat.api_desc import (
     UnsignedInt16RegisterInputDescriptor,
 )
 from custom_components.askoheat.const import (
+    PAR_TYPE_REGISTER,
     BinarySensorAttrKey,
     DeviceKey,
     SensorAttrKey,
@@ -163,20 +164,20 @@ PARAM_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PAR_TYPE_3_STAGE_VERSION,
             icon="mdi:numeric-3",
-            api_descriptor=FlagRegisterInputDescriptor(16, 0),
+            api_descriptor=FlagRegisterInputDescriptor(PAR_TYPE_REGISTER, 0),
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PAR_TYPE_7_STAGE_VERSION,
             icon="mdi:numeric-7",
-            api_descriptor=FlagRegisterInputDescriptor(16, 1),
+            api_descriptor=FlagRegisterInputDescriptor(PAR_TYPE_REGISTER, 1),
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PAR_HEATER_TYPE_FLANGE,
-            api_descriptor=FlagRegisterInputDescriptor(16, 2),
+            api_descriptor=FlagRegisterInputDescriptor(PAR_TYPE_REGISTER, 2),
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             entity_registry_enabled_default=False,
@@ -184,7 +185,7 @@ PARAM_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PAR_HEATER_TYPE_SCREW_IN,
             icon="mdi:screw-lag",
-            api_descriptor=FlagRegisterInputDescriptor(16, 3),
+            api_descriptor=FlagRegisterInputDescriptor(PAR_TYPE_REGISTER, 3),
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             entity_registry_enabled_default=False,
@@ -192,7 +193,7 @@ PARAM_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PAR_WIRED_AS_STAR_CONNECTION,
             icon="mdi:connection",
-            api_descriptor=FlagRegisterInputDescriptor(16, 4),
+            api_descriptor=FlagRegisterInputDescriptor(PAR_TYPE_REGISTER, 4),
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             entity_registry_enabled_default=False,
@@ -200,7 +201,7 @@ PARAM_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PAR_WIRED_AS_DELTA_CONECTION,
             icon="mdi:connection",
-            api_descriptor=FlagRegisterInputDescriptor(16, 5),
+            api_descriptor=FlagRegisterInputDescriptor(PAR_TYPE_REGISTER, 5),
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             entity_registry_enabled_default=False,
@@ -208,7 +209,7 @@ PARAM_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         # bit 6 ignored
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.PAR_TYPE_OEM_VERSION,
-            api_descriptor=FlagRegisterInputDescriptor(16, 7),
+            api_descriptor=FlagRegisterInputDescriptor(PAR_TYPE_REGISTER, 7),
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             entity_registry_enabled_default=False,

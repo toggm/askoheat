@@ -29,6 +29,7 @@ CONF_POWER_INVERT = "power_invert"
 
 
 DATA_LEGIO_STATUS_REGISTER = 27
+PAR_TYPE_REGISTER = 16
 
 
 class NumberAttrKey(StrEnum):
