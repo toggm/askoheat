@@ -10,11 +10,12 @@ from pymodbus.pdu.register_message import (
 )
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
+from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import (
     DATA_LEGIO_STATUS_REGISTER,
-    LOGGER,
+    EMA_STATUS_REGISTER,
     PAR_TYPE_REGISTER,
 )
 from custom_components.askoheat.model import AskoheatBinarySensorEntityDescription
@@ -39,11 +40,17 @@ par_register_values = [
     for index in range(PARAM_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)
 ]
 
+ema_register_values = [
+    0 if index != EMA_STATUS_REGISTER else binary_register_test_values_as_int
+    for index in range(EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)
+]
+
 
 @pytest.mark.parametrize(
     (
         "read_data_input_registers_response",
         "read_par_input_registers_response",
+        "read_ema_input_registers_response",
         "entity_descriptor",
         "expected",
     ),
@@ -51,16 +58,19 @@ par_register_values = [
         (
             ReadInputRegistersResponse(registers=data_register_values),
             ReadInputRegistersResponse(registers=par_register_values),
+            ReadInputRegistersResponse(registers=ema_register_values),
             entity_descriptor,
             (
                 "on"
                 if binary_register_test_values[entity_descriptor.api_descriptor.bit]
+                and not entity_descriptor.inverted
                 else "off"
             ),
         )
         for entity_descriptor in (
             DATA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
             + PARAM_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
+            + EMA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
         )
         if entity_descriptor.api_descriptor
         and entity_descriptor.entity_registry_enabled_default
@@ -75,6 +85,7 @@ async def test_read_binary_sensor_states(
     """Test reading binary sensor."""
     key = f"binary_sensor.test_{entity_descriptor.key}"
     state = hass.states.get(key)
-    LOGGER.debug("Test:%s = %s", key, state)
     assert state
-    assert state.state is expected
+    assert (
+        state.state is expected
+    ), f"Expect state {expected} for entity {entity_descriptor.key}, but received {state.state}."  # noqa: E501
