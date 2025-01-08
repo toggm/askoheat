@@ -5,7 +5,7 @@ from random import choice
 
 import pytest
 from homeassistant.core import HomeAssistant
-from pymodbus.pdu.register_read_message import (
+from pymodbus.pdu.register_message import (
     ReadInputRegistersResponse,
 )
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -17,6 +17,7 @@ from custom_components.askoheat.const import (
     LOGGER,
     PAR_TYPE_REGISTER,
 )
+from custom_components.askoheat.model import AskoheatBinarySensorEntityDescription
 
 binary_register_test_values = [choice([True, False]) for _ in range(16)]  # noqa: S311
 binary_register_test_values_as_int = reduce(
@@ -40,39 +41,40 @@ par_register_values = [
 
 
 @pytest.mark.parametrize(
-    "read_data_input_registers_response",
-    [ReadInputRegistersResponse(values=data_register_values)],
-)
-@pytest.mark.parametrize(
-    "read_par_input_registers_response",
-    [ReadInputRegistersResponse(values=par_register_values)],
-)
-async def test_read_binary_sensor_states(
-    mock_config_entry: MockConfigEntry,
-    hass: HomeAssistant,
-) -> None:
-    """Test reading binary sensor."""
-    LOGGER.info("Test %s", mock_config_entry.runtime_data.client)
-
-    mock_config_entry.add_to_hass(hass)
-    await hass.config_entries.async_setup(mock_config_entry.entry_id)
-    await hass.async_block_till_done()
-
-    for entity_descriptor in (
-        DATA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
-        + PARAM_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
-    ):
-        if (
-            entity_descriptor.api_descriptor
-            and entity_descriptor.entity_registry_enabled_default
-        ):
-            expected = (
+    (
+        "read_data_input_registers_response",
+        "read_par_input_registers_response",
+        "entity_descriptor",
+        "expected",
+    ),
+    [
+        (
+            ReadInputRegistersResponse(registers=data_register_values),
+            ReadInputRegistersResponse(registers=par_register_values),
+            entity_descriptor,
+            (
                 "on"
                 if binary_register_test_values[entity_descriptor.api_descriptor.bit]
                 else "off"
-            )
-            key = f"binary_sensor.test_{entity_descriptor.key}"
-            state = hass.states.get(key)
-            LOGGER.debug("Test:%s = %s", key, state)
-            assert state
-            assert state.state is expected
+            ),
+        )
+        for entity_descriptor in (
+            DATA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
+            + PARAM_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
+        )
+        if entity_descriptor.api_descriptor
+        and entity_descriptor.entity_registry_enabled_default
+    ],
+)
+async def test_read_binary_sensor_states(
+    mock_config_entry: MockConfigEntry,  # noqa: ARG001
+    hass: HomeAssistant,
+    entity_descriptor: AskoheatBinarySensorEntityDescription,
+    expected: str,
+) -> None:
+    """Test reading binary sensor."""
+    key = f"binary_sensor.test_{entity_descriptor.key}"
+    state = hass.states.get(key)
+    LOGGER.debug("Test:%s = %s", key, state)
+    assert state
+    assert state.state is expected

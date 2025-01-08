@@ -6,7 +6,7 @@ from unittest import mock
 import pytest
 from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
-from pymodbus.pdu.register_read_message import (
+from pymodbus.pdu.register_message import (
     ReadHoldingRegistersResponse,
     ReadInputRegistersResponse,
 )
@@ -46,7 +46,7 @@ def auto_enable_custom_integrations(
 def read_config_holding_registers_response() -> ReadHoldingRegistersResponse:
     """Fixture returning object representing default config holding register."""
     return ReadHoldingRegistersResponse(
-        values=[0 for _ in range(CONF_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)]
+        registers=[0 for _ in range(CONF_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)]
     )
 
 
@@ -54,7 +54,9 @@ def read_config_holding_registers_response() -> ReadHoldingRegistersResponse:
 def read_par_input_registers_response() -> ReadInputRegistersResponse:
     """Fixture returning object representing default parameter input register."""
     return ReadInputRegistersResponse(
-        values=[0 for _ in range(PARAM_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)]
+        registers=[
+            0 for _ in range(PARAM_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)
+        ]
     )
 
 
@@ -62,7 +64,7 @@ def read_par_input_registers_response() -> ReadInputRegistersResponse:
 def read_data_input_registers_response() -> ReadInputRegistersResponse:
     """Fixture returning object representing default operation/data input register."""
     return ReadInputRegistersResponse(
-        values=[0 for _ in range(DATA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)]
+        registers=[0 for _ in range(DATA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)]
     )
 
 
@@ -70,7 +72,7 @@ def read_data_input_registers_response() -> ReadInputRegistersResponse:
 def read_ema_input_registers_response() -> ReadInputRegistersResponse:
     """Fixture returning object representing default ema input register."""
     return ReadInputRegistersResponse(
-        values=[0 for _ in range(EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)]
+        registers=[0 for _ in range(EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)]
     )
 
 
@@ -123,7 +125,7 @@ def mock_device_infos() -> Any:
 
 
 @pytest.fixture
-def mock_config_entry(
+async def mock_config_entry(
     mock_api_client: AskoheatModbusApiClient, hass: HomeAssistant
 ) -> MockConfigEntry:
     """Fixture to mock config entry."""
@@ -158,4 +160,9 @@ def mock_config_entry(
         ),
         supported_devices=list(DeviceKey),
     )
+
+    entry.add_to_hass(hass)
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
     return entry
