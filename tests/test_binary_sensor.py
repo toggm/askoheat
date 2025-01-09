@@ -62,8 +62,16 @@ ema_register_values = [
             entity_descriptor,
             (
                 "on"
-                if binary_register_test_values[entity_descriptor.api_descriptor.bit]
-                and not entity_descriptor.inverted
+                if (
+                    binary_register_test_values[entity_descriptor.api_descriptor.bit]
+                    and not entity_descriptor.inverted
+                )
+                or (
+                    not binary_register_test_values[
+                        entity_descriptor.api_descriptor.bit
+                    ]
+                    and entity_descriptor.inverted
+                )
                 else "off"
             ),
         )
