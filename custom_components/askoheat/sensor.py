@@ -136,8 +136,8 @@ class AskoheatSensor(AskoheatEntity[AskoheatSensorEntityDescription], SensorEnti
                 if self.entity_description.factor is not None:
                     float_value *= self.entity_description.factor
                 if self.entity_description.native_precision is not None:
-                    float_value = round(
-                        float_value, self.entity_description.native_precision
+                    float_value = float_value.__round__(
+                        self.entity_description.native_precision
                     )
                 self._attr_native_value = float_value
             else:

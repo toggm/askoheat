@@ -93,6 +93,6 @@ async def test_read_binary_sensor_states(
     key = f"binary_sensor.test_{entity_descriptor.key}"
     state = hass.states.get(key)
     assert state
-    assert (
-        state.state is expected
-    ), f"Expect state {expected} for entity {entity_descriptor.key}, but received {state.state}."  # noqa: E501
+    assert state.state is expected, (
+        f"Expect state {expected} for entity {entity_descriptor.key}, but received {state.state}."  # noqa: E501
+    )

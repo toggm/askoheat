@@ -1,4 +1,5 @@
 """Energymanager block Api descriptor classes."""
+
 # http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#EM_Block
 
 from __future__ import annotations

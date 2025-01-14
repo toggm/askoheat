@@ -13,7 +13,6 @@ from typing import (
     cast,
 )
 
-import numpy as np
 from homeassistant.exceptions import HomeAssistantError
 from numpy import number
 from pymodbus.client import AsyncModbusTcpClient
@@ -358,7 +357,9 @@ class AskoheatModbusApiClient:
         )
 
 
-def _read_register_input(data: ModbusPDU, desc: RegisterInputDescriptor) -> Any:  # noqa: PLR0912
+def _read_register_input(  # noqa: PLR0912
+    data: ModbusPDU, desc: RegisterInputDescriptor
+) -> Any:
     result: Any = None
     match desc:
         case FlagRegisterInputDescriptor(starting_register, bit):
@@ -552,7 +553,7 @@ def _prepare_str(value: object) -> list[int]:
     return result
 
 
-def _read_byte(register_value: int) -> np.byte | None:
+def _read_byte(register_value: int) -> int | None:
     """Read register value as byte."""
     value = AsyncModbusTcpClient.convert_from_registers(
         [register_value], AsyncModbusTcpClient.DATATYPE.INT16
@@ -562,7 +563,7 @@ def _read_byte(register_value: int) -> np.byte | None:
             "Cannot read register value %s as byte, wrong result %r", value, type(value)
         )
         return None
-    return np.byte(value)
+    return int(value)
 
 
 def _prepare_byte(value: object) -> list[int]:
@@ -582,7 +583,7 @@ def _prepare_byte(value: object) -> list[int]:
     )
 
 
-def _read_int16(register_value: int) -> np.int16 | None:
+def _read_int16(register_value: int) -> int | None:
     """Read register value as int16."""
     value = AsyncModbusTcpClient.convert_from_registers(
         [register_value], AsyncModbusTcpClient.DATATYPE.INT16
@@ -595,7 +596,7 @@ def _read_int16(register_value: int) -> np.int16 | None:
         )
         return None
 
-    return np.int16(value)
+    return int(value)
 
 
 def _prepare_int16(value: object) -> list[int]:
@@ -612,7 +613,7 @@ def _prepare_int16(value: object) -> list[int]:
     )
 
 
-def _read_uint16(register_value: int) -> np.uint16 | None:
+def _read_uint16(register_value: int) -> int | None:
     """Read register value as uint16."""
     value = AsyncModbusTcpClient.convert_from_registers(
         [register_value], AsyncModbusTcpClient.DATATYPE.UINT16
@@ -625,7 +626,7 @@ def _read_uint16(register_value: int) -> np.uint16 | None:
         )
         return None
 
-    return np.uint16(value)
+    return int(value)
 
 
 def _prepare_uint16(value: object) -> list[int]:
@@ -643,7 +644,7 @@ def _prepare_uint16(value: object) -> list[int]:
     )
 
 
-def _read_uint32(register_values: list[int]) -> np.uint32 | None:
+def _read_uint32(register_values: list[int]) -> int | None:
     """Read register value as uint32."""
     value = AsyncModbusTcpClient.convert_from_registers(
         register_values, AsyncModbusTcpClient.DATATYPE.UINT32
@@ -655,7 +656,7 @@ def _read_uint32(register_values: list[int]) -> np.uint32 | None:
             type(value),
         )
         return None
-    return np.uint32(value)
+    return int(value)
 
 
 def _prepare_uint32(value: object) -> list[int]:
@@ -673,7 +674,7 @@ def _prepare_uint32(value: object) -> list[int]:
     )
 
 
-def _read_float32(register_values: list[int]) -> np.float16 | None:
+def _read_float32(register_values: list[int]) -> float | None:
     """Read register value as uint16."""
     value = AsyncModbusTcpClient.convert_from_registers(
         register_values, AsyncModbusTcpClient.DATATYPE.FLOAT32
@@ -685,7 +686,7 @@ def _read_float32(register_values: list[int]) -> np.float16 | None:
             type(value),
         )
         return None
-    return np.float16(value)
+    return float(value)
 
 
 def _prepare_float32(value: object) -> list[int]:

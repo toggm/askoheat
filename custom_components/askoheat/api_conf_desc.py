@@ -1,4 +1,5 @@
 """Configuration block Api descriptor classes."""
+
 # http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Configuration_Block
 
 from __future__ import annotations

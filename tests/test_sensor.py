@@ -83,11 +83,11 @@ def __generate_test_data(entity_descriptor: AskoheatSensorEntityDescription) -> 
         case Float32RegisterInputDescriptor():
             return __random_float(entity_descriptor)
         case UnsignedInt16RegisterInputDescriptor():
-            return __random_int(entity_descriptor, np.iinfo(np.uint8))
-        case UnsignedInt32RegisterInputDescriptor():
             return __random_int(entity_descriptor, np.iinfo(np.uint16))
+        case UnsignedInt32RegisterInputDescriptor():
+            return __random_int(entity_descriptor, np.iinfo(np.uint32))
         case SignedInt16RegisterInputDescriptor():
-            return __random_int(entity_descriptor, np.iinfo(np.int8))
+            return __random_int(entity_descriptor, np.iinfo(np.int16))
         case StringRegisterInputDescriptor(_, number_of_words):
             return __randomword(trunc(number_of_words / 2))
 
@@ -183,15 +183,18 @@ async def test_read_sensor_states(
     assert state
 
     expected = (
-        str(0)
+        0
         if sensor_test_data[entity_descriptor.key] is None
-        else str(sensor_test_data[entity_descriptor.key])
+        else sensor_test_data[entity_descriptor.key]
     )
+
+    if entity_descriptor.factor is not None:
+        expected *= entity_descriptor.factor
 
     # for entity descriptors provided a precision we expect a rounded value
     if entity_descriptor.native_precision is not None:
-        expected = str(round(float(expected), entity_descriptor.native_precision))
+        expected = expected.__round__(entity_descriptor.native_precision)
 
-    assert (
-        state.state == expected
-    ), f"Expect state {expected}({type(expected)}) for entity {entity_descriptor.key}, but received {state.state}({type(state.state)})."  # noqa: E501
+    assert state.state == str(expected), (
+        f"Expect state {expected}({type(expected)}) for entity {entity_descriptor.key}, but received {state.state}({type(state.state)})."  # noqa: E501
+    )

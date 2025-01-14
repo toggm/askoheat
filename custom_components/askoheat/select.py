@@ -1,4 +1,4 @@
-"""Askoheat time entity."""
+"""Askoheat time entity."""  # noqa: A005
 
 from functools import cached_property
 

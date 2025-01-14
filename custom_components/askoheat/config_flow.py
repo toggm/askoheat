@@ -115,16 +115,18 @@ def _step_user_data_schema(
                         ),
                         vol.Required(
                             CONF_POWER_INVERT,
-                            default=False
-                            if (
-                                x := _get_section_entry_or_none(
-                                    data,
-                                    CONF_FEED_IN,
-                                    CONF_POWER_INVERT,
+                            default=(
+                                False
+                                if (
+                                    x := _get_section_entry_or_none(
+                                        data,
+                                        CONF_FEED_IN,
+                                        CONF_POWER_INVERT,
+                                    )
                                 )
-                            )
-                            is None
-                            else x,
+                                is None
+                                else x
+                            ),
                         ): cv.boolean,
                     }
                 ),
@@ -135,55 +137,63 @@ def _step_user_data_schema(
                     {
                         vol.Required(
                             CONF_LEGIONELLA_PROTECTION_UNIT,
-                            default=True
-                            if (
-                                x := _get_section_entry_or_none(
-                                    data,
-                                    CONF_DEVICE_UNITS,
-                                    CONF_LEGIONELLA_PROTECTION_UNIT,
+                            default=(
+                                True
+                                if (
+                                    x := _get_section_entry_or_none(
+                                        data,
+                                        CONF_DEVICE_UNITS,
+                                        CONF_LEGIONELLA_PROTECTION_UNIT,
+                                    )
                                 )
-                            )
-                            is None
-                            else x,
+                                is None
+                                else x
+                            ),
                         ): bool,
                         vol.Required(
                             CONF_HEATPUMP_UNIT,
-                            default=False
-                            if (
-                                x := _get_section_entry_or_none(
-                                    data,
-                                    CONF_DEVICE_UNITS,
-                                    CONF_HEATPUMP_UNIT,
+                            default=(
+                                False
+                                if (
+                                    x := _get_section_entry_or_none(
+                                        data,
+                                        CONF_DEVICE_UNITS,
+                                        CONF_HEATPUMP_UNIT,
+                                    )
                                 )
-                            )
-                            is None
-                            else x,
+                                is None
+                                else x
+                            ),
                         ): cv.boolean,
                         vol.Required(
                             CONF_ANALOG_INPUT_UNIT,
-                            default=False
-                            if (
-                                x := _get_section_entry_or_none(
-                                    data,
-                                    CONF_DEVICE_UNITS,
-                                    CONF_ANALOG_INPUT_UNIT,
+                            default=(
+                                False
+                                if (
+                                    x := _get_section_entry_or_none(
+                                        data,
+                                        CONF_DEVICE_UNITS,
+                                        CONF_ANALOG_INPUT_UNIT,
+                                    )
                                 )
-                            )
-                            is None
-                            else x,
+                                is None
+                                else x
+                            ),
                         ): cv.boolean,
                         vol.Required(
                             CONF_MODBUS_MASTER_UNIT,
-                            default=False
-                            if (
-                                x := _get_section_entry_or_none(
-                                    data,
-                                    CONF_DEVICE_UNITS,
-                                    CONF_MODBUS_MASTER_UNIT,
+                            default=(
+                                False
+                                if (
+                                    x := _get_section_entry_or_none(
+                                        data,
+                                        CONF_DEVICE_UNITS,
+                                        CONF_MODBUS_MASTER_UNIT,
+                                    )
                                 )
-                            )
-                            is None
-                            else x,
+                                is None
+                                else x
+                            ),
                         ): cv.boolean,
                     }
                 ),
