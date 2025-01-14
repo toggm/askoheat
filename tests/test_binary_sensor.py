@@ -20,6 +20,9 @@ from custom_components.askoheat.const import (
 )
 from custom_components.askoheat.model import AskoheatBinarySensorEntityDescription
 
+from .testdata import data_register_values, ema_register_values, par_register_values
+
+# Binary sensor data (flags in registers)
 binary_register_test_values = [choice([True, False]) for _ in range(16)]  # noqa: S311
 binary_register_test_values_as_int = reduce(
     lambda x, y: x | y,
@@ -29,21 +32,17 @@ binary_register_test_values_as_int = reduce(
         for index in range(len(binary_register_test_values))
     ],
 )
+binary_data_register_values = data_register_values.copy()
+binary_data_register_values[DATA_LEGIO_STATUS_REGISTER] = (
+    binary_register_test_values_as_int
+)
+binary_data_par_register_values = par_register_values.copy()
+binary_data_par_register_values[PAR_TYPE_REGISTER] = binary_register_test_values_as_int
 
-data_register_values = [
-    0 if index != DATA_LEGIO_STATUS_REGISTER else binary_register_test_values_as_int
-    for index in range(DATA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)
-]
-
-par_register_values = [
-    0 if index != PAR_TYPE_REGISTER else binary_register_test_values_as_int
-    for index in range(PARAM_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)
-]
-
-ema_register_values = [
-    0 if index != EMA_STATUS_REGISTER else binary_register_test_values_as_int
-    for index in range(EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)
-]
+binary_data_ema_register_values = ema_register_values.copy()
+binary_data_ema_register_values[EMA_STATUS_REGISTER] = (
+    binary_register_test_values_as_int
+)
 
 
 @pytest.mark.parametrize(
@@ -56,9 +55,9 @@ ema_register_values = [
     ),
     [
         (
-            ReadInputRegistersResponse(registers=data_register_values),
-            ReadInputRegistersResponse(registers=par_register_values),
-            ReadInputRegistersResponse(registers=ema_register_values),
+            ReadInputRegistersResponse(registers=binary_data_register_values),
+            ReadInputRegistersResponse(registers=binary_data_par_register_values),
+            ReadInputRegistersResponse(registers=binary_data_ema_register_values),
             entity_descriptor,
             (
                 "on"

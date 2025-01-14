@@ -673,7 +673,7 @@ def _prepare_uint32(value: object) -> list[int]:
     )
 
 
-def _read_float32(register_values: list[int]) -> np.float32 | None:
+def _read_float32(register_values: list[int]) -> np.float16 | None:
     """Read register value as uint16."""
     value = AsyncModbusTcpClient.convert_from_registers(
         register_values, AsyncModbusTcpClient.DATATYPE.FLOAT32
@@ -685,7 +685,7 @@ def _read_float32(register_values: list[int]) -> np.float32 | None:
             type(value),
         )
         return None
-    return np.float32(value)
+    return np.float16(value)
 
 
 def _prepare_float32(value: object) -> list[int]:
