@@ -208,6 +208,8 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(23),
+            native_min_value=0,
+            native_max_value=10,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.INTERNAL_TEMPERATUR_SENSOR_VALUE,
@@ -219,6 +221,8 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(25),
+            native_min_value=0,
+            native_max_value=120,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR1_VALUE,
@@ -231,6 +235,8 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(27),
             entity_registry_enabled_default=False,
+            native_min_value=0,
+            native_max_value=120,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR2_VALUE,
@@ -243,6 +249,8 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(29),
             entity_registry_enabled_default=False,
+            native_min_value=0,
+            native_max_value=120,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR3_VALUE,
@@ -255,6 +263,8 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(31),
             entity_registry_enabled_default=False,
+            native_min_value=0,
+            native_max_value=120,
         ),
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.EXTERNAL_TEMPERATUR_SENSOR4_VALUE,
@@ -267,6 +277,8 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             entity_category=None,
             api_descriptor=Float32RegisterInputDescriptor(33),
             entity_registry_enabled_default=False,
+            native_min_value=0,
+            native_max_value=120,
         ),
     ],
     number_inputs=[

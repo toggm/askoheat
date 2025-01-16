@@ -13,7 +13,6 @@ if TYPE_CHECKING:
 
     from homeassistant.config_entries import ConfigEntry
     from homeassistant.loader import Integration
-    from numpy import number
 
     from custom_components.askoheat.const import (
         BinarySensorAttrKey,
@@ -64,7 +63,7 @@ class AskoheatDataBlock:
     switches: dict[SwitchAttrKey, bool] | None = None
     text_inputs: dict[TextAttrKey, str] | None = None
     select_inputs: dict[SelectAttrKey, ReprEnum] | None = None
-    number_inputs: dict[NumberAttrKey, number[Any]] | None = None
+    number_inputs: dict[NumberAttrKey, int | float] | None = None
     time_inputs: dict[TimeAttrKey, time] | None = None
 
 

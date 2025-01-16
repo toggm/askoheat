@@ -27,6 +27,12 @@ from custom_components.askoheat.api_desc import (
     UnsignedInt16RegisterInputDescriptor,
 )
 from custom_components.askoheat.const import (
+    CONF_AUTO_HEATER_SETTINGS_REGISTER,
+    CONF_HEAT_BUFFER_TYPE_REGISTER,
+    CONF_HEATER_POSITION_REGISTER,
+    CONF_HOUSE_TYPE_REGISTER,
+    CONF_INPUT_SETTINGS_REGISTER,
+    CONF_LEGIO_SETTINGS_REGISTER,
     Baudrate,
     DeviceKey,
     EnergyMeterType,
@@ -49,7 +55,7 @@ CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR = AskoheatSwitchEntityDescription(
     device_key=DeviceKey.ENERGY_MANAGER,
     entity_category=EntityCategory.CONFIG,
     icon="mdi:solar-power",
-    api_descriptor=FlagRegisterInputDescriptor(2, 2),
+    api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 2),
 )
 
 CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
@@ -571,7 +577,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:alert-circle",
-            api_descriptor=FlagRegisterInputDescriptor(2, 0),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 0),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -579,7 +585,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:home-lightning-bolt",
-            api_descriptor=FlagRegisterInputDescriptor(2, 1),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 1),
             entity_registry_enabled_default=False,
         ),
         CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR,
@@ -588,7 +594,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:stairs",
-            api_descriptor=FlagRegisterInputDescriptor(2, 3),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 3),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -596,28 +602,28 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:gauge",
-            api_descriptor=FlagRegisterInputDescriptor(2, 4),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 4),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_SET_ANALOG_INPUT_ENABLED,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:since-wave",
-            api_descriptor=FlagRegisterInputDescriptor(2, 5),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 5),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_HEATPUMP_REQUEST_INPUT_ENABLED,
             device_key=DeviceKey.HEATPUMP_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:heat-pump",
-            api_descriptor=FlagRegisterInputDescriptor(2, 6),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 6),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_EMERGENCY_MODE_ENABLED,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:car-emergency",
-            api_descriptor=FlagRegisterInputDescriptor(2, 7),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 7),
         ),
         # high byte
         AskoheatSwitchEntityDescription(
@@ -625,21 +631,23 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:weather-night",
-            api_descriptor=FlagRegisterInputDescriptor(2, 8),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 8),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_HOLD_MINIMAL_TEMPERATURE_ENABLED,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:thermometer-check",
-            api_descriptor=FlagRegisterInputDescriptor(2, 9),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_INPUT_SETTINGS_REGISTER, 9),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_SOFTWARE_CONTROL_SMA_SEMP_ENABLED,
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:car-cruise-control",
-            api_descriptor=FlagRegisterInputDescriptor(2, 10),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_INPUT_SETTINGS_REGISTER, 10
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -647,7 +655,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:car-cruise-control",
-            api_descriptor=FlagRegisterInputDescriptor(2, 11),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_INPUT_SETTINGS_REGISTER, 11
+            ),
             entity_registry_enabled_default=False,
         ),
         ### input settings register - end
@@ -658,7 +668,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:timer-cancel",
-            api_descriptor=FlagRegisterInputDescriptor(4, 0),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_AUTO_HEATER_SETTINGS_REGISTER, 0
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -666,7 +678,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:timer-cancel",
-            api_descriptor=FlagRegisterInputDescriptor(4, 1),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_AUTO_HEATER_SETTINGS_REGISTER, 1
+            ),
             entity_registry_enabled_default=False,
         ),
         # bit 2 not used
@@ -676,7 +690,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:timer-cancel",
-            api_descriptor=FlagRegisterInputDescriptor(4, 4),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_AUTO_HEATER_SETTINGS_REGISTER, 4
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -684,7 +700,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:timer-cancel",
-            api_descriptor=FlagRegisterInputDescriptor(4, 5),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_AUTO_HEATER_SETTINGS_REGISTER, 5
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -692,14 +710,18 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.HEATPUMP_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:timer-cancel",
-            api_descriptor=FlagRegisterInputDescriptor(4, 6),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_AUTO_HEATER_SETTINGS_REGISTER, 6
+            ),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_AUTO_OFF_EMERGENCY_MODE_ENABLED,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:timer-cancel",
-            api_descriptor=FlagRegisterInputDescriptor(4, 7),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_AUTO_HEATER_SETTINGS_REGISTER, 7
+            ),
         ),
         ### auto heater off settings register - end
         ### heatbuffer type register - begin
@@ -708,7 +730,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-boiler",
-            api_descriptor=FlagRegisterInputDescriptor(6, 0),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEAT_BUFFER_TYPE_REGISTER, 0
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -716,7 +740,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-boiler",
-            api_descriptor=FlagRegisterInputDescriptor(6, 1),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEAT_BUFFER_TYPE_REGISTER, 1
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -724,7 +750,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-boiler",
-            api_descriptor=FlagRegisterInputDescriptor(6, 2),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEAT_BUFFER_TYPE_REGISTER, 2
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -732,7 +760,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-boiler",
-            api_descriptor=FlagRegisterInputDescriptor(6, 3),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEAT_BUFFER_TYPE_REGISTER, 3
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -740,7 +770,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-boiler",
-            api_descriptor=FlagRegisterInputDescriptor(6, 4),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEAT_BUFFER_TYPE_REGISTER, 4
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -748,7 +780,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-boiler",
-            api_descriptor=FlagRegisterInputDescriptor(6, 5),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEAT_BUFFER_TYPE_REGISTER, 5
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -756,7 +790,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-boiler",
-            api_descriptor=FlagRegisterInputDescriptor(6, 6),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEAT_BUFFER_TYPE_REGISTER, 6
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -764,7 +800,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-boiler",
-            api_descriptor=FlagRegisterInputDescriptor(6, 7),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEAT_BUFFER_TYPE_REGISTER, 7
+            ),
             entity_registry_enabled_default=False,
         ),
         ### heatbuffer type register - end
@@ -774,7 +812,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:format-vertical-align-bottom",
-            api_descriptor=FlagRegisterInputDescriptor(8, 0),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEATER_POSITION_REGISTER, 0
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -782,7 +822,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:format-vertical-align-center",
-            api_descriptor=FlagRegisterInputDescriptor(8, 1),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEATER_POSITION_REGISTER, 1
+            ),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -790,7 +832,9 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:wall",
-            api_descriptor=FlagRegisterInputDescriptor(8, 7),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_HEATER_POSITION_REGISTER, 7
+            ),
             entity_registry_enabled_default=False,
         ),
         ### heater position register - end
@@ -801,14 +845,14 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-thermometer",
-            api_descriptor=FlagRegisterInputDescriptor(9, 0),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_LEGIO_SETTINGS_REGISTER, 0),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_LEGIO_SETTINGS_USE_EXTERNAL_TEMP_SENSOR1,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-thermometer",
-            api_descriptor=FlagRegisterInputDescriptor(9, 1),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_LEGIO_SETTINGS_REGISTER, 1),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -816,7 +860,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-thermometer",
-            api_descriptor=FlagRegisterInputDescriptor(9, 2),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_LEGIO_SETTINGS_REGISTER, 2),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -824,7 +868,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-thermometer",
-            api_descriptor=FlagRegisterInputDescriptor(9, 3),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_LEGIO_SETTINGS_REGISTER, 3),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -832,7 +876,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:water-thermometer",
-            api_descriptor=FlagRegisterInputDescriptor(9, 4),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_LEGIO_SETTINGS_REGISTER, 4),
             entity_registry_enabled_default=False,
         ),
         # high byte
@@ -841,42 +885,50 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:home-clock",
-            api_descriptor=FlagRegisterInputDescriptor(9, 8),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_LEGIO_SETTINGS_REGISTER, 8),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_WEEKLY,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:home-clock",
-            api_descriptor=FlagRegisterInputDescriptor(9, 9),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_LEGIO_SETTINGS_REGISTER, 9),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_FORTNIGHTLY,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:home-clock",
-            api_descriptor=FlagRegisterInputDescriptor(9, 10),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_LEGIO_SETTINGS_REGISTER, 10
+            ),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_LEGIO_SETTINGS_INTERVAL_MONTHLY,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:home-clock",
-            api_descriptor=FlagRegisterInputDescriptor(9, 11),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_LEGIO_SETTINGS_REGISTER, 11
+            ),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_LEGIO_SETTINGS_PREFER_FEEDIN_ENERGY,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:solar-power",
-            api_descriptor=FlagRegisterInputDescriptor(9, 12),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_LEGIO_SETTINGS_REGISTER, 12
+            ),
         ),
         AskoheatSwitchEntityDescription(
             key=SwitchAttrKey.CON_LEGIO_SETTINGS_PROTECTION_ENABLED,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:shield-sun",
-            api_descriptor=FlagRegisterInputDescriptor(9, 13),
+            api_descriptor=FlagRegisterInputDescriptor(
+                CONF_LEGIO_SETTINGS_REGISTER, 13
+            ),
         ),
         ### legio settings register - end
         ### house type settings register - begin
@@ -885,7 +937,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:home",
-            api_descriptor=FlagRegisterInputDescriptor(20, 0),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_HOUSE_TYPE_REGISTER, 0),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -893,7 +945,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:home-group",
-            api_descriptor=FlagRegisterInputDescriptor(20, 1),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_HOUSE_TYPE_REGISTER, 1),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -901,7 +953,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:floor-plan",
-            api_descriptor=FlagRegisterInputDescriptor(20, 2),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_HOUSE_TYPE_REGISTER, 2),
             entity_registry_enabled_default=False,
         ),
         AskoheatSwitchEntityDescription(
@@ -909,7 +961,7 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.CONFIG,
             icon="mdi:office-building",
-            api_descriptor=FlagRegisterInputDescriptor(20, 7),
+            api_descriptor=FlagRegisterInputDescriptor(CONF_HOUSE_TYPE_REGISTER, 7),
             entity_registry_enabled_default=False,
         ),
         ### house type settings register - end

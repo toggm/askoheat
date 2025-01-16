@@ -1,0 +1,100 @@
+"""Tests for the switch sensor entities."""
+
+import pytest
+from homeassistant.core import HomeAssistant
+from pymodbus.pdu.register_message import (
+    ReadHoldingRegistersResponse,
+)
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_desc import (
+    ByteRegisterInputDescriptor,
+    FlagRegisterInputDescriptor,
+)
+from custom_components.askoheat.model import (
+    AskoheatSwitchEntityDescription,
+)
+
+from .testdata import (
+    config_register_values,
+    generate_switch_test_data,
+    prepare_register_values,
+)
+
+# Switch sensor data (flags in registers or bytes)
+switch_conf_register_values = config_register_values.copy()
+switch_test_data = {}
+
+
+def __fill_switch_data(
+    sensors: list[AskoheatSwitchEntityDescription], register: list[int]
+) -> None:
+    for entity_descriptor in sensors:
+        if entity_descriptor.api_descriptor:
+            value = generate_switch_test_data(entity_descriptor)
+            switch_test_data[entity_descriptor.key] = value
+            prepare_register_values(entity_descriptor, register, value)
+
+
+__fill_switch_data(CONF_REGISTER_BLOCK_DESCRIPTOR.switches, switch_conf_register_values)
+
+
+def __expected_value(
+    entity_descriptor: AskoheatSwitchEntityDescription,
+) -> str | None:
+    register_value = switch_test_data[entity_descriptor.key]
+    return_value = None
+    match entity_descriptor.api_descriptor:
+        case FlagRegisterInputDescriptor():
+            return_value = (
+                "on"
+                if (
+                    register_value == entity_descriptor.on_state
+                    and not entity_descriptor.inverted
+                )
+                or (
+                    register_value == entity_descriptor.off_state
+                    and entity_descriptor.inverted
+                )
+                else "off"
+            )
+        case ByteRegisterInputDescriptor():
+            return_value = (
+                "on"
+                if (int(register_value) == 1 and not entity_descriptor.inverted)
+                or (int(register_value) == 0 and entity_descriptor.inverted)
+                else "off"
+            )
+    return return_value
+
+
+@pytest.mark.parametrize(
+    (
+        "read_config_holding_registers_response",
+        "entity_descriptor",
+    ),
+    [
+        (
+            ReadHoldingRegistersResponse(registers=switch_conf_register_values),
+            entity_descriptor,
+        )
+        for entity_descriptor in (CONF_REGISTER_BLOCK_DESCRIPTOR.switches)
+        if entity_descriptor.api_descriptor
+        and entity_descriptor.entity_registry_enabled_default
+    ],
+)
+async def test_read_switch_sensor_states(
+    mock_config_entry: MockConfigEntry,  # noqa: ARG001
+    hass: HomeAssistant,
+    entity_descriptor: AskoheatSwitchEntityDescription,
+) -> None:
+    """Test reading switch sensor."""
+    key = f"switch.test_{entity_descriptor.key}"
+    state = hass.states.get(key)
+
+    expected = __expected_value(entity_descriptor)
+    assert state
+    assert state.state is expected, (
+        f"Expect state {expected} for entity {entity_descriptor.key}, but received {state.state}."  # noqa: E501
+    )

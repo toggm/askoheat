@@ -363,6 +363,9 @@ def _read_register_input(  # noqa: PLR0912
     result: Any = None
     match desc:
         case FlagRegisterInputDescriptor(starting_register, bit):
+            LOGGER.error(
+                "_read_register_input, starting_register=%s", starting_register
+            )
             result = _read_flag(data.registers[starting_register], bit)
         case IntEnumInputDescriptor(starting_register, factory):
             try:
@@ -428,7 +431,7 @@ def _read_register_boolean_input(
     if isinstance(result, bool):
         return result
 
-    if isinstance(result, number):
+    if isinstance(result, int):
         return bool(result == 1)
 
     if result is not None:
@@ -442,16 +445,16 @@ def _read_register_boolean_input(
 
 def _read_register_number_input(
     data: ModbusPDU, desc: RegisterInputDescriptor
-) -> number[Any] | None:
+) -> int | float | None:
     result = _read_register_input(data, desc)
-    if isinstance(result, number):
+    if isinstance(result, int | float):
         return result
 
     if result is not None:
         LOGGER.error(
             "Cannot read number input from descriptor %r, unsupported value %r",
             desc,
-            result,
+            type(result),
         )
     return None
 
@@ -720,8 +723,9 @@ def _prepare_flag(register_value: int, flag: object, index: int) -> list[int]:
         # or mask to set the value to true
         return [(flag << index) | register_value]
 
-    # minus flag from current registers value
-    return [register_value - (True << index)]
+    # subtract flag from current registers value by inverting the value through XOR
+    # with 0xFFFF and a binary and with the current value
+    return [register_value & (0xFFFF ^ (True << index))]
 
 
 def _read_struct(register_values: list[int], structure: str | bytes) -> Any | None:
