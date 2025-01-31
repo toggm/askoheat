@@ -236,7 +236,7 @@ class AskoheatModbusApiClient:
 
     async def __async_write_register_values(
         self, address: int, values: list[int]
-    ) -> ModbusPDU:
+    ) -> None:
         """Write a register value through modbus."""
         if not self._client.connected:
             msg = "not_connected"
@@ -245,7 +245,7 @@ class AskoheatModbusApiClient:
             )
 
         try:
-            return await self._client.write_registers(address=address, values=values)
+            await self._client.write_registers(address=address, values=values)
         finally:
             self._last_communication_success = True
 
@@ -363,9 +363,6 @@ def _read_register_input(  # noqa: PLR0912
     result: Any = None
     match desc:
         case FlagRegisterInputDescriptor(starting_register, bit):
-            LOGGER.error(
-                "_read_register_input, starting_register=%s", starting_register
-            )
             result = _read_flag(data.registers[starting_register], bit)
         case IntEnumInputDescriptor(starting_register, factory):
             try:

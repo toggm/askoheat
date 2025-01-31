@@ -14,6 +14,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.askoheat import AskoheatModbusApiClient, data
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.api_desc import RegisterBlockDescriptor
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
@@ -24,6 +25,7 @@ from custom_components.askoheat.const import (
     CONF_LEGIONELLA_PROTECTION_UNIT,
     CONF_MODBUS_MASTER_UNIT,
     DOMAIN,
+    LOGGER,
     DeviceKey,
 )
 from custom_components.askoheat.coordinator import (
@@ -99,6 +101,33 @@ def mock_api_client(
             case _:
                 return ReadInputRegistersResponse()
 
+    def dispatch_write_input_registers(address: int, values: list[int]) -> None:
+        def _in_register(address: int, register: RegisterBlockDescriptor) -> bool:
+            return (
+                address > register.starting_register
+                and address < register.starting_register + register.number_of_registers
+            )
+
+        def _replace_values(source: list[int], dest: list[int], address: int) -> None:
+            for index in range(len(source)):
+                dest[address + index] = source[index]
+
+        match address:
+            case address if _in_register(address, CONF_REGISTER_BLOCK_DESCRIPTOR):
+                _replace_values(
+                    source=values,
+                    dest=read_config_holding_registers_response.registers,
+                    address=address - CONF_REGISTER_BLOCK_DESCRIPTOR.starting_register,
+                )
+            case address if _in_register(address, EMA_REGISTER_BLOCK_DESCRIPTOR):
+                _replace_values(
+                    source=values,
+                    dest=read_ema_input_registers_response.registers,
+                    address=address - EMA_REGISTER_BLOCK_DESCRIPTOR.starting_register,
+                )
+            case _:
+                LOGGER.error("Unsupported register at address %s", address)
+
     patched = mock.patch.multiple(
         "custom_components.askoheat.api.AsyncModbusTcpClient",
         connect=mock.AsyncMock(),
@@ -107,6 +136,7 @@ def mock_api_client(
             return_value=read_config_holding_registers_response
         ),
         read_input_registers=mock.AsyncMock(side_effect=dispatch_read_input_registers),
+        write_registers=mock.AsyncMock(side_effect=dispatch_write_input_registers),
     )
     patched.__enter__()
     return patched

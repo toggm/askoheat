@@ -1,6 +1,10 @@
 """Tests for the switch sensor entities."""
 
 import pytest
+from homeassistant.const import (
+    STATE_OFF,
+    STATE_ON,
+)
 from homeassistant.core import HomeAssistant
 from pymodbus.pdu.register_message import (
     ReadHoldingRegistersResponse,
@@ -12,6 +16,7 @@ from custom_components.askoheat.api_desc import (
     ByteRegisterInputDescriptor,
     FlagRegisterInputDescriptor,
 )
+from custom_components.askoheat.const import DOMAIN
 from custom_components.askoheat.model import (
     AskoheatSwitchEntityDescription,
 )
@@ -69,6 +74,14 @@ def __expected_value(
     return return_value
 
 
+switch_entities = [
+    entity_descriptor
+    for entity_descriptor in (CONF_REGISTER_BLOCK_DESCRIPTOR.switches)
+    if entity_descriptor.api_descriptor
+    and entity_descriptor.entity_registry_enabled_default
+]
+
+
 @pytest.mark.parametrize(
     (
         "read_config_holding_registers_response",
@@ -79,9 +92,7 @@ def __expected_value(
             ReadHoldingRegistersResponse(registers=switch_conf_register_values),
             entity_descriptor,
         )
-        for entity_descriptor in (CONF_REGISTER_BLOCK_DESCRIPTOR.switches)
-        if entity_descriptor.api_descriptor
-        and entity_descriptor.entity_registry_enabled_default
+        for entity_descriptor in switch_entities
     ],
 )
 async def test_read_switch_sensor_states(
@@ -98,3 +109,32 @@ async def test_read_switch_sensor_states(
     assert state.state is expected, (
         f"Expect state {expected} for entity {entity_descriptor.key}, but received {state.state}."  # noqa: E501
     )
+
+
+@pytest.mark.parametrize("entity_descriptor", switch_entities)
+async def test_update_switch_sensor_states(
+    mock_config_entry: MockConfigEntry,  # noqa: ARG001
+    hass: HomeAssistant,
+    entity_descriptor: AskoheatSwitchEntityDescription,
+) -> None:
+    """Test updating switch sensor."""
+    assert DOMAIN in hass.config.components
+    entity_id = f"switch.test_{entity_descriptor.key}"
+
+    state = hass.states.get(entity_id)
+    assert state
+    assert state.state == STATE_OFF
+    await hass.services.async_call(
+        "switch", "turn_on", service_data={"entity_id": entity_id}
+    )
+    await hass.async_block_till_done()
+    state = hass.states.get(entity_id)
+    assert state
+    assert state.state == STATE_ON
+    await hass.services.async_call(
+        "switch", "turn_off", service_data={"entity_id": entity_id}
+    )
+    await hass.async_block_till_done()
+    state = hass.states.get(entity_id)
+    assert state
+    assert state.state == STATE_OFF
