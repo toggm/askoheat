@@ -283,7 +283,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
     ],
     number_inputs=[
         AskoheatNumberEntityDescription(
-            key=NumberAttrKey.SET_HEADER_STEP_VALUE,
+            key=NumberAttrKey.SET_HEATER_STEP_VALUE,
             device_key=DeviceKey.ENERGY_MANAGER,
             icon="mdi:lightning-bolt",
             native_min_value=0,

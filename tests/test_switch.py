@@ -33,9 +33,9 @@ switch_test_data = {}
 
 
 def __fill_switch_data(
-    sensors: list[AskoheatSwitchEntityDescription], register: list[int]
+    entities: list[AskoheatSwitchEntityDescription], register: list[int]
 ) -> None:
-    for entity_descriptor in sensors:
+    for entity_descriptor in entities:
         if entity_descriptor.api_descriptor:
             value = generate_switch_test_data(entity_descriptor)
             switch_test_data[entity_descriptor.key] = value
