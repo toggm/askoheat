@@ -200,6 +200,8 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             key=NumberAttrKey.CON_ANALOG_INPUT_HYSTERESIS,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
+            native_min_value=0,
+            native_max_value=10,
             entity_category=EntityCategory.CONFIG,
             mode=NumberMode.BOX,
             icon="mdi:slope-downhill",
@@ -209,6 +211,8 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_ANALOG_INPUT_0_THRESHOLD,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
+            native_min_value=0,
+            native_max_value=10,
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
             entity_category=EntityCategory.CONFIG,
             mode=NumberMode.BOX,
@@ -242,6 +246,8 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_ANALOG_INPUT_1_THRESHOLD,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
+            native_min_value=0,
+            native_max_value=10,
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
             entity_category=EntityCategory.CONFIG,
             mode=NumberMode.BOX,
@@ -275,6 +281,8 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_ANALOG_INPUT_2_THRESHOLD,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
+            native_min_value=0,
+            native_max_value=10,
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
             entity_category=EntityCategory.CONFIG,
             mode=NumberMode.BOX,
@@ -308,6 +316,8 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_ANALOG_INPUT_3_THRESHOLD,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
+            native_min_value=0,
+            native_max_value=10,
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
             entity_category=EntityCategory.CONFIG,
             mode=NumberMode.BOX,
@@ -341,6 +351,8 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_ANALOG_INPUT_4_THRESHOLD,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
+            native_min_value=0,
+            native_max_value=10,
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
             entity_category=EntityCategory.CONFIG,
             mode=NumberMode.BOX,
@@ -374,6 +386,8 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_ANALOG_INPUT_5_THRESHOLD,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
+            native_min_value=0,
+            native_max_value=10,
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
             entity_category=EntityCategory.CONFIG,
             mode=NumberMode.BOX,
@@ -407,6 +421,8 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_ANALOG_INPUT_6_THRESHOLD,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
+            native_min_value=0,
+            native_max_value=10,
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
             entity_category=EntityCategory.CONFIG,
             mode=NumberMode.BOX,
@@ -440,6 +456,8 @@ CONF_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatNumberEntityDescription(
             key=NumberAttrKey.CON_ANALOG_INPUT_7_THRESHOLD,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
+            native_min_value=0,
+            native_max_value=10,
             native_unit_of_measurement=UnitOfElectricPotential.VOLT,
             entity_category=EntityCategory.CONFIG,
             mode=NumberMode.BOX,

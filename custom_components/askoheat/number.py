@@ -17,7 +17,6 @@ from homeassistant.core import callback
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
-from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.const import LOGGER, DeviceKey, NumberAttrKey
 from custom_components.askoheat.model import (
     AskoheatNumberEntityDescription,
@@ -48,10 +47,6 @@ async def async_setup_entry(
             entity_description=entity_description,
         )
         for entity_description, coordinator in {
-            **{
-                entity_description: entry.runtime_data.par_coordinator
-                for entity_description in PARAM_REGISTER_BLOCK_DESCRIPTOR.number_inputs
-            },
             **{
                 entity_description: entry.runtime_data.ema_coordinator
                 for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.number_inputs
@@ -124,8 +119,8 @@ class AskoheatNumber(AskoheatEntity[AskoheatNumberEntityDescription], NumberEnti
             if self.entity_description.factor is not None:
                 self._attr_native_value *= self.entity_description.factor
             if self.entity_description.native_precision is not None:
-                self._attr_native_value = round(
-                    self._attr_native_value, self.entity_description.native_precision
+                self._attr_native_value = self._attr_native_value.__round__(
+                    self.entity_description.native_precision
                 )
         super()._handle_coordinator_update()
 
@@ -138,7 +133,12 @@ class AskoheatNumber(AskoheatEntity[AskoheatNumberEntityDescription], NumberEnti
             )
             return
         if self.entity_description.factor is not None:
-            value = int(value / self.entity_description.factor)
+            value = float(value / self.entity_description.factor)
+        if self.entity_description.native_step is not None:
+            value = (
+                round(value / self.entity_description.native_step)
+                * self.entity_description.native_step
+            )
         await self.coordinator.async_write(
             self.entity_description.api_descriptor, value
         )

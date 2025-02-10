@@ -43,7 +43,7 @@ class NumberAttrKey(StrEnum):
     """Askoheat number entities attribute keys."""
 
     # 1-7
-    SET_HEADER_STEP_VALUE = "set_heater_step"
+    SET_HEATER_STEP_VALUE = "set_heater_step"
     # 250-30000 watt
     LOAD_SETPOINT_VALUE = "load_setpoint"
     # -30000-30000 watt

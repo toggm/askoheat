@@ -24,6 +24,7 @@ from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIP
 from custom_components.askoheat.model import (
     AskoheatBinarySensorEntityDescription,
     AskoheatEntityDescription,
+    AskoheatNumberEntityDescription,
     AskoheatSensorEntityDescription,
     AskoheatSwitchEntityDescription,
 )
@@ -57,13 +58,28 @@ def randomword(length: int) -> str:
     return "".join(choice(letters) for i in range(length))  # noqa: S311
 
 
-def random_byte() -> int:
+def random_byte(
+    entity_descriptor: AskoheatNumberEntityDescription
+    | AskoheatSensorEntityDescription,
+) -> int:
     """."""
-    return randint(0, 255)  # noqa: S311
+    min_value = int(
+        entity_descriptor.native_min_value
+        if entity_descriptor.native_min_value is not None
+        else 0
+    )
+    max_value = int(
+        entity_descriptor.native_max_value
+        if entity_descriptor.native_max_value is not None
+        else 255
+    )
+    return randint(min_value, max_value)  # noqa: S311
 
 
 def random_int(
-    entity_descriptor: AskoheatSensorEntityDescription, iinfo: np.iinfo
+    entity_descriptor: AskoheatSensorEntityDescription
+    | AskoheatNumberEntityDescription,
+    iinfo: np.iinfo,
 ) -> int:
     """."""
     min_value = int(
@@ -80,12 +96,20 @@ def random_int(
 
 
 # Max and min float32 values convertible to a binary representation
-# https://github.com/pymodbus-dev/pymodbus/discussions/2540#discussioncomment-11839715
-max_float32_value = np.finfo(np.float32).max * (2 / 3)
+# https://en.wikipedia.org/wiki/Single-precision_floating-point_format#Precision_limitations_on_decimal_values_(between_1_and_16777216)
+max_float32_value = 2 ^ 20
 min_float32_value = -max_float32_value
 
 
-def random_float(entity_descriptor: AskoheatSensorEntityDescription) -> float:
+def round_partial(value: float, resolution: float) -> float:
+    """."""
+    return round(value / resolution) * resolution
+
+
+def random_float(
+    entity_descriptor: AskoheatNumberEntityDescription
+    | AskoheatSensorEntityDescription,
+) -> float:
     """."""
     min_value = float(
         entity_descriptor.native_min_value
@@ -101,8 +125,12 @@ def random_float(entity_descriptor: AskoheatSensorEntityDescription) -> float:
         - 1
     )
     value_range = max_value - min_value
+    decimal_part = random()  # noqa: S311
+    value = (random() * value_range) + min_value + decimal_part  # noqa: S311
 
-    return (random() * value_range) + min_value + random()  # noqa: S311
+    # round a fixed interval of 2^-3 as digits with a max of 2^20
+    # are limited to this interval only
+    return round_partial(value, 2 ^ -3)
 
 
 def generate_sensor_test_data(
@@ -112,6 +140,8 @@ def generate_sensor_test_data(
     match entity_descriptor.api_descriptor:
         case Float32RegisterInputDescriptor():
             return random_float(entity_descriptor)
+        case ByteRegisterInputDescriptor():
+            return random_byte(entity_descriptor)
         case UnsignedInt16RegisterInputDescriptor():
             return random_int(entity_descriptor, np.iinfo(np.uint16))
         case UnsignedInt32RegisterInputDescriptor():
@@ -122,6 +152,23 @@ def generate_sensor_test_data(
             return randomword(trunc(number_of_words / 2))
 
 
+def generate_number_test_data(
+    entity_descriptor: AskoheatNumberEntityDescription,
+) -> Any:
+    """."""
+    match entity_descriptor.api_descriptor:
+        case ByteRegisterInputDescriptor():
+            return random_byte(entity_descriptor)
+        case Float32RegisterInputDescriptor():
+            return random_float(entity_descriptor)
+        case UnsignedInt16RegisterInputDescriptor():
+            return random_int(entity_descriptor, np.iinfo(np.uint16))
+        case UnsignedInt32RegisterInputDescriptor():
+            return random_int(entity_descriptor, np.iinfo(np.uint32))
+        case SignedInt16RegisterInputDescriptor():
+            return random_int(entity_descriptor, np.iinfo(np.int16))
+
+
 def generate_switch_test_data(
     entity_descriptor: AskoheatSwitchEntityDescription,
 ) -> Any:
@@ -130,7 +177,7 @@ def generate_switch_test_data(
         case FlagRegisterInputDescriptor():
             return random_boolean()
         case ByteRegisterInputDescriptor():
-            return random_byte()
+            return 1 if random_boolean() else 0
 
 
 def generate_binary_sensor_test_data(
@@ -152,6 +199,10 @@ def convert_to_modbus_register(  # noqa: PLR0911
         case Float32RegisterInputDescriptor():
             return ModbusTcpClient.convert_to_registers(
                 float(value), ModbusTcpClient.DATATYPE.FLOAT32
+            )
+        case ByteRegisterInputDescriptor():
+            return ModbusTcpClient.convert_to_registers(
+                int(value), ModbusTcpClient.DATATYPE.INT16
             )
         case UnsignedInt16RegisterInputDescriptor():
             return ModbusTcpClient.convert_to_registers(

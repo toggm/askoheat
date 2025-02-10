@@ -98,6 +98,12 @@ class AskoheatModbusApiClient:
         )
         if len(data.registers) != EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers:
             msg = "Unexpected number of registers read."
+            LOGGER.error(
+                "%s: number of registers=%s, expected=%s",
+                msg,
+                len(data.registers),
+                EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
+            )
             raise AskoheatModbusApiClientCommunicationError(
                 translation_domain=DOMAIN, translation_key=msg
             )
@@ -133,6 +139,12 @@ class AskoheatModbusApiClient:
         )
         if len(data.registers) != PARAM_REGISTER_BLOCK_DESCRIPTOR.number_of_registers:
             msg = "Unexpected number of registers read."
+            LOGGER.error(
+                "%s: number of registers=%s, expected=%s",
+                msg,
+                len(data.registers),
+                PARAM_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
+            )
             raise AskoheatModbusApiClientCommunicationError(
                 translation_domain=DOMAIN, translation_key=msg
             )
@@ -147,6 +159,12 @@ class AskoheatModbusApiClient:
         )
         if len(data.registers) != CONF_REGISTER_BLOCK_DESCRIPTOR.number_of_registers:
             msg = "Unexpected number of registers read."
+            LOGGER.error(
+                "%s: number of registers=%s, expected=%s",
+                msg,
+                len(data.registers),
+                CONF_REGISTER_BLOCK_DESCRIPTOR.number_of_registers,
+            )
             raise AskoheatModbusApiClientCommunicationError(
                 translation_domain=DOMAIN, translation_key=msg
             )
@@ -568,7 +586,7 @@ def _read_byte(register_value: int) -> int | None:
 
 def _prepare_byte(value: object) -> list[int]:
     """Prepare byte value for writing to registers."""
-    if not isinstance(value, number | float | bool):
+    if not isinstance(value, number | float | bool | int):
         LOGGER.error(
             "Cannot convert value %s as byte, wrong datatype %r", value, type(value)
         )
