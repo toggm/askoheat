@@ -139,6 +139,7 @@ class AskoheatSensor(AskoheatEntity[AskoheatSensorEntityDescription], SensorEnti
                     float_value = float_value.__round__(
                         self.entity_description.native_precision
                     )
+
                 self._attr_native_value = float_value
             else:
                 self._attr_native_value = converted_value

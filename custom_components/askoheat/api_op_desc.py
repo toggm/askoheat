@@ -98,6 +98,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_SWITCH_COUNT_RELAY1,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(12),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -107,6 +108,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_SWITCH_COUNT_RELAY2,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(14),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -116,6 +118,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_SWITCH_COUNT_RELAY3,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(16),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -125,6 +128,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_SWITCH_COUNT_RELAY4,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(18),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -144,6 +148,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_LEGIO_PLATEAU_TIMER,
             api_descriptor=UnsignedInt16RegisterInputDescriptor(30),
+            native_precision=0,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             device_class=SensorDeviceClass.DURATION,
@@ -153,6 +158,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_ANALOG_INPUT_STEP,
             api_descriptor=ByteRegisterInputDescriptor(39),
+            native_precision=0,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             native_min_value=0,
@@ -162,6 +168,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_ACTUAL_TEMP_LIMIT,
             api_descriptor=UnsignedInt16RegisterInputDescriptor(40),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             native_min_value=0,
@@ -171,6 +178,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_AUTO_HEATER_OFF_COUNTDOWN_MINUTES,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(41),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             device_class=SensorDeviceClass.DURATION,
@@ -183,6 +191,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_EMERGENCY_OFF_COUNTDOWN_MINUTES,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(43),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             device_class=SensorDeviceClass.DURATION,
@@ -195,6 +204,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_BOOT_COUNT,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(45),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -381,6 +391,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_LOAD_SETPOINT,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(81),
+            native_precision=0,
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -392,6 +403,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_LOAD_FEEDIN,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(83),
+            native_precision=0,
             device_key=DeviceKey.ENERGY_MANAGER,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -402,6 +414,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_HEATPUMP_REQUEST,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(85),
+            native_precision=0,
             device_key=DeviceKey.HEATPUMP_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -412,6 +425,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_ANALOG_INPUT,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(87),
+            native_precision=0,
             device_key=DeviceKey.ANALOG_INPUT_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -422,6 +436,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_EMERGENCY_MODE,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(89),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -432,6 +447,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_LEGIO_PROTECTION,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(91),
+            native_precision=0,
             device_key=DeviceKey.LEGIO_PROTECTION_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -442,6 +458,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_LOW_TARIFF,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(93),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -452,6 +469,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_COUNT_MINIMAL_TEMP,
             api_descriptor=UnsignedInt32RegisterInputDescriptor(95),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.TOTAL_INCREASING,
@@ -462,6 +480,7 @@ DATA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
         AskoheatSensorEntityDescription(
             key=SensorAttrKey.DATA_MAX_MEASURED_TEMP,
             api_descriptor=ByteRegisterInputDescriptor(97),
+            native_precision=0,
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             entity_category=EntityCategory.DIAGNOSTIC,
             state_class=SensorStateClass.MEASUREMENT,
