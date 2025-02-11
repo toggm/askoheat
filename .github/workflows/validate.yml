@@ -11,16 +11,19 @@ on:
     branches:
       - "main"
 
+permissions:
+  contents: read
+
 jobs:
   test:
     name: "Run automated tests"
     runs-on: "ubuntu-latest"
     steps:
         - name: "Checkout the repository"
-          uses: "actions/checkout@v4.2.2"
+          uses: "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683" # v4.2.2
 
         - name: "Set up Python"
-          uses: actions/setup-python@v5.4.0
+          uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # 5.4.0
           with:
             python-version: "3.12"
             cache: "pip"
@@ -36,19 +39,19 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
         - name: "Checkout the repository"
-          uses: "actions/checkout@v4.2.2"
+          uses: "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683" # v4.2.2
 
         - name: "Run hassfest validation"
-          uses: "home-assistant/actions/hassfest@master"
+          uses: "home-assistant/actions/hassfest@4b258cf2bf1668d8e0adcb6b2be96b6cda36f42f" # 1.0.0
 
   hacs: # https://github.com/hacs/action
     name: "HACS Validation"
     runs-on: "ubuntu-latest"
     steps:
         - name: "Checkout the repository"
-          uses: "actions/checkout@v4.2.2"
+          uses: "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683" # v4.2.2
 
         - name: "Run HACS validation"
-          uses: "hacs/action@main"
+          uses: "hacs/action@d556e736723344f83838d08488c983a15381059a" #22.5.0
           with:
             category: "integration"
