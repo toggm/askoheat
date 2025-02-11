@@ -1,5 +1,6 @@
 """Tests for the binary sensor entities."""
 
+from decimal import Decimal
 from math import isclose
 
 import pytest
@@ -111,7 +112,11 @@ async def test_read_sensor_states(
         assert isclose(float(state.state), expected), (
             f"Expect state {expected}({type(expected)}) for entity {entity_descriptor.key} to be close to {state.state}({type(state.state)})."  # noqa: E501
         )
+    elif isinstance(expected, int):
+        assert Decimal(state.state) == Decimal(expected), (
+            f"Expect state {expected!s}({type(expected)}) for entity {entity_descriptor.key}, but received {state.state}({type(state.state)})."  # noqa: E501
+        )
     else:
         assert state.state == str(expected), (
-            f"Expect state {expected}({type(expected)}) for entity {entity_descriptor.key}, but received {state.state}({type(state.state)})."  # noqa: E501
+            f"Expect state {expected!s}({type(expected)}) for entity {entity_descriptor.key}, but received {state.state}({type(state.state)})."  # noqa: E501
         )

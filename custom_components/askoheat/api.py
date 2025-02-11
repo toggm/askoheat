@@ -619,7 +619,7 @@ def _read_int16(register_value: int) -> int | None:
 
 def _prepare_int16(value: object) -> list[int]:
     """Prepare signed int value for writing to registers."""
-    if not isinstance(value, number | float):
+    if not isinstance(value, number | float | int):
         LOGGER.error(
             "Cannot convert value %s as signed int, wrong datatype %r",
             value,
