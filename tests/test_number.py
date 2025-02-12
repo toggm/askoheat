@@ -1,6 +1,7 @@
 """Tests for the switch sensor entities."""
 
 from math import isclose
+from typing import Any
 
 import pytest
 from homeassistant.core import HomeAssistant
@@ -12,7 +13,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
-from custom_components.askoheat.const import DOMAIN
+from custom_components.askoheat.const import DOMAIN, NumberAttrKey
 from custom_components.askoheat.model import (
     AskoheatNumberEntityDescription,
 )
@@ -20,31 +21,24 @@ from custom_components.askoheat.model import (
 from .testdata import (
     config_register_values,
     ema_register_values,
-    generate_number_test_data,
-    prepare_register_values,
+    fill_test_data,
+    generate_test_data,
 )
 
 # Number sensor data (flags in registers or bytes)
 number_conf_register_values = config_register_values.copy()
 number_ema_register_values = ema_register_values.copy()
-number_test_data = {}
+number_test_data: dict[NumberAttrKey, Any] = {}
 
-
-def __fill_switch_data(
-    entities: list[AskoheatNumberEntityDescription], register: list[int]
-) -> None:
-    for entity_descriptor in entities:
-        if entity_descriptor.api_descriptor:
-            value = generate_number_test_data(entity_descriptor)
-            number_test_data[entity_descriptor.key] = value
-            prepare_register_values(entity_descriptor, register, value)
-
-
-__fill_switch_data(
-    CONF_REGISTER_BLOCK_DESCRIPTOR.number_inputs, number_conf_register_values
+fill_test_data(
+    CONF_REGISTER_BLOCK_DESCRIPTOR.number_inputs,
+    number_conf_register_values,
+    number_test_data,
 )
-__fill_switch_data(
-    EMA_REGISTER_BLOCK_DESCRIPTOR.number_inputs, number_ema_register_values
+fill_test_data(
+    EMA_REGISTER_BLOCK_DESCRIPTOR.number_inputs,
+    number_ema_register_values,
+    number_test_data,
 )
 
 number_entities = [
@@ -117,7 +111,7 @@ async def test_update_number_sensor_states(
     assert state
     assert isclose(float(state.state), float(0))
 
-    new_number = float(generate_number_test_data(entity_descriptor))
+    new_number = float(generate_test_data(entity_descriptor))
 
     await hass.services.async_call(
         "number",

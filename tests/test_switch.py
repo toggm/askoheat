@@ -1,5 +1,7 @@
 """Tests for the switch sensor entities."""
 
+from typing import Any
+
 import pytest
 from homeassistant.const import (
     STATE_OFF,
@@ -16,33 +18,25 @@ from custom_components.askoheat.api_desc import (
     ByteRegisterInputDescriptor,
     FlagRegisterInputDescriptor,
 )
-from custom_components.askoheat.const import DOMAIN
+from custom_components.askoheat.const import DOMAIN, SwitchAttrKey
 from custom_components.askoheat.model import (
     AskoheatSwitchEntityDescription,
 )
 
 from .testdata import (
     config_register_values,
-    generate_switch_test_data,
-    prepare_register_values,
+    fill_test_data,
 )
 
 # Switch sensor data (flags in registers or bytes)
 switch_conf_register_values = config_register_values.copy()
-switch_test_data = {}
+switch_test_data: dict[SwitchAttrKey, Any] = {}
 
-
-def __fill_switch_data(
-    entities: list[AskoheatSwitchEntityDescription], register: list[int]
-) -> None:
-    for entity_descriptor in entities:
-        if entity_descriptor.api_descriptor:
-            value = generate_switch_test_data(entity_descriptor)
-            switch_test_data[entity_descriptor.key] = value
-            prepare_register_values(entity_descriptor, register, value)
-
-
-__fill_switch_data(CONF_REGISTER_BLOCK_DESCRIPTOR.switches, switch_conf_register_values)
+fill_test_data(
+    CONF_REGISTER_BLOCK_DESCRIPTOR.switches,
+    switch_conf_register_values,
+    switch_test_data,
+)
 
 
 def __expected_value(

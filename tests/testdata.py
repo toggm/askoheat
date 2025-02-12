@@ -1,6 +1,7 @@
 """Test data."""
 
 import string
+from enum import StrEnum
 from math import trunc
 from random import choice, randint, random
 from typing import Any
@@ -22,11 +23,9 @@ from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTO
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.model import (
-    AskoheatBinarySensorEntityDescription,
     AskoheatEntityDescription,
     AskoheatNumberEntityDescription,
     AskoheatSensorEntityDescription,
-    AskoheatSwitchEntityDescription,
 )
 
 data_register_values = [
@@ -133,60 +132,33 @@ def random_float(
     return round_partial(value, 2 ^ -3)
 
 
-def generate_sensor_test_data(
-    entity_descriptor: AskoheatSensorEntityDescription,
+def generate_test_data(  # noqa: PLR0911
+    entity_descriptor: AskoheatEntityDescription,
 ) -> Any:
     """."""
-    match entity_descriptor.api_descriptor:
-        case Float32RegisterInputDescriptor():
-            return random_float(entity_descriptor)
-        case ByteRegisterInputDescriptor():
-            return random_byte(entity_descriptor)
-        case UnsignedInt16RegisterInputDescriptor():
-            return random_int(entity_descriptor, np.iinfo(np.uint16))
-        case UnsignedInt32RegisterInputDescriptor():
-            return random_int(entity_descriptor, np.iinfo(np.uint32))
-        case SignedInt16RegisterInputDescriptor():
-            return random_int(entity_descriptor, np.iinfo(np.int16))
-        case StringRegisterInputDescriptor(_, number_of_words):
-            return randomword(trunc(number_of_words / 2))
+    if isinstance(
+        entity_descriptor,
+        AskoheatNumberEntityDescription | AskoheatSensorEntityDescription,
+    ):
+        match entity_descriptor.api_descriptor:
+            case Float32RegisterInputDescriptor():
+                return random_float(entity_descriptor)
+            case ByteRegisterInputDescriptor():
+                return random_byte(entity_descriptor)
+            case UnsignedInt16RegisterInputDescriptor():
+                return random_int(entity_descriptor, np.iinfo(np.uint16))
+            case UnsignedInt32RegisterInputDescriptor():
+                return random_int(entity_descriptor, np.iinfo(np.uint32))
+            case SignedInt16RegisterInputDescriptor():
+                return random_int(entity_descriptor, np.iinfo(np.int16))
 
-
-def generate_number_test_data(
-    entity_descriptor: AskoheatNumberEntityDescription,
-) -> Any:
-    """."""
-    match entity_descriptor.api_descriptor:
-        case ByteRegisterInputDescriptor():
-            return random_byte(entity_descriptor)
-        case Float32RegisterInputDescriptor():
-            return random_float(entity_descriptor)
-        case UnsignedInt16RegisterInputDescriptor():
-            return random_int(entity_descriptor, np.iinfo(np.uint16))
-        case UnsignedInt32RegisterInputDescriptor():
-            return random_int(entity_descriptor, np.iinfo(np.uint32))
-        case SignedInt16RegisterInputDescriptor():
-            return random_int(entity_descriptor, np.iinfo(np.int16))
-
-
-def generate_switch_test_data(
-    entity_descriptor: AskoheatSwitchEntityDescription,
-) -> Any:
-    """."""
     match entity_descriptor.api_descriptor:
         case FlagRegisterInputDescriptor():
             return random_boolean()
         case ByteRegisterInputDescriptor():
             return 1 if random_boolean() else 0
-
-
-def generate_binary_sensor_test_data(
-    entity_descriptor: AskoheatBinarySensorEntityDescription,
-) -> Any:
-    """."""
-    match entity_descriptor.api_descriptor:
-        case FlagRegisterInputDescriptor():
-            return random_boolean()
+        case StringRegisterInputDescriptor(_, number_of_words):
+            return randomword(trunc(number_of_words / 2))
 
 
 def convert_to_modbus_register(  # noqa: PLR0911
@@ -250,3 +222,19 @@ def prepare_register_values(
             register[entity_descriptor.api_descriptor.starting_register + index] = (
                 register_value
             )
+
+
+def fill_test_data[
+    K: StrEnum,
+    E: AskoheatEntityDescription,
+](
+    entities: list[E],
+    register: list[int],
+    data_dict: dict[K, Any],
+) -> None:
+    """."""
+    for entity_descriptor in entities:
+        if entity_descriptor.api_descriptor:
+            value = generate_test_data(entity_descriptor)
+            data_dict[entity_descriptor.key] = value
+            prepare_register_values(entity_descriptor, register, value)

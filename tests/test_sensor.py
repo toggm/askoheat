@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 from math import isclose
+from typing import Any
 
 import pytest
 from homeassistant.core import HomeAssistant
@@ -15,6 +16,7 @@ from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIP
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
+from custom_components.askoheat.const import SensorAttrKey
 from custom_components.askoheat.model import (
     AskoheatSensorEntityDescription,
 )
@@ -23,9 +25,8 @@ from .testdata import (
     config_register_values,
     data_register_values,
     ema_register_values,
-    generate_sensor_test_data,
+    fill_test_data,
     par_register_values,
-    prepare_register_values,
 )
 
 # prepare sensor data
@@ -47,23 +48,26 @@ sensor_par_register_values = par_register_values.copy()
 sensor_ema_register_values = ema_register_values.copy()
 sensor_conf_register_values = config_register_values.copy()
 
-sensor_test_data = {}
+sensor_test_data: dict[SensorAttrKey, Any] = {}
 
-
-def __fill_sensor_data(
-    sensors: list[AskoheatSensorEntityDescription], register: list[int]
-) -> None:
-    for entity_descriptor in sensors:
-        if entity_descriptor.api_descriptor:
-            value = generate_sensor_test_data(entity_descriptor)
-            sensor_test_data[entity_descriptor.key] = value
-            prepare_register_values(entity_descriptor, register, value)
-
-
-__fill_sensor_data(CONF_REGISTER_BLOCK_DESCRIPTOR.sensors, sensor_conf_register_values)
-__fill_sensor_data(DATA_REGISTER_BLOCK_DESCRIPTOR.sensors, sensor_data_register_values)
-__fill_sensor_data(PARAM_REGISTER_BLOCK_DESCRIPTOR.sensors, sensor_par_register_values)
-__fill_sensor_data(EMA_REGISTER_BLOCK_DESCRIPTOR.sensors, sensor_ema_register_values)
+fill_test_data(
+    CONF_REGISTER_BLOCK_DESCRIPTOR.sensors,
+    sensor_conf_register_values,
+    sensor_test_data,
+)
+fill_test_data(
+    DATA_REGISTER_BLOCK_DESCRIPTOR.sensors,
+    sensor_data_register_values,
+    sensor_test_data,
+)
+fill_test_data(
+    PARAM_REGISTER_BLOCK_DESCRIPTOR.sensors,
+    sensor_par_register_values,
+    sensor_test_data,
+)
+fill_test_data(
+    EMA_REGISTER_BLOCK_DESCRIPTOR.sensors, sensor_ema_register_values, sensor_test_data
+)
 
 
 @pytest.mark.parametrize(
