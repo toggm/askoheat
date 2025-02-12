@@ -4,6 +4,7 @@ import string
 from enum import StrEnum
 from math import trunc
 from random import choice, randint, random
+from time import localtime, struct_time
 from typing import Any
 
 import numpy as np
@@ -16,6 +17,7 @@ from custom_components.askoheat.api_desc import (
     Float32RegisterInputDescriptor,
     SignedInt16RegisterInputDescriptor,
     StringRegisterInputDescriptor,
+    TimeRegisterInputDescriptor,
     UnsignedInt16RegisterInputDescriptor,
     UnsignedInt32RegisterInputDescriptor,
 )
@@ -159,6 +161,8 @@ def generate_test_data(  # noqa: PLR0911
             return 1 if random_boolean() else 0
         case StringRegisterInputDescriptor(_, number_of_words):
             return randomword(trunc(number_of_words / 2))
+        case TimeRegisterInputDescriptor():
+            return localtime(randint(0, 60 * 60 * 24))  # noqa: S311
 
 
 def convert_to_modbus_register(  # noqa: PLR0911
@@ -204,6 +208,15 @@ def convert_to_modbus_register(  # noqa: PLR0911
                 b = byte_list[index * 2 : index * 2 + 2]
                 result.append(int.from_bytes(b, "little"))
             return result
+        case TimeRegisterInputDescriptor():
+            time: struct_time = value
+            return ModbusTcpClient.convert_to_registers(
+                time.tm_hour, ModbusTcpClient.DATATYPE.UINT16
+            ).__add__(
+                ModbusTcpClient.convert_to_registers(
+                    time.tm_min, ModbusTcpClient.DATATYPE.UINT16
+                )
+            )
         case _:
             return []
 
