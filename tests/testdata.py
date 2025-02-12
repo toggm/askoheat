@@ -15,7 +15,9 @@ from custom_components.askoheat.api_desc import (
     ByteRegisterInputDescriptor,
     FlagRegisterInputDescriptor,
     Float32RegisterInputDescriptor,
+    IntEnumInputDescriptor,
     SignedInt16RegisterInputDescriptor,
+    StrEnumInputDescriptor,
     StringRegisterInputDescriptor,
     TimeRegisterInputDescriptor,
     UnsignedInt16RegisterInputDescriptor,
@@ -157,8 +159,14 @@ def generate_test_data(  # noqa: PLR0911
     match entity_descriptor.api_descriptor:
         case FlagRegisterInputDescriptor():
             return random_boolean()
+        case IntEnumInputDescriptor():
+            values = entity_descriptor.api_descriptor.values
+            return values[randint(0, len(values) - 1)]  # noqa: S311
         case ByteRegisterInputDescriptor():
             return 1 if random_boolean() else 0
+        case StrEnumInputDescriptor():
+            values = entity_descriptor.api_descriptor.values
+            return values[randint(0, len(values) - 1)]  # noqa: S311
         case StringRegisterInputDescriptor(_, number_of_words):
             return randomword(trunc(number_of_words / 2))
         case TimeRegisterInputDescriptor():

@@ -117,13 +117,13 @@ class AskoheatSelect(AskoheatEntity[AskoheatSelectEntityDescription], SelectEnti
         self.current_option = self._enum_to_options[enum]
         super()._handle_coordinator_update()
 
-    async def async_select_option(self, value: str) -> None:
-        """Update the current value."""
+    async def async_select_option(self, option: str) -> None:
+        """Update the current option."""
         if self.entity_description.api_descriptor is None:
             LOGGER.error(
-                "Cannot set value, missing api_descriptor on entity %s", self.entity_id
+                "Cannot set option, missing api_descriptor on entity %s", self.entity_id
             )
             return
-        enum = self._options_to_enum[value]
+        enum = self._options_to_enum[option]
         await self.coordinator.async_write(self.entity_description.api_descriptor, enum)
         self._handle_coordinator_update()

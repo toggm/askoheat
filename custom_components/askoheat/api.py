@@ -356,14 +356,12 @@ class AskoheatModbusApiClient:
             }.items()
             if v is not None
         }
-        select_inputs = {
-            k: v
-            for k, v in {
+        select_inputs = dict(
+            {
                 item.key: _read_register_enum_input(data, item.api_descriptor)  # type: ignore  # noqa: PGH003
                 for item in descr.select_inputs
             }.items()
-            if v is not None
-        }
+        )
         return AskoheatDataBlock(
             binary_sensors=binary_sensors,
             sensors=sensors,
