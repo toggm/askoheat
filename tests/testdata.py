@@ -1,6 +1,7 @@
 """Test data."""
 
 import string
+import struct
 from enum import StrEnum
 from math import trunc
 from random import choice, randint, random
@@ -19,6 +20,7 @@ from custom_components.askoheat.api_desc import (
     SignedInt16RegisterInputDescriptor,
     StrEnumInputDescriptor,
     StringRegisterInputDescriptor,
+    StructRegisterInputDescriptor,
     TimeRegisterInputDescriptor,
     UnsignedInt16RegisterInputDescriptor,
     UnsignedInt32RegisterInputDescriptor,
@@ -27,6 +29,7 @@ from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTO
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.model import (
+    AskoheatDurationSensorEntityDescription,
     AskoheatEntityDescription,
     AskoheatNumberEntityDescription,
     AskoheatSensorEntityDescription,
@@ -136,7 +139,7 @@ def random_float(
     return round_partial(value, 2 ^ -3)
 
 
-def generate_test_data(  # noqa: PLR0911
+def generate_test_data(  # noqa: PLR0911 PLR0912
     entity_descriptor: AskoheatEntityDescription,
 ) -> Any:
     """."""
@@ -155,6 +158,18 @@ def generate_test_data(  # noqa: PLR0911
                 return random_int(entity_descriptor, np.iinfo(np.uint32))
             case SignedInt16RegisterInputDescriptor():
                 return random_int(entity_descriptor, np.iinfo(np.int16))
+
+    if isinstance(entity_descriptor, AskoheatDurationSensorEntityDescription):
+        match entity_descriptor.api_descriptor:
+            case StructRegisterInputDescriptor():
+                # special case of duration
+                days = randint(0, 0xFFFF)  # noqa: S311
+                hours = randint(0, 24)  # noqa: S311
+                minutes = randint(0, 60)  # noqa: S311
+
+                # days are written to the first two registers,
+                # hours to the third and minutes to the forth
+                return days << 16 | hours << 8 | minutes
 
     match entity_descriptor.api_descriptor:
         case FlagRegisterInputDescriptor():
@@ -225,6 +240,12 @@ def convert_to_modbus_register(  # noqa: PLR0911
                     time.tm_min, ModbusTcpClient.DATATYPE.UINT16
                 )
             )
+        case StructRegisterInputDescriptor(_, _, structure):
+            as_bytes = struct.pack(structure, value)
+            return [
+                int.from_bytes(as_bytes[i : i + 2], "big")
+                for i in range(0, len(as_bytes), 2)
+            ]
         case _:
             return []
 

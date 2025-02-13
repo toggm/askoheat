@@ -39,7 +39,6 @@ if TYPE_CHECKING:
 
     from .data import AskoheatConfigEntry
 
-
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
     Platform.BINARY_SENSOR,
