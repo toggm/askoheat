@@ -67,12 +67,12 @@ number_entities = [
         for entity_descriptor in number_entities
     ],
 )
-async def test_read_number_input_states(
+async def test_read_number_states(
     mock_config_entry: MockConfigEntry,  # noqa: ARG001
     hass: HomeAssistant,
     entity_descriptor: AskoheatNumberEntityDescription,
 ) -> None:
-    """Test reading number input."""
+    """Test reading number."""
     assert DOMAIN in hass.config.components
     key = f"number.test_{entity_descriptor.key}"
 
@@ -98,7 +98,7 @@ async def test_read_number_input_states(
 
 
 @pytest.mark.parametrize("entity_descriptor", number_entities)
-async def test_update_number_sensor_states(
+async def test_update_number_states(
     mock_config_entry: MockConfigEntry,  # noqa: ARG001
     hass: HomeAssistant,
     entity_descriptor: AskoheatNumberEntityDescription,

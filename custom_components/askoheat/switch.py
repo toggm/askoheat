@@ -229,15 +229,6 @@ class AskoheatAutoFeedInSwitch(AskoheatSwitch):
             in self._ema_coordinator.data
         )
 
-    @callback
-    def _handle_coordinator_update(self) -> None:
-        """Handle updated data from the coordinator."""
-        before_state = self._attr_is_on
-        super()._handle_coordinator_update()
-        if before_state and not self._attr_is_on:
-            # simulate turning iff
-            _ = self.async_turn_off()
-
     async def power_entity_change(self, event: Event[EventStateChangedData]) -> None:
         """Power input changed."""
         LOGGER.debug("Power entity (%s) has changed", event.data["entity_id"])
@@ -259,17 +250,18 @@ class AskoheatAutoFeedInSwitch(AskoheatSwitch):
                 if self._attr_is_on:
                     await self.send_feed_in(float(new_state.state))
 
-    async def send_feed_in(self, power_value: float) -> None:
+    async def send_feed_in(self, power_value: float | None) -> None:
         """Send power value after adding buffer value."""
         api_desc = EMA_FEED_IN_VALUE_NUMBER_ENTITY_DESCRIPTOR.api_descriptor
         if api_desc is None:
             return
 
-        raw_value = power_value
-        if self._invert_power:
-            raw_value = raw_value * -1
-        # add buffer
-        raw_value = raw_value + self._buffer
+        raw_value = power_value or float(0)
+        if power_value is not None:
+            if self._invert_power:
+                raw_value = raw_value * -1
+            # add buffer
+            raw_value = raw_value + self._buffer
         await self._ema_coordinator.async_write(api_desc, raw_value)
 
     def _coordinator_data_key(self) -> str:
@@ -290,7 +282,7 @@ class AskoheatAutoFeedInSwitch(AskoheatSwitch):
         # disable feed-in through api
         await self._set_state(CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.off_state)
         # additionally initialize with 0 power value
-        await self.send_feed_in(float(0))
+        await self.send_feed_in(None)
 
     async def _set_state(self, state: str | bool) -> None:
         """Set state of switch."""

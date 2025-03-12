@@ -21,6 +21,7 @@ from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIP
 from custom_components.askoheat.const import (
     CONF_ANALOG_INPUT_UNIT,
     CONF_DEVICE_UNITS,
+    CONF_FEED_IN,
     CONF_HEATPUMP_UNIT,
     CONF_LEGIONELLA_PROTECTION_UNIT,
     CONF_MODBUS_MASTER_UNIT,
@@ -76,6 +77,12 @@ def read_ema_input_registers_response() -> ReadInputRegistersResponse:
     return ReadInputRegistersResponse(
         registers=[0 for _ in range(EMA_REGISTER_BLOCK_DESCRIPTOR.number_of_registers)]
     )
+
+
+@pytest.fixture
+def conf_feedin() -> None | dict[str, Any]:
+    """Fixture returning object feedin configuration."""
+    return None
 
 
 @pytest.fixture
@@ -155,10 +162,12 @@ def mock_device_infos() -> Any:
 
 
 @pytest.fixture
-async def mock_config_entry(
-    mock_api_client: AskoheatModbusApiClient, hass: HomeAssistant
+async def mock_config_entry_uninitialized(
+    mock_api_client: AskoheatModbusApiClient,
+    hass: HomeAssistant,
+    conf_feedin: None | dict[str, Any],
 ) -> MockConfigEntry:
-    """Fixture to mock config entry."""
+    """Fixture to mock an uninitialized config entry."""
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={
@@ -170,6 +179,7 @@ async def mock_config_entry(
                 CONF_MODBUS_MASTER_UNIT: True,
                 CONF_HEATPUMP_UNIT: True,
             },
+            CONF_FEED_IN: conf_feedin,
         },
         unique_id="test",
     )
@@ -191,8 +201,17 @@ async def mock_config_entry(
         supported_devices=list(DeviceKey),
     )
 
-    entry.add_to_hass(hass)
-    await hass.config_entries.async_setup(entry.entry_id)
+    return entry
+
+
+@pytest.fixture
+async def mock_config_entry(
+    mock_config_entry_uninitialized: MockConfigEntry,
+    hass: HomeAssistant,
+) -> MockConfigEntry:
+    """Fixture to mock config entry."""
+    mock_config_entry_uninitialized.add_to_hass(hass)
+    await hass.config_entries.async_setup(mock_config_entry_uninitialized.entry_id)
     await hass.async_block_till_done()
 
-    return entry
+    return mock_config_entry_uninitialized

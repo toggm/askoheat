@@ -18,7 +18,10 @@ from custom_components.askoheat.api_desc import (
     ByteRegisterInputDescriptor,
     FlagRegisterInputDescriptor,
 )
-from custom_components.askoheat.const import DOMAIN, SwitchAttrKey
+from custom_components.askoheat.const import (
+    DOMAIN,
+    SwitchAttrKey,
+)
 from custom_components.askoheat.model import (
     AskoheatSwitchEntityDescription,
 )
