@@ -303,7 +303,7 @@ class AskoheatModbusApiClient:
             case _:
                 LOGGER.error("Cannot read number input from descriptor %r", desc)
                 result = []
-        return cast(list[int], result)
+        return cast("list[int]", result)
 
     def __map_data(
         self, descr: RegisterBlockDescriptor, data: ModbusPDU

@@ -39,22 +39,22 @@ async def async_setup_entry(
             entity_description=entity_description,
         )
         for entity_description, coordinator in {
-            **{
-                entity_description: entry.runtime_data.par_coordinator
-                for entity_description in PARAM_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
-            },
-            **{
-                entity_description: entry.runtime_data.ema_coordinator
-                for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
-            },
-            **{
-                entity_description: entry.runtime_data.config_coordinator
-                for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
-            },
-            **{
-                entity_description: entry.runtime_data.data_coordinator
-                for entity_description in DATA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors
-            },
+            **dict.fromkeys(
+                PARAM_REGISTER_BLOCK_DESCRIPTOR.binary_sensors,
+                entry.runtime_data.par_coordinator,
+            ),
+            **dict.fromkeys(
+                EMA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors,
+                entry.runtime_data.ema_coordinator,
+            ),
+            **dict.fromkeys(
+                CONF_REGISTER_BLOCK_DESCRIPTOR.binary_sensors,
+                entry.runtime_data.config_coordinator,
+            ),
+            **dict.fromkeys(
+                DATA_REGISTER_BLOCK_DESCRIPTOR.binary_sensors,
+                entry.runtime_data.data_coordinator,
+            ),
         }.items()
         if entity_description.device_key is None
         or entity_description.device_key in entry.runtime_data.supported_devices
