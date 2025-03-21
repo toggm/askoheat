@@ -67,7 +67,7 @@ def _get_section_entry_or_none(
     section_values = data.get(section)
     if section_values is None:
         return None
-    return cast(str | None, section_values.get(entry))
+    return cast("str | None", section_values.get(entry))
 
 
 class OptionalEntitySelector(selector.EntitySelector):

@@ -1,4 +1,4 @@
-"""Askoheat time entity."""  # noqa: A005
+"""Askoheat time entity."""
 
 from datetime import time
 
@@ -30,18 +30,18 @@ async def async_setup_entry(
             entity_description=entity_description,
         )
         for entity_description, coordinator in {
-            **{
-                entity_description: entry.runtime_data.par_coordinator
-                for entity_description in PARAM_REGISTER_BLOCK_DESCRIPTOR.time_inputs
-            },
-            **{
-                entity_description: entry.runtime_data.ema_coordinator
-                for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.time_inputs
-            },
-            **{
-                entity_description: entry.runtime_data.config_coordinator
-                for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.time_inputs
-            },
+            **dict.fromkeys(
+                PARAM_REGISTER_BLOCK_DESCRIPTOR.time_inputs,
+                entry.runtime_data.par_coordinator,
+            ),
+            **dict.fromkeys(
+                EMA_REGISTER_BLOCK_DESCRIPTOR.time_inputs,
+                entry.runtime_data.ema_coordinator,
+            ),
+            **dict.fromkeys(
+                CONF_REGISTER_BLOCK_DESCRIPTOR.time_inputs,
+                entry.runtime_data.config_coordinator,
+            ),
         }.items()
         if entity_description.device_key is None
         or entity_description.device_key in entry.runtime_data.supported_devices

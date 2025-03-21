@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 from datetime import date, datetime, timedelta
-from decimal import Decimal
 from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 from homeassistant.components.sensor import ENTITY_ID_FORMAT, SensorEntity
 from homeassistant.const import UnitOfTime
 from homeassistant.core import callback
-from homeassistant.helpers.typing import StateType
 
 from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
@@ -25,8 +23,11 @@ from custom_components.askoheat.model import (
 from .entity import AskoheatEntity
 
 if TYPE_CHECKING:
+    from decimal import Decimal
+
     from homeassistant.core import HomeAssistant
     from homeassistant.helpers.entity_platform import AddEntitiesCallback
+    from homeassistant.helpers.typing import StateType
 
     from .coordinator import AskoheatDataUpdateCoordinator
     from .data import AskoheatConfigEntry
@@ -65,22 +66,22 @@ async def async_setup_entry(
             entity_description=entity_description,
         )
         for entity_description, coordinator in {
-            **{
-                entity_description: entry.runtime_data.par_coordinator
-                for entity_description in PARAM_REGISTER_BLOCK_DESCRIPTOR.sensors
-            },
-            **{
-                entity_description: entry.runtime_data.ema_coordinator
-                for entity_description in EMA_REGISTER_BLOCK_DESCRIPTOR.sensors
-            },
-            **{
-                entity_description: entry.runtime_data.config_coordinator
-                for entity_description in CONF_REGISTER_BLOCK_DESCRIPTOR.sensors
-            },
-            **{
-                entity_description: entry.runtime_data.data_coordinator
-                for entity_description in DATA_REGISTER_BLOCK_DESCRIPTOR.sensors
-            },
+            **dict.fromkeys(
+                PARAM_REGISTER_BLOCK_DESCRIPTOR.sensors,
+                entry.runtime_data.par_coordinator,
+            ),
+            **dict.fromkeys(
+                EMA_REGISTER_BLOCK_DESCRIPTOR.sensors,
+                entry.runtime_data.ema_coordinator,
+            ),
+            **dict.fromkeys(
+                CONF_REGISTER_BLOCK_DESCRIPTOR.sensors,
+                entry.runtime_data.config_coordinator,
+            ),
+            **dict.fromkeys(
+                DATA_REGISTER_BLOCK_DESCRIPTOR.sensors,
+                entry.runtime_data.data_coordinator,
+            ),
         }.items()
         if entity_description.device_key is None
         or entity_description.device_key in entry.runtime_data.supported_devices
@@ -147,7 +148,7 @@ class AskoheatSensor(AskoheatEntity[AskoheatSensorEntityDescription], SensorEnti
         super()._handle_coordinator_update()
 
     def _convert_value(self, value: Any) -> StateType | date | datetime | Decimal:
-        return cast(StateType | date | datetime | Decimal, value)
+        return cast("StateType | date | datetime | Decimal", value)
 
 
 class AskoheatDurationSensor(AskoheatSensor):
