@@ -17,14 +17,14 @@ It's possible to integrate an Askoheat+ device using the core modbus integration
 
 - Go through the list of read/write registers manually and pick the once's you'd like to integrate
 - Map status registers through helpers to be able to map them to `binary_sensor` states
-- Write services to write values back to aksoheat+ device with the convertion needed manually
-- all registers listed in the modbus are queried independantly, even if it would be possible to scan all the states in one shot
+- Write services to write values back to aksoheat+ device with the conversion needed manually
+- all registers listed in the modbus are queried independently, even if it would be possible to scan all the states in one shot
 
 This integration provides support for the following modbus register data blocks defined by the manufacturer and queries all states of a data block with a single query using different predefined scan_intervals:
 | Data block | Scan interval |
 | --------------------- | ---------------------------------------------------- |
 | [Energymanager Block](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#EM_Block)| Polls every 5 seconds for state changes |
-| [Paramter Block](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Parameter_Block) | Read registers once on startup |
+| [Parameter Block](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Parameter_Block) | Read registers once on startup |
 | [Configuration Block](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Configuration_Block)| Polls registers once an hour |
 | [Data Values Block](http://www.download.askoma.com/askofamily_plus/modbus/askoheat-modbus.html#Data_Values_Block) | Polls registers once a minute |
 
@@ -53,8 +53,9 @@ In the energy manager device two additional entities are provided to enable cont
 | Entity Id Pattern                                  | Description |
 | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | number.askoheat_{serial_number}_auto_feedin_buffer | Buffer of feed-back energy use for short term loads. Will be added to the value of the energy fed back (assuming fead-back value has a negative value) |
-| switch.askoheat_{serial_number}_auto_feedin        | Switch to enable auto feed-in mode. Will observe the power entity and send changes continously to the askoheat device |
+| switch.askoheat_{serial_number}_auto_feedin        | Switch to enable auto feed-in mode. Will observe the power entity and send changes continuously to the askoheat device |
 
+To enable the feed-in energy to heaten up the water boiler, you need additionally to enable the switch `switch.askoheat_{serial_number}_load_feedin_value_enabled` to directly use feed-in energy or `switch.askoheat_{serial_number}_legio_settings_prefer_feedin_energy` if you want to use the feed-in energy to use for legionelly protection only.
 
 ## 1. Installation
 
@@ -112,7 +113,7 @@ Provide correct hostname and configure the additional device units you want to b
 This integration follows standard integration removal. No extra steps are required.
 
 ## Removing of a device unit
-To be able to delete a device unit, you first need to deactive the device unit in the integration. After deactivating the device unit can get deleted in the device
+To be able to delete a device unit, you first need to deactivate the device unit in the integration. After deactivating the device unit can get deleted in the device
 detail page.
 
 > ℹ️ Be aware that the device units energy manager and water heater can't be deleted.
@@ -138,7 +139,7 @@ Check that the device is either configured with a static IP address or your loca
 ### Use solar power to heat up the water boiler
 The askoheat device support a so called feed-in functionality. The device will itself start to heaten up the water in different power steps, depending on
 the solar power fed back to the grid. The integration provides a switch which automatically forwards any changes of the solar power to the device.
-As the device does figure out the maximum power level by slowly incresing the levels and checking the feed-in power, it might come to toggling on and off
+As the device does figure out the maximum power level by slowly increasing the levels and checking the feed-in power, it might come to toggling on and off
 the power shortly before sunset and after sunrise, you can define an automation which toggles the auto feed-in switch depending on the state of the sun
 (i.e. toggle on an hour after sunrise, toggle off an hour before sunset).
 More information are available [here](https://github.com/toggm/askoheat/discussions/10)
