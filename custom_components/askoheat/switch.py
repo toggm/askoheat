@@ -84,11 +84,10 @@ async def async_setup_entry(
             msg = "Cannot track multiple power_entities"
             raise ConfigEntryError(msg)
 
-        def config_power_invert() -> bool | None:
+        def config_power_invert() -> bool:
             dev = entry.data.get(CONF_FEED_IN)
-            return dev[CONF_POWER_INVERT] if dev else None
+            return dev[CONF_POWER_INVERT] if dev else False
 
-        power_invert = config_power_invert() or False
         async_add_entities(
             [
                 AskoheatAutoFeedInSwitch(
@@ -102,7 +101,7 @@ async def async_setup_entry(
                         api_descriptor=None,
                     ),
                     power_entity_id=power_entity_id,
-                    invert_power=power_invert,
+                    invert_power=config_power_invert(),
                 )
             ]
         )
@@ -130,16 +129,17 @@ class AskoheatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEnti
     def available(self) -> bool:
         """Return True if entity is available."""
         return (
-            super().available and self._coordinator_data_key() in self.coordinator.data
+            super().available
+            and self.entity_description.data_key in self.coordinator.data
         )
 
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
         data = self.coordinator.data
-        if data is None or data.get(self._coordinator_data_key()) is None:
+        if data.get(self.entity_description.data_key) is None:
             return
-        self._attr_state = data[self._coordinator_data_key()]
+        self._attr_state = data[self.entity_description.data_key]
         if (
             self.entity_description.on_state is True
             or self.entity_description.on_state is False
@@ -154,9 +154,6 @@ class AskoheatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEnti
             )
 
         super()._handle_coordinator_update()
-
-    def _coordinator_data_key(self) -> str:
-        return self.entity_description.data_key
 
     async def async_turn_on(self, **_: Any) -> None:
         """Turn on the switch."""
@@ -179,8 +176,12 @@ class AskoheatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEnti
         self._handle_coordinator_update()
 
 
-class AskoheatAutoFeedInSwitch(AskoheatSwitch):
+class AskoheatAutoFeedInSwitch(
+    AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEntity
+):
     """askoheat auto feed-in switch class."""
+
+    entity_description: AskoheatSwitchEntityDescription
 
     def __init__(  # noqa: PLR0913
         self,
@@ -223,8 +224,6 @@ class AskoheatAutoFeedInSwitch(AskoheatSwitch):
         """Return True if entity is available."""
         return (
             super().available
-            and CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.data_key
-            in self.coordinator.data
             and EMA_FEED_IN_VALUE_NUMBER_ENTITY_DESCRIPTOR.data_key
             in self._ema_coordinator.data
         )
@@ -264,13 +263,11 @@ class AskoheatAutoFeedInSwitch(AskoheatSwitch):
             raw_value = raw_value + self._buffer
         await self._ema_coordinator.async_write(api_desc, raw_value)
 
-    def _coordinator_data_key(self) -> str:
-        return CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.data_key
-
     async def async_turn_on(self, **_: Any) -> None:
         """Turn on the feed-in."""
-        # enable feed-in through api
-        await self._set_state(CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.on_state)
+        self._attr_is_on = True
+        self.async_write_ha_state()
+
         # additionally provide current power value to evaluate if heating should be
         # turned on immediately
         current_power_value = self.hass.states.get(self._power_entity_id)
@@ -279,8 +276,9 @@ class AskoheatAutoFeedInSwitch(AskoheatSwitch):
 
     async def async_turn_off(self, **_: Any) -> None:
         """Turn off feed-in."""
-        # disable feed-in through api
-        await self._set_state(CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.off_state)
+        self._attr_is_on = False
+        self.async_write_ha_state()
+
         # additionally initialize with 0 power value
         await self.send_feed_in(None)
 

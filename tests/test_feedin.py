@@ -21,7 +21,13 @@ from custom_components.askoheat.const import (
 
 
 @pytest.mark.parametrize(
-    ("conf_feedin", "power_entity_id", "invert", "buffer_value", "power_value"),
+    (
+        "conf_feedin",
+        "power_entity_id",
+        "invert",
+        "buffer_value",
+        "power_value",
+    ),
     [
         (
             {

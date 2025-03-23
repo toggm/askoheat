@@ -65,7 +65,10 @@ async def test_config_flow_with_defaults(hass: HomeAssistant) -> None:
         assert result2.get("data") == {
             CONF_HOST: "10.0.0.131",
             CONF_PORT: 501,
-            CONF_FEED_IN: {CONF_POWER_ENTITY_ID: [], CONF_POWER_INVERT: False},
+            CONF_FEED_IN: {
+                CONF_POWER_ENTITY_ID: [],
+                CONF_POWER_INVERT: False,
+            },
             CONF_DEVICE_UNITS: {
                 CONF_LEGIONELLA_PROTECTION_UNIT: True,  # defaults to true
                 CONF_ANALOG_INPUT_UNIT: False,
