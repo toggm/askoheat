@@ -5,15 +5,18 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.components.switch import ENTITY_ID_FORMAT, SwitchEntity
+from homeassistant.const import CONF_HOST
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryError
 from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers.httpx_client import get_async_client
 
 from custom_components.askoheat.api_conf_desc import (
     CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR,
     CONF_REGISTER_BLOCK_DESCRIPTOR,
 )
 from custom_components.askoheat.api_ema_desc import (
+    EMA_EMERGENCY_MODE_API_DESCRIPTOR,
     EMA_FEED_IN_VALUE_NUMBER_ENTITY_DESCRIPTOR,
     EMA_REGISTER_BLOCK_DESCRIPTOR,
 )
@@ -22,12 +25,16 @@ from custom_components.askoheat.const import (
     CONF_FEED_IN,
     CONF_POWER_ENTITY_ID,
     CONF_POWER_INVERT,
+    HTTP_RESPONSE_CODE_OK,
     LOGGER,
     DeviceKey,
     NumberAttrKey,
     SwitchAttrKey,
 )
-from custom_components.askoheat.model import AskoheatSwitchEntityDescription
+from custom_components.askoheat.model import (
+    AskoheatEmergencySwitchEntityDescription,
+    AskoheatSwitchEntityDescription,
+)
 
 from .entity import AskoheatEntity
 
@@ -105,6 +112,21 @@ async def async_setup_entry(
                 )
             ]
         )
+    # Add emergency on/off switch
+    async_add_entities(
+        [
+            AskoheatEmergencySwitch(
+                entry=entry,
+                coordinator=entry.runtime_data.ema_coordinator,
+                entity_description=AskoheatEmergencySwitchEntityDescription(
+                    key=SwitchAttrKey.CONTROL_EMERGENCY_MODE,
+                    device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
+                    icon="mdi:car-emergency",
+                    api_descriptor=EMA_EMERGENCY_MODE_API_DESCRIPTOR,
+                ),
+            )
+        ]
+    )
 
 
 class AskoheatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEntity):
@@ -293,3 +315,55 @@ class AskoheatAutoFeedInSwitch(
             CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.api_descriptor, state
         )
         self._handle_coordinator_update()
+
+
+class AskoheatEmergencySwitch(AskoheatSwitch):
+    """askoheat emergency switch class."""
+
+    def __init__(
+        self,
+        entry: AskoheatConfigEntry,
+        coordinator: AskoheatDataUpdateCoordinator,
+        entity_description: AskoheatEmergencySwitchEntityDescription,
+    ) -> None:
+        """Initialize the binary_sensor class."""
+        super().__init__(entry, coordinator, entity_description)
+        self._host = entry.data.get(CONF_HOST)
+
+    async def __async_set_state(self, set_on: bool) -> None:  # noqa: FBT001
+        """Send power value after adding buffer value."""
+        client = get_async_client(self.hass, verify_ssl=False)
+        command = "on" if set_on else "off"
+        url = f"http://{self._host}/{command}"
+
+        LOGGER.debug(f"Call rest command '{url}'")
+        res = await client.get(url)
+
+        if res.status_code != HTTP_RESPONSE_CODE_OK:
+            LOGGER.warning(
+                "Could not send command to askoheat rest interface: {e}", res.text
+            )
+            return
+
+        if "OFF" in res.text:
+            self._attr_is_on = False
+            self.async_write_ha_state()
+        if "ON" in res.text:
+            self._attr_is_on = True
+            self.async_write_ha_state()
+
+    async def async_turn_on(self, **_: Any) -> None:
+        """Turn on the feed-in."""
+        await self.__async_set_state(set_on=True)
+
+    async def async_turn_off(self, **_: Any) -> None:
+        """Turn off feed-in."""
+        await self.__async_set_state(set_on=False)
+
+    @property
+    def available(self) -> bool:
+        """Return True if entity is available."""
+        LOGGER.error(
+            "Available %s => %s", self.entity_description.data_key, super().available
+        )
+        return super().available
