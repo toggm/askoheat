@@ -275,6 +275,8 @@ class SwitchAttrKey(StrEnum):
 
     EMA_AUTO_FEEDIN_SWITCH = "auto_feedin"
 
+    CONTROL_EMERGENCY_MODE = "emergency_mode"
+
 
 class BinarySensorAttrKey(StrEnum):
     """Askoheat binary sensor attribute keys."""
@@ -470,3 +472,6 @@ class AttributeKeys(StrEnum):
 
     API_DESCRIPTOR = "api_descriptor"
     FORMATTED = "formatted"
+
+
+HTTP_RESPONSE_CODE_OK = 200

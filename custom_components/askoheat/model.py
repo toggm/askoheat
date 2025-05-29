@@ -105,6 +105,18 @@ class AskoheatSwitchEntityDescription(
 
 
 @dataclass(frozen=True)
+class AskoheatEmergencySwitchEntityDescription(AskoheatSwitchEntityDescription):
+    """Class describing emergency switch entity."""
+
+    # Override the data_key as we read status from
+    # the binary sensors state
+    @cached_property
+    def data_key(self) -> str:
+        """Get data key."""
+        return f"binary_sensor.{BinarySensorAttrKey.EMERGENCY_MODE_ACTIVE}"
+
+
+@dataclass(frozen=True)
 class AskoheatSensorEntityDescription(
     AskoheatEntityDescription[
         SensorAttrKey,

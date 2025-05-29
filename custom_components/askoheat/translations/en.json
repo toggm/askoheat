@@ -88,7 +88,7 @@
                 "name": "Relay board connection"
             },
             "status_emergency_mode": {
-                "name": "Emergency mode"
+                "name": "Emergency mode status"
             },
             "status_heat_pump_request": {
                 "name": "Heat pump request"
@@ -691,6 +691,9 @@
             },
             "auto_feedin": {
                 "name": "Auto feed-in"
+            },
+            "emergency_mode": {
+                "name": "Emergency mode"
             }
         },
         "text": {

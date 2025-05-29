@@ -88,7 +88,7 @@
                 "name": "Relay Board Verbindung"
             },
             "status_emergency_mode": {
-                "name": "Notfallheizung"
+                "name": "Notfallheizung Status"
             },
             "status_heat_pump_request": {
                 "name": "Wärmepumpen-Anforderung"
@@ -691,6 +691,9 @@
             },
             "auto_feedin": {
                 "name": "Überschuss-Nutzung"
+            },
+            "emergency_mode": {
+                "name": "Notfallheizung"
             }
         },
         "text": {

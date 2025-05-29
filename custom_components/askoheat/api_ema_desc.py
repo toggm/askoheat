@@ -42,6 +42,10 @@ EMA_FEED_IN_VALUE_NUMBER_ENTITY_DESCRIPTOR = AskoheatNumberEntityDescription(
     api_descriptor=SignedInt16RegisterInputDescriptor(20),
 )
 
+EMA_EMERGENCY_MODE_API_DESCRIPTOR = FlagRegisterInputDescriptor(
+    starting_register=EMA_STATUS_REGISTER, bit=7
+)
+
 EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
     starting_register=300,
     number_of_registers=37,
@@ -108,9 +112,7 @@ EMA_REGISTER_BLOCK_DESCRIPTOR = RegisterBlockDescriptor(
             device_key=DeviceKey.WATER_HEATER_CONTROL_UNIT,
             icon="mdi:car-emergency",
             device_class=BinarySensorDeviceClass.RUNNING,
-            api_descriptor=FlagRegisterInputDescriptor(
-                starting_register=EMA_STATUS_REGISTER, bit=7
-            ),
+            api_descriptor=EMA_EMERGENCY_MODE_API_DESCRIPTOR,
         ),
         AskoheatBinarySensorEntityDescription(
             key=BinarySensorAttrKey.LEGIONELLA_PROTECTION_ACTIVE,
