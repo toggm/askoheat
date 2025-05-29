@@ -359,11 +359,3 @@ class AskoheatEmergencySwitch(AskoheatSwitch):
     async def async_turn_off(self, **_: Any) -> None:
         """Turn off feed-in."""
         await self.__async_set_state(set_on=False)
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        LOGGER.error(
-            "Available %s => %s", self.entity_description.data_key, super().available
-        )
-        return super().available

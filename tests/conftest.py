@@ -36,6 +36,8 @@ from custom_components.askoheat.coordinator import (
     AskoheatParameterDataUpdateCoordinator,
 )
 
+HOST = "192.199.1.2"
+
 
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(
@@ -171,7 +173,7 @@ async def mock_config_entry_uninitialized(
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={
-            CONF_HOST: "192.199.1.2",
+            CONF_HOST: HOST,
             CONF_PORT: 502,
             CONF_DEVICE_UNITS: {
                 CONF_LEGIONELLA_PROTECTION_UNIT: True,
