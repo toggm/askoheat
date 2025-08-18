@@ -250,6 +250,11 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
                     f"{device_infos.article_name} {device_infos.article_number} {device_infos.serial_number}"  # noqa: E501
                 )
 
+                LOGGER.debug(
+                    "Try to register new device with unique id: %s",
+                    unique_id,
+                )
+
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured(updates=user_input)
 
