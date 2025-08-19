@@ -28,13 +28,16 @@ class AskoheatBaseEntity[D: AskoheatEntityDescription[Any, Any]](Entity):
         """Initialize."""
         self._device_unique_id = entry.unique_id or "unknown"
         self.entry = entry
+        parent_identifier = f"{DeviceKey.WATER_HEATER_CONTROL_UNIT}.{entry.entry_id}"
+        device_identifier = f"{entity_description.device_key}.{entry.entry_id}"
+        via_device: tuple[str, str] | None = None
+        # Only set via_device for child units; the water heater control unit itself
+        # must not point to itself as a parent.
+        if entity_description.device_key != DeviceKey.WATER_HEATER_CONTROL_UNIT:
+            via_device = (entry.domain, parent_identifier)
+
         self._attr_device_info = DeviceInfo(
-            identifiers={
-                (
-                    entry.domain,
-                    f"{entity_description.device_key}.{entry.entry_id}",
-                ),
-            },
+            identifiers={(entry.domain, device_identifier)},
             translation_key=entity_description.device_key,
             manufacturer="Askoma AG",
             model=entry.runtime_data.device_info.article_name,
@@ -42,10 +45,7 @@ class AskoheatBaseEntity[D: AskoheatEntityDescription[Any, Any]](Entity):
             sw_version=entry.runtime_data.device_info.software_version,
             hw_version=entry.runtime_data.device_info.hardwareware_version,
             serial_number=entry.runtime_data.device_info.serial_number,
-            via_device=(
-                entry.domain,
-                DeviceKey.WATER_HEATER_CONTROL_UNIT,
-            ),
+            via_device=via_device,
         )
         self.entity_description = entity_description
         self.translation_key = (
