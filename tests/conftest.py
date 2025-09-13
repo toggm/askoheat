@@ -39,6 +39,47 @@ from custom_components.askoheat.coordinator import (
 HOST = "192.199.1.2"
 
 
+class MockAskoheatDeviceInfos(data.AskoheatDeviceInfos):
+    """Mocked AskoheatDeviceInfos."""
+
+    def __init__(self) -> None:
+        """Initialize device infos."""
+
+    @property
+    def serial_number(self) -> str:
+        """Return serial number of the device."""
+        return "serial_number"
+
+    @property
+    def article_name(self) -> str:
+        """Return article name of the device."""
+        return "article_name"
+
+    @property
+    def article_number(self) -> str:
+        """Return article number of the device."""
+        return "article_number"
+
+    @property
+    def software_version(self) -> str:
+        """Return software version of the device."""
+        return "software_version"
+
+    @property
+    def hardwareware_version(self) -> str:
+        """Return hardware version of the device."""
+        return "hardware_version"
+
+
+class MockAskoheatData(data.AskoheatData):
+    """Mocked askoheat data with mocked AskoheatDeviceInfos."""
+
+    @property
+    def device_info(self) -> data.AskoheatDeviceInfos:
+        """Resolve and return askoheat device infos."""
+        return MockAskoheatDeviceInfos()
+
+
 @pytest.fixture(autouse=True)
 def auto_enable_custom_integrations(
     enable_custom_integrations: bool,  # noqa: ARG001, FBT001
@@ -185,7 +226,7 @@ async def mock_config_entry_uninitialized(
         },
         unique_id="test",
     )
-    entry.runtime_data = data.AskoheatData(
+    entry.runtime_data = MockAskoheatData(
         client=mock_api_client,
         integration=mock.MagicMock(),
         ema_coordinator=AskoheatEMADataUpdateCoordinator(

@@ -2,15 +2,21 @@
 
 from math import isclose
 from random import randint
+from typing import Any
 
 import pytest
 from homeassistant.const import (
     STATE_OFF,
     STATE_ON,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, State
+from homeassistant.helpers.restore_state import STORAGE_KEY as RESTORE_STATE_KEY
 from homeassistant.setup import async_setup_component
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant_custom_component.common import (
+    MockConfigEntry,
+    async_mock_restore_state_shutdown_restart,
+    mock_restore_cache_with_extra_data,
+)
 
 from custom_components.askoheat.const import (
     CONF_POWER_ENTITY_ID,
@@ -18,6 +24,8 @@ from custom_components.askoheat.const import (
     NumberAttrKey,
     SwitchAttrKey,
 )
+
+switch_entity_id = f"switch.test_{SwitchAttrKey.EMA_AUTO_FEEDIN_SWITCH}"
 
 
 @pytest.mark.parametrize(
@@ -51,6 +59,7 @@ async def test_auto_feed_in_switch_sensor_state(  # noqa: PLR0913, PLR0915
     invert: bool,  # noqa: FBT001
     buffer_value: int,
     power_value: int,
+    hass_storage: dict[str, Any],
 ) -> None:
     """Test behaviour of auto feed-in switch sensor."""
     # initialize dummy power sensor
@@ -108,7 +117,6 @@ async def test_auto_feed_in_switch_sensor_state(  # noqa: PLR0913, PLR0915
     assert float(state.state) == float(0)
 
     # enable switch
-    switch_entity_id = f"switch.test_{SwitchAttrKey.EMA_AUTO_FEEDIN_SWITCH}"
     await hass.services.async_call(
         "switch",
         "turn_on",
@@ -119,6 +127,21 @@ async def test_auto_feed_in_switch_sensor_state(  # noqa: PLR0913, PLR0915
     state = hass.states.get(switch_entity_id)
     assert state
     assert state.state == STATE_ON
+
+    # Trigger saving state
+    await async_mock_restore_state_shutdown_restart(hass)
+
+    # verify state was persisted
+    switch_entity_state = next(
+        (
+            state["state"]
+            for state in hass_storage[RESTORE_STATE_KEY]["data"]
+            if state["state"]["entity_id"] == switch_entity_id
+        ),
+        None,
+    )
+    assert switch_entity_state
+    assert switch_entity_state["state"] == STATE_ON
 
     # update other sensors
     mock_config_entry_uninitialized.runtime_data.ema_coordinator.async_update_listeners()
@@ -201,3 +224,52 @@ async def test_auto_feed_in_switch_sensor_state(  # noqa: PLR0913, PLR0915
     state = hass.states.get(feed_in_entity_id)
     assert state
     assert float(state.state) == float(0)
+
+
+@pytest.mark.parametrize(
+    ("conf_feedin", "saved_state"),
+    [
+        (
+            {
+                CONF_POWER_ENTITY_ID: "input_number.test_energy",
+                CONF_POWER_INVERT: False,
+            },
+            state,
+        )
+        for state in [STATE_ON, STATE_OFF]
+    ],
+)
+async def test_restore_auto_feed_saved_state(
+    hass: HomeAssistant,
+    mock_config_entry_uninitialized: MockConfigEntry,
+    saved_state: str,
+) -> None:
+    """Test saving feed-in switch state."""
+    # feed in stored state
+    mock_restore_cache_with_extra_data(
+        hass, [(State(switch_entity_id, saved_state), {})]
+    )
+    assert await async_setup_component(
+        hass,
+        "input_number",
+        {
+            "input_number": {
+                "test_energy": {
+                    "name": "test_energy",
+                    "unit_of_measurement": "W",
+                    "min": "-1000",
+                    "initial": "0",
+                    "max": "1000",
+                }
+            }
+        },
+    )
+    # initialize config entry
+    mock_config_entry_uninitialized.add_to_hass(hass)
+    await hass.config_entries.async_setup(mock_config_entry_uninitialized.entry_id)
+    await hass.async_block_till_done()
+
+    state = hass.states.get(switch_entity_id)
+
+    assert state
+    assert state.state == saved_state
