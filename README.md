@@ -37,7 +37,7 @@ All the entities created by this integration are assigned to one of the followin
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Water heater          | Required. Entities related to core water heater sensors and configuration parameters |
 | Energy manager        | Required. Entities related to controlling the water heater through Home assistant as energy manager (i.e. load feed-in, etc.) |
-| Analog input          | Optional. Exposes entities related to contrlling the askoheat+ water heater through analog input |
+| Analog input          | Optional. Exposes entities related to controlling the askoheat+ water heater through analog input |
 | Heatpump              | Optional. Exposes entities related to an integration with a connected heatpump sending heatpump requests |
 | Legionalla protection | Optional. Exposes entities related to the integration legionalla protection mechanism |
 | Modbus master         | Optional. Exposes entities to use the askoheat water heater as a modbus master connecting to other slave devices |
