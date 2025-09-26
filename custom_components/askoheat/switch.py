@@ -20,7 +20,6 @@ from homeassistant.helpers.httpx_client import get_async_client
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from custom_components.askoheat.api_conf_desc import (
-    CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR,
     CONF_REGISTER_BLOCK_DESCRIPTOR,
 )
 from custom_components.askoheat.api_ema_desc import (
@@ -250,14 +249,24 @@ class AskoheatAutoFeedInSwitch(
             )
         )
         if not (last_state := await self.async_get_last_state()):
+            LOGGER.warning(
+                "No last state found for askoheat autofeed switch %s, "
+                "turning off by default",
+                self.entity_id,
+            )
+            await self.async_turn_off()
             return
+        LOGGER.debug("Restore %s from state: %s", self.entity_id, last_state)
         match last_state.state:
             case s if s == STATE_ON:
                 await self.async_turn_on()
             case s if s == STATE_OFF:
                 await self.async_turn_off()
             case s:
-                LOGGER.warning("Recover from unknown state:%s", s)
+                LOGGER.warning(
+                    "Recover from unknown state:%s, turning off by default", s
+                )
+                await self.async_turn_off()
 
     @property
     def available(self) -> bool:
@@ -324,18 +333,6 @@ class AskoheatAutoFeedInSwitch(
 
         # additionally initialize with 0 power value
         await self.send_feed_in(None)
-
-    async def _set_state(self, state: str | bool) -> None:
-        """Set state of switch."""
-        if CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.api_descriptor is None:
-            LOGGER.error(
-                "Cannot set state, missing api_descriptor on entity %s", self.entity_id
-            )
-            return
-        await self.coordinator.async_write(
-            CONF_FEED_IN_ENABLED_SWITCH_ENTITY_DESCRIPTOR.api_descriptor, state
-        )
-        self._handle_coordinator_update()
 
 
 class AskoheatEmergencySwitch(AskoheatSwitch):

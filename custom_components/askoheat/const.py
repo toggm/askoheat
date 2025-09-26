@@ -7,7 +7,7 @@ from logging import Logger, getLogger
 LOGGER: Logger = getLogger(__package__)
 
 DOMAIN = "askoheat"
-ATTRIBUTION = "Data provided by http://jsonplaceholder.typicode.com/"
+ATTRIBUTION = ""
 
 DEFAULT_HOST = "askoheat.local"
 DEFAULT_PORT = 502
