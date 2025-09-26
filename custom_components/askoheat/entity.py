@@ -45,8 +45,11 @@ class AskoheatBaseEntity[D: AskoheatEntityDescription[Any, Any]](Entity):
             sw_version=entry.runtime_data.device_info.software_version,
             hw_version=entry.runtime_data.device_info.hardwareware_version,
             serial_number=entry.runtime_data.device_info.serial_number,
-            via_device=via_device,
         )
+
+        if via_device is not None:
+            self._attr_device_info["via_device"] = via_device
+
         self.entity_description = entity_description
         self.translation_key = (
             entity_description.translation_key or entity_description.key.value
