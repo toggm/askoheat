@@ -6,4 +6,4 @@ pymodbus==3.8.6
 httpx
 
 # Bind to older josepy version due to incompatibility
-josepy==2.1.0
+josepy==2.2.0
