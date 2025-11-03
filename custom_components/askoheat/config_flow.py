@@ -245,7 +245,14 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
                     .replace("-", "_")
                     .replace(".", "_")
                 )
-                unique_id = f"{DOMAIN}_{cleaned_serial_number}"
+                cleaned_article_number = (
+                    device_infos.article_number.lower()
+                    .replace("-", "_")
+                    .replace(".", "_")
+                )
+                # Use a composite unique id based on article number and serial number
+                # to support multiple devices that may report the same serial number.
+                unique_id = f"{DOMAIN}_{cleaned_article_number}_{cleaned_serial_number}"
                 self._title = title = (
                     f"{device_infos.article_name} {device_infos.article_number} {device_infos.serial_number}"  # noqa: E501
                 )
