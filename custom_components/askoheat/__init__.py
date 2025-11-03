@@ -74,10 +74,18 @@ async def async_setup_entry(
         entry.data[CONF_PORT],
     )
 
-    par_coordinator = AskoheatParameterDataUpdateCoordinator(hass=hass, client=client)
-    ema_coordinator = AskoheatEMADataUpdateCoordinator(hass=hass, client=client)
-    config_coordinator = AskoheatConfigDataUpdateCoordinator(hass=hass, client=client)
-    data_coordinator = AskoheatOperationDataUpdateCoordinator(hass=hass, client=client)
+    par_coordinator = AskoheatParameterDataUpdateCoordinator(
+        hass=hass, client=client, config_entry=entry
+    )
+    ema_coordinator = AskoheatEMADataUpdateCoordinator(
+        hass=hass, client=client, config_entry=entry
+    )
+    config_coordinator = AskoheatConfigDataUpdateCoordinator(
+        hass=hass, client=client, config_entry=entry
+    )
+    data_coordinator = AskoheatOperationDataUpdateCoordinator(
+        hass=hass, client=client, config_entry=entry
+    )
 
     # default devices
     supported_devices = [DeviceKey.WATER_HEATER_CONTROL_UNIT, DeviceKey.ENERGY_MANAGER]
