@@ -20,6 +20,7 @@ from .const import (
 if TYPE_CHECKING:
     from datetime import timedelta
 
+    from homeassistant.config_entries import ConfigEntry
     from homeassistant.core import HomeAssistant
 
     from custom_components.askoheat.api_desc import RegisterInputDescriptor
@@ -38,6 +39,8 @@ class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
         hass: HomeAssistant,
         scan_interval: timedelta | None,
         client: AskoheatModbusApiClient,
+        *,
+        config_entry: ConfigEntry | None = None,
     ) -> None:
         """Initialize."""
         super().__init__(
@@ -49,6 +52,7 @@ class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
             # api can be compared via `__eq__` to avoid duplicate updates
             # being dispatched to listeners
             always_update=True,
+            config_entry=config_entry,
         )
         self._client = client
 
@@ -62,9 +66,9 @@ class AskoheatDataUpdateCoordinator(DataUpdateCoordinator):
 class AskoheatEMADataUpdateCoordinator(AskoheatDataUpdateCoordinator):
     """Class to manage fetching askoheat energymanager states."""
 
-    def __init__(self, hass: HomeAssistant, client: AskoheatModbusApiClient) -> None:
+    def __init__(self, hass: HomeAssistant, client: AskoheatModbusApiClient, *, config_entry: ConfigEntry | None = None) -> None:
         """Initialize."""
-        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_EMA, client=client)
+        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_EMA, client=client, config_entry=config_entry)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update ema data via library."""
@@ -118,9 +122,11 @@ class AskoheatConfigDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
         self,
         hass: HomeAssistant,
         client: AskoheatModbusApiClient,
+        *,
+        config_entry: ConfigEntry | None = None,
     ) -> None:
         """Initialize."""
-        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_CONFIG, client=client)
+        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_CONFIG, client=client, config_entry=config_entry)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update config data via library."""
@@ -174,9 +180,11 @@ class AskoheatParameterDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
         self,
         hass: HomeAssistant,
         client: AskoheatModbusApiClient,
+        *,
+        config_entry: ConfigEntry | None = None,
     ) -> None:
         """Initialize."""
-        super().__init__(hass=hass, scan_interval=None, client=client)
+        super().__init__(hass=hass, scan_interval=None, client=client, config_entry=config_entry)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update parameter data via library."""
@@ -208,9 +216,11 @@ class AskoheatOperationDataUpdateCoordinator(AskoheatDataUpdateCoordinator):
         self,
         hass: HomeAssistant,
         client: AskoheatModbusApiClient,
+        *,
+        config_entry: ConfigEntry | None = None,
     ) -> None:
         """Initialize."""
-        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_OP_DATA, client=client)
+        super().__init__(hass=hass, scan_interval=SCAN_INTERVAL_OP_DATA, client=client, config_entry=config_entry)
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Update config data via library."""
