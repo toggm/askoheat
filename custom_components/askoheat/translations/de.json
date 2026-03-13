@@ -2,7 +2,7 @@
     "config": {
         "step": {
             "user": {
-                "description": "Weitere Informationen und Unterstützung findest Du unter: https://github.com/toggm/askoheat",
+                "description": "Weitere Informationen und Unterstützung findest Du unter: {repo_url}",
                 "data": {
                     "host": "Host",
                     "port": "Port"
@@ -33,7 +33,7 @@
     "options":{
         "step": {
             "init": {
-                "description": "Weitere Informationen und Unterstützung findest Du unter: https://github.com/toggm/askoheat",
+                "description": "Weitere Informationen und Unterstützung findest Du unter: {repo_url}",
                 "data": {
                     "host": "Host",
                     "port": "Port"
