@@ -186,13 +186,13 @@ class AskoheatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEnti
 
     async def async_turn_on(self, **_: Any) -> None:
         """Turn on the switch."""
-        await self._set_state(self.entity_description.on_state)
+        await self._set_state(state=self.entity_description.on_state)
 
     async def async_turn_off(self, **_: Any) -> None:
         """Turn off the switch."""
-        await self._set_state(self.entity_description.off_state)
+        await self._set_state(state=self.entity_description.off_state)
 
-    async def _set_state(self, state: str | bool) -> None:
+    async def _set_state(self, *, state: str | bool) -> None:
         """Set state of switch."""
         if self.entity_description.api_descriptor is None:
             LOGGER.error(
