@@ -13,6 +13,8 @@ DEFAULT_HOST = "askoheat.local"
 DEFAULT_PORT = 502
 DEFAULT_SCAN_INTERVAL = 5
 
+REPO_URL = "https://github.com/toggm/askoheat"
+
 # per coordinator scan intervals
 SCAN_INTERVAL_EMA = timedelta(seconds=5)
 SCAN_INTERVAL_CONFIG = timedelta(hours=1)

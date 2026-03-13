@@ -42,6 +42,7 @@ from .const import (
     DEFAULT_PORT,
     DOMAIN,
     LOGGER,
+    REPO_URL,
 )
 
 if TYPE_CHECKING:
@@ -288,6 +289,7 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
+            description_placeholders={"repo_url": REPO_URL},
             data_schema=_step_user_data_schema(MappingProxyType(config)),
             errors={},
         )
@@ -317,6 +319,7 @@ class AskoheatOptionsFlowHandler(OptionsFlowWithConfigEntry):
 
         return self.async_show_form(
             step_id="init",
+            description_placeholders={"repo_url": REPO_URL},
             data_schema=_step_user_data_schema(
                 MappingProxyType(self.config_entry.data)
             ),
