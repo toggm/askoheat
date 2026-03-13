@@ -1,6 +1,6 @@
 {
     "name": "Askoheat",
     "hide_default_branch": true,
-    "homeassistant": "2025.8.2",
+    "homeassistant": "2025.10.2",
     "render_readme": true
 }
