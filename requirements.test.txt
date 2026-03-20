@@ -4,4 +4,4 @@ respx
 
 # pin test versions
 aiodns>=3.5.0
-pycares<5
+pycares<6
