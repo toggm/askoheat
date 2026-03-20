@@ -81,10 +81,12 @@ class AskoheatSelect(AskoheatEntity[AskoheatSelectEntityDescription], SelectEnti
 
     @cached_property
     def _options_to_enum(self) -> dict[str, object]:
+        translations = getattr(self, "platform_data", None)
+        platform_translations = (
+            getattr(translations, "platform_translations", {}) if translations else {}
+        )
         return {
-            self.platform.object_id_platform_translations.get(
-                f"{self._entity_translation_key_base}.state.{e}"
-            )
+            platform_translations.get(f"{self._entity_translation_key_base}.state.{e}")
             or str(e): e
             for e in self.entity_description.api_descriptor.values  # type: ignore  # noqa: PGH003
         }
