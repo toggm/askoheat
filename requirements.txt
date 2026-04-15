@@ -1,8 +1,8 @@
 colorlog==6.10.1
 homeassistant==2025.10.2
 pip>=25.0.0
-ruff==0.15.9
-pymodbus==3.12.1
+ruff==0.15.10
+pymodbus==3.13.0
 httpx
 
 # Bind to older josepy version due to incompatibility
