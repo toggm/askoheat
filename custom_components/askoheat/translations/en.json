@@ -28,6 +28,10 @@
                     }
                 }
             }
+        },
+        "error": {
+            "connection": "Unable to connect to the askoheat instance.",
+            "unknown": "Unknown error occurred."
         }
     },
     "options":{

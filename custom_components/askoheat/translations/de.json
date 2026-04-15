@@ -28,6 +28,10 @@
                     }
                 }
             }
+        },
+        "error": {
+            "connection": "Es konnte keine Verbindung zum Askoheat+ Heizstab hergestellt werden.",
+            "unknown": "Es trat ein unerwarter Fehler auf."
         }
     },
     "options":{
