@@ -66,7 +66,6 @@ async def test_config_flow_with_defaults(hass: HomeAssistant) -> None:
             CONF_HOST: "10.0.0.131",
             CONF_PORT: 501,
             CONF_FEED_IN: {
-                CONF_POWER_ENTITY_ID: [],
                 CONF_POWER_INVERT: False,
             },
             CONF_DEVICE_UNITS: {

@@ -17,7 +17,9 @@ from homeassistant.config_entries import (
 )
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import callback
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import selector
+from homeassistant.helpers.update_coordinator import UpdateFailed
 
 from custom_components.askoheat.coordinator import (
     AskoheatParameterDataUpdateCoordinator,
@@ -27,7 +29,6 @@ from custom_components.askoheat.data import AskoheatDeviceInfos
 from .api import (
     AskoheatModbusApiClient,
     AskoheatModbusApiClientCommunicationError,
-    AskoheatModbusApiClientError,
 )
 from .const import (
     CONF_ANALOG_INPUT_UNIT,
@@ -71,24 +72,20 @@ def _get_section_entry_or_none(
     return cast("str | None", section_values.get(entry))
 
 
-class OptionalEntitySelector(selector.EntitySelector):
-    """Optional entity selector."""
-
-    def __init__(self, config: selector.EntitySelectorConfig | None = None) -> None:
-        """Instantiate a selector."""
-        super().__init__(config)
-
-    def __call__(self, data: Any) -> str | list[str]:
-        """Validate the passed selection."""
-        if data is None:
-            return []
-        return selector.EntitySelector.__call__(self, data)
-
-
 def _step_user_data_schema(
     data: MappingProxyType[str, Any] | None = None,
 ) -> vol.Schema:
     LOGGER.debug("_step_user_data_schema: %s", data)
+    power_entity_default = _get_section_entry_or_none(
+        data, CONF_FEED_IN, CONF_POWER_ENTITY_ID
+    )
+
+    power_entity_field = (
+        vol.Optional(CONF_POWER_ENTITY_ID, default=power_entity_default)
+        if power_entity_default is not None
+        else vol.Optional(CONF_POWER_ENTITY_ID)
+    )
+
     return vol.Schema(
         {
             vol.Required(
@@ -100,12 +97,7 @@ def _step_user_data_schema(
             vol.Required(CONF_FEED_IN): data_entry_flow.section(
                 vol.Schema(
                     {
-                        vol.Optional(
-                            CONF_POWER_ENTITY_ID,
-                            default=_get_section_entry_or_none(
-                                data, CONF_FEED_IN, CONF_POWER_ENTITY_ID
-                            ),
-                        ): OptionalEntitySelector(
+                        power_entity_field: selector.EntitySelector(
                             selector.EntitySelectorConfig(
                                 filter=selector.EntityFilterSelectorConfig(
                                     domain=Platform.SENSOR,
@@ -228,11 +220,11 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
                 parameters = await coordinator.load_parameters(client)
 
                 client.close()
-            except AskoheatModbusApiClientCommunicationError as exception:
-                LOGGER.error(exception)
+            except UpdateFailed as exception:
+                LOGGER.exception("Connection failed", exception)
                 _errors["base"] = "connection"
-            except AskoheatModbusApiClientError as exception:
-                LOGGER.exception(exception)
+            except HomeAssistantError as exception:
+                LOGGER.exception("Unknown error", exception)
                 _errors["base"] = "unknown"
             else:
                 LOGGER.debug(
@@ -269,6 +261,7 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="user",
+            description_placeholders={"repo_url": REPO_URL},
             data_schema=STEP_USER_DATA_SCHEMA,
             errors=_errors,
         )
@@ -308,17 +301,41 @@ class AskoheatOptionsFlowHandler(OptionsFlowWithConfigEntry):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Handle options flow."""
+        _errors = {}
         if user_input is not None:
             LOGGER.debug("Received user_input:%s", user_input)
-            # Update existing configuration data
-            self.hass.config_entries.async_update_entry(
-                self.config_entry, data=user_input, options=self.config_entry.options
-            )
-            # Return empty options
-            return self.async_create_entry(title="", data={})
+            try:
+                client = AskoheatModbusApiClient(
+                    host=user_input[CONF_HOST], port=user_input[CONF_PORT]
+                )
+                await client.connect()
+                if not client.is_connected:
+                    raise AskoheatModbusApiClientCommunicationError  # noqa: TRY301
+
+                client.close()
+            except AskoheatModbusApiClientCommunicationError:
+                LOGGER.exception("Connection failed")
+                _errors["base"] = "connection"
+            except HomeAssistantError as exception:
+                LOGGER.exception("Unknown error", exception)
+                _errors["base"] = "unknown"
+            else:
+                LOGGER.debug("Successfully connected")
+                # Update existing configuration data
+                self.hass.config_entries.async_update_entry(
+                    self.config_entry,
+                    data=user_input,
+                    options=self.config_entry.options,
+                )
+                # Return empty options
+                return self.async_create_entry(title="", data={})
+            finally:
+                if "client" in locals():
+                    client.close()
 
         return self.async_show_form(
             step_id="init",
+            errors=_errors,
             description_placeholders={"repo_url": REPO_URL},
             data_schema=_step_user_data_schema(
                 MappingProxyType(self.config_entry.data)
