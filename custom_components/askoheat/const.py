@@ -28,6 +28,10 @@ CONF_MODBUS_MASTER_UNIT = "modbus_master_unit"
 CONF_HEATPUMP_UNIT = "heatpump_unit"
 CONF_POWER_ENTITY_ID = "power_entity_id"
 CONF_POWER_INVERT = "power_invert"
+CONF_ENERGY_INTEGRATION = "energy_integration"
+CONF_ENERGY_SENSOR_ENABLED = "energy_sensor_enabled"
+CONF_ENERGY_INTEGRATION_ENTITY_ID = "energy_integration_entity_id"
+CONF_ENERGY_INTEGRATION_METHOD = "energy_integration_method"
 
 CONF_INPUT_SETTINGS_REGISTER = 2
 CONF_AUTO_HEATER_SETTINGS_REGISTER = 4
@@ -412,6 +416,11 @@ class SensorAttrKey(StrEnum):
     DATA_COUNT_LOW_TARIFF = "count_low_tariff"
     DATA_COUNT_MINIMAL_TEMP = "count_minimal_temp"
     DATA_MAX_MEASURED_TEMP = "max_measured_temp"
+
+    # -----------------------------------------------
+    # Energy integration sensor
+    # -----------------------------------------------
+    ENERGY_INTEGRATION = "energy_integration"
 
 
 class Baudrate(StrEnum):
