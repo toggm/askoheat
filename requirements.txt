@@ -1,6 +1,6 @@
 colorlog==6.10.1
 homeassistant==2025.10.2
-pip>=25.0.0
+pip>=26.1
 ruff==0.15.12
 pymodbus==3.13.0
 httpx
