@@ -8,6 +8,7 @@ from homeassistant.core import callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+from homeassistant.util import slugify
 
 from custom_components.askoheat.model import AskoheatEntityDescription
 
@@ -26,7 +27,8 @@ class AskoheatBaseEntity[D: AskoheatEntityDescription[Any, Any]](Entity):
 
     def __init__(self, entry: AskoheatConfigEntry, entity_description: D) -> None:
         """Initialize."""
-        self._device_unique_id = entry.unique_id or "unknown"
+        # store a slugified device unique id to ensure it is valid for entity ids
+        self._device_unique_id = slugify(entry.unique_id or "unknown")
         self.entry = entry
         parent_identifier = f"{DeviceKey.WATER_HEATER_CONTROL_UNIT}.{entry.entry_id}"
         device_identifier = f"{entity_description.device_key}.{entry.entry_id}"
@@ -76,7 +78,8 @@ class AskoheatEntity[D: AskoheatEntityDescription[Any, Any]](
         AskoheatBaseEntity.__init__(
             self=self, entry=entry, entity_description=entity_description
         )
-        self._device_unique_id = entry.unique_id or "unknown"
+        # Ensure slugified id is used here as well
+        self._device_unique_id = slugify(entry.unique_id or "unknown")
         self._attr_extra_state_attributes = {
             AttributeKeys.API_DESCRIPTOR: f"{entity_description.api_descriptor}"
         }

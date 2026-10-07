@@ -7,11 +7,14 @@ https://github.com/toggm/askoheat
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import entity_registry as er
 from homeassistant.loader import async_get_loaded_integration
+from homeassistant.util import slugify
 
 from custom_components.askoheat.const import DeviceKey
 
@@ -48,6 +51,86 @@ PLATFORMS: list[Platform] = [
     Platform.TEXT,
     Platform.SELECT,
 ]
+
+
+def _migrate_entity_registry(hass: HomeAssistant, entry: AskoheatConfigEntry) -> None:
+    """
+    Migrate entity registry entries for this config entry to slugified ids.
+
+    This is synchronous on purpose — the entity registry APIs used here are
+    synchronous. Keep the function small to reduce complexity in
+    `async_setup_entry`.
+    """
+    try:
+        registry = er.async_get(hass)
+        for entity_entry in list(registry.entities.values()):
+            if entity_entry.config_entry_id != entry.entry_id:
+                continue
+            old_entity_id = entity_entry.entity_id
+            old_uid = entity_entry.unique_id or ""
+            # Only migrate if old unique id contains colons (raw MAC) or the
+            # entity_id contains colons
+            if ":" not in old_uid and ":" not in (old_entity_id or ""):
+                continue
+
+            # Derive parts from the existing unique_id if possible, otherwise
+            # fall back to parsing the entity_id.
+            after = None
+            if "." in old_uid:
+                after = old_uid.split(".", 1)[1]
+            elif "." in old_entity_id:
+                after = old_entity_id.split(".", 1)[1]
+            else:
+                after = old_uid or old_entity_id
+
+            idx = after.rfind("_")
+            if idx == -1:
+                device_part = after
+                key_part = ""
+            else:
+                device_part = after[:idx]
+                key_part = after[idx + 1 :]
+
+            slug_device = slugify(device_part)
+            domain = (
+                old_entity_id.split(".", 1)[0]
+                if old_entity_id and "." in old_entity_id
+                else entry.domain
+            )
+            new_entity_id = (
+                f"{domain}.{slug_device}_{key_part}"
+                if key_part
+                else f"{domain}.{slug_device}"
+            )
+            new_unique_id = f"{slug_device}_{key_part}" if key_part else slug_device
+
+            if new_entity_id == old_entity_id and new_unique_id == old_uid:
+                continue
+
+            try:
+                registry.async_update_entity(
+                    old_entity_id,
+                    new_entity_id=new_entity_id,
+                    new_unique_id=new_unique_id,
+                )
+                LOGGER.info("Migrated entity_id %s -> %s", old_entity_id, new_entity_id)
+                # record mapping to a file in HA config directory so users can
+                # apply YAML replacements easily. Use entry_id to avoid
+                # collisions when multiple config entries exist.
+                try:
+                    mapping_path = hass.config.path(
+                        f"mappings_askoheat_{entry.entry_id}.txt"
+                    )
+                    with Path(mapping_path).open("a", encoding="utf-8") as mf:
+                        mf.write(f"{old_entity_id} {new_entity_id}\n")
+                except OSError as err:
+                    LOGGER.exception(
+                        "Unable to write mapping file %s: %s", mapping_path, err
+                    )
+            except (ValueError, KeyError) as err:
+                LOGGER.exception("Failed to migrate entity %s: %s", old_entity_id, err)
+    except (AttributeError, RuntimeError, KeyError, ValueError) as err:
+        LOGGER.exception("Entity registry migration failed: %s", err)
 
 
 # https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry
@@ -101,6 +184,9 @@ async def async_setup_entry(
         data_coordinator=data_coordinator,
         supported_devices=supported_devices,
     )
+
+    # perform entity registry migration in a small helper to reduce complexity
+    _migrate_entity_registry(hass, entry)
 
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
     await par_coordinator.async_config_entry_first_refresh()
