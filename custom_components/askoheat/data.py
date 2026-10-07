@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Mike Toggweiler @toggm
+# SPDX-License-Identifier: MIT
+
 """Custom types for askoheat."""
 
 from __future__ import annotations
@@ -47,6 +50,7 @@ class AskoheatData:
     data_coordinator: AskoheatOperationDataUpdateCoordinator
     integration: Integration
     supported_devices: list[DeviceKey]
+    parent_device_id: str | None = None
 
     @property
     def device_info(self) -> AskoheatDeviceInfos:

@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Mike Toggweiler @toggm
+# SPDX-License-Identifier: MIT
+
 """BlueprintEntity class."""
 
 from __future__ import annotations
@@ -5,6 +8,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from homeassistant.core import callback
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -32,11 +36,18 @@ class AskoheatBaseEntity[D: AskoheatEntityDescription[Any, Any]](Entity):
         self.entry = entry
         parent_identifier = f"{DeviceKey.WATER_HEATER_CONTROL_UNIT}.{entry.entry_id}"
         device_identifier = f"{entity_description.device_key}.{entry.entry_id}"
-        via_device: tuple[str, str] | None = None
-        # Only set via_device for child units; the water heater control unit itself
+        via_device_id: str | None = None
+        # Only set via_device_id for child units; the water heater control unit itself
         # must not point to itself as a parent.
         if entity_description.device_key != DeviceKey.WATER_HEATER_CONTROL_UNIT:
-            via_device = (entry.domain, parent_identifier)
+            if self.hass is not None:
+                via_device_id = dr.async_get_device_id_by_identifier(
+                    self.hass,
+                    (entry.domain, parent_identifier),
+                    config_entry_id=entry.entry_id,
+                )
+            if via_device_id is None:
+                via_device_id = entry.runtime_data.parent_device_id
 
         self._attr_device_info = DeviceInfo(
             identifiers={(entry.domain, device_identifier)},
@@ -49,8 +60,8 @@ class AskoheatBaseEntity[D: AskoheatEntityDescription[Any, Any]](Entity):
             serial_number=entry.runtime_data.device_info.serial_number,
         )
 
-        if via_device is not None:
-            self._attr_device_info["via_device"] = via_device
+        if via_device_id is not None:
+            self._attr_device_info["via_device_id"] = via_device_id
 
         self.entity_description = entity_description
         self.translation_key = (

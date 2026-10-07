@@ -1,3 +1,6 @@
+# Copyright (c) 2025 Mike Toggweiler @toggm
+# SPDX-License-Identifier: MIT
+
 """
 Custom integration to integrate askoheat+ hot water heating with Home Assistant.
 
@@ -12,6 +15,7 @@ from typing import TYPE_CHECKING
 
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
 from homeassistant.loader import async_get_loaded_integration
 from homeassistant.util import slugify
@@ -38,7 +42,6 @@ from .data import AskoheatData
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
-    from homeassistant.helpers import device_registry as dr
 
     from .data import AskoheatConfigEntry
 
@@ -185,14 +188,30 @@ async def async_setup_entry(
         supported_devices=supported_devices,
     )
 
-    # perform entity registry migration in a small helper to reduce complexity
-    _migrate_entity_registry(hass, entry)
-
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
     await par_coordinator.async_config_entry_first_refresh()
     await ema_coordinator.async_config_entry_first_refresh()
     await config_coordinator.async_config_entry_first_refresh()
     await data_coordinator.async_config_entry_first_refresh()
+
+    parent_identifier = (
+        entry.domain,
+        f"{DeviceKey.WATER_HEATER_CONTROL_UNIT}.{entry.entry_id}",
+    )
+    parent_device = dr.async_get(hass).async_get_or_create(
+        config_entry_id=entry.entry_id,
+        identifiers={parent_identifier},
+        manufacturer="Askoma AG",
+        model=entry.runtime_data.device_info.article_name,
+        model_id=entry.runtime_data.device_info.article_number,
+        sw_version=entry.runtime_data.device_info.software_version,
+        hw_version=entry.runtime_data.device_info.hardwareware_version,
+        serial_number=entry.runtime_data.device_info.serial_number,
+    )
+    entry.runtime_data.parent_device_id = parent_device.id
+
+    # perform entity registry migration in a small helper to reduce complexity
+    _migrate_entity_registry(hass, entry)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
