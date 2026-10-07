@@ -1,13 +1,17 @@
+# Copyright (c) 2025 Mike Toggweiler @toggm
+# SPDX-License-Identifier: MIT
+
 """Tests for the binary sensor entities."""
 
 from datetime import timedelta
 from decimal import Decimal
 from math import isclose
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from homeassistant.const import UnitOfTime
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from pymodbus.pdu.register_message import (
     ReadHoldingRegistersResponse,
     ReadInputRegistersResponse,
@@ -18,9 +22,16 @@ from custom_components.askoheat.api_conf_desc import CONF_REGISTER_BLOCK_DESCRIP
 from custom_components.askoheat.api_ema_desc import EMA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_op_desc import DATA_REGISTER_BLOCK_DESCRIPTOR
 from custom_components.askoheat.api_par_desc import PARAM_REGISTER_BLOCK_DESCRIPTOR
-from custom_components.askoheat.const import AttributeKeys, SensorAttrKey
+from custom_components.askoheat.const import (
+    AttributeKeys,
+    DeviceKey,
+    NumberAttrKey,
+    SensorAttrKey,
+)
+from custom_components.askoheat.entity import AskoheatBaseEntity
 from custom_components.askoheat.model import (
     AskoheatDurationSensorEntityDescription,
+    AskoheatNumberEntityDescription,
     AskoheatSensorEntityDescription,
 )
 
@@ -153,3 +164,39 @@ async def test_read_sensor_states(
         assert state.state == str(expected), (
             f"Expect state {expected!s}({type(expected)}) for entity {entity_descriptor.key}, but received {state.state}({type(state.state)})."  # noqa: E501
         )
+
+
+async def test_child_entity_uses_via_device_id(
+    mock_config_entry: MockConfigEntry,
+    hass: HomeAssistant,
+) -> None:
+    """Ensure child devices link via the device id."""
+    parent_identifier = (
+        mock_config_entry.domain,
+        f"{DeviceKey.WATER_HEATER_CONTROL_UNIT}.{mock_config_entry.entry_id}",
+    )
+    parent_device = dr.async_get(hass).async_get_or_create(
+        config_entry_id=mock_config_entry.entry_id,
+        identifiers={parent_identifier},
+    )
+    mock_config_entry.runtime_data.parent_device_id = parent_device.id
+
+    entity = AskoheatBaseEntity(
+        entry=mock_config_entry,
+        entity_description=AskoheatNumberEntityDescription(
+            key=NumberAttrKey.CON_RELAY_SEC_COUNT_SECONDS,
+            device_key=DeviceKey.ENERGY_MANAGER,
+            native_min_value=0,
+            native_max_value=10,
+            native_step=1,
+            name="Relay count seconds",
+            api_descriptor=None,
+        ),
+    )
+    entity.hass = hass
+
+    device_info = cast("dict[str, Any]", entity.device_info)
+    assert device_info is not None
+    assert "via_device" not in device_info
+    assert "via_device_id" in device_info
+    assert device_info["via_device_id"] == parent_device.id

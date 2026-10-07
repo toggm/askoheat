@@ -147,6 +147,34 @@ More information are available [here](https://github.com/toggm/askoheat/discussi
 ### Share your examples
 Share your examples in the [discussion](https://github.com/toggm/askoheat/discussions/categories/show-and-tell) section
 
+## Migration: entity_id / unique_id change
+
+As of version 1.2 (slugified entity ids), the integration changes how entity IDs and unique IDs are generated. Previously the integration used raw device identifiers (MAC addresses) which contained colons; these are invalid in Home Assistant and will stop working in future core releases.
+
+What changed
+- Device identifiers are now slugified (colons removed), and the integration sets deterministic entity IDs using the pattern `domain.<slug_device>_<entity_key>`.
+
+Automatic migration
+- On startup the integration will attempt to migrate existing entity registry entries for this config entry. It renames the `entity_id` and `unique_id` where necessary and logs each rename, for example:
+
+   INFO Migrated entity_id number.askoheat_08:d1:f9:c4:6b:48_relay_switch_on_inhibit_seconds -> number.askoheat_08d1f9c46b48_relay_switch_on_inhibit_seconds
+
+- If the migration fails for an entry it will be logged as an error; you can safely reach out for help.
+
+YAML automations and scripts
+- Automations or scripts stored in YAML files will not be updated automatically. After upgrading, search your configuration for any occurrences of old entity IDs and replace them with the new IDs. Example quick replacement using a mapping file `mappings.txt` with lines `old_entity_id new_entity_id`:
+
+```bash
+while read -r old new; do
+   grep -RIl "$old" | xargs -r sed -i "s/$old/$new/g"
+done < mappings.txt
+```
+
+Frontend automations and Lovelace
+- Automations and Lovelace entries created via the UI are updated automatically when the entity registry entry is renamed.
+
+If you prefer the integration not to rename your entities automatically, revert to the previous release and perform manual migration later.
+
 ---
 
 [askoheat]: https://github.com/toggm/askoheat

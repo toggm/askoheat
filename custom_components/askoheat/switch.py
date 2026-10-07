@@ -149,10 +149,9 @@ class AskoheatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEnti
     ) -> None:
         """Initialize the switch class."""
         super().__init__(entry, coordinator, entity_description)
-        self.entity_id = ENTITY_ID_FORMAT.format(
-            f"{self._device_unique_id}_{entity_description.key}"
-        )
-        self._attr_unique_id = self.entity_id
+        # set deterministic entity_id using slugified device id
+        self._attr_unique_id = f"{self._device_unique_id}_{entity_description.key}"
+        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
 
     @property
     def available(self) -> bool:
@@ -224,12 +223,12 @@ class AskoheatAutoFeedInSwitch(
     ) -> None:
         """Initialize the auto feed-in switch class."""
         super().__init__(entry, conf_coordinator, entity_description)
-        self.entity_id = ENTITY_ID_FORMAT.format(
-            f"{self._device_unique_id}_{entity_description.key}"
-        )
-        self._attr_unique_id = self.entity_id
+        self._attr_unique_id = f"{self._device_unique_id}_{entity_description.key}"
+        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
         self._entry = entry
         self._buffer = 0
+        # buffer entity reference may still point to the old entity id format;
+        # construct the expected entity_id using slugified device id
         self._buffer_entity_id = (
             f"number.{self._device_unique_id}_{NumberAttrKey.EMA_AUTO_FEEDIN_BUFFER}"
         )

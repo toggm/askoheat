@@ -61,10 +61,8 @@ class AskoheatText(AskoheatEntity[AskoheatTextEntityDescription], TextEntity):
     ) -> None:
         """Initialize the text class."""
         super().__init__(entry, coordinator, entity_description)
-        self.entity_id = ENTITY_ID_FORMAT.format(
-            f"{self._device_unique_id}_{entity_description.key}"
-        )
-        self._attr_unique_id = self.entity_id
+        self._attr_unique_id = f"{self._device_unique_id}_{entity_description.key}"
+        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
 
     @property
     def available(self) -> bool:
