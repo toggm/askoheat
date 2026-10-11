@@ -7,3 +7,5 @@ respx
 # dependency range it selects.
 aiodns>=3.5.0
 pycares>=5.0.0,<6
+
+async-timeout

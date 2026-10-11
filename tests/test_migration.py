@@ -11,7 +11,7 @@ async def test_slugify_and_migration(
 ) -> None:
     """Ensure slugify is used and migration renames entity registry entries."""
     # Create an entity registry entry that mimics the old format with colons
-    from homeassistant.helpers import entity_registry as er
+    from homeassistant.helpers import entity_registry as er  # noqa: PLC0415
 
     registry = er.async_get(hass)
 
