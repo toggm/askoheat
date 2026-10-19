@@ -31,8 +31,7 @@ jobs:
             echo "::error::Release tag ($TAG_VERSION) does not match manifest version ($MANIFEST_VERSION)"
             exit 1
           fi
-
-    echo "Release tag and manifest version match."
+          echo "Release tag and manifest version match."
 
       - name: "ZIP the integration directory"
         shell: "bash"
