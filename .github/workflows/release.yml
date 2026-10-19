@@ -22,7 +22,7 @@ jobs:
         run: |
           TAG_VERSION="${RELEASE_TAG#v}"
           MANIFEST_VERSION=$(jq -r '.version // empty' \
-            custom_components/my_integration/manifest.json)
+            custom_components/askoheat/manifest.json)
 
           echo "Release tag version: $TAG_VERSION"
           echo "Manifest version:    $MANIFEST_VERSION"
