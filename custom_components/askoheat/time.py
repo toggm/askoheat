@@ -61,8 +61,10 @@ class AskoheatTime(AskoheatEntity[AskoheatTimeEntityDescription], TimeEntity):
     ) -> None:
         """Initialize the time class."""
         super().__init__(entry, coordinator, entity_description)
-        self._attr_unique_id = f"{self._device_unique_id}_{entity_description.key}"
-        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
+        self.entity_id = ENTITY_ID_FORMAT.format(
+            f"{self._device_unique_id}_{entity_description.key}"
+        )
+        self._attr_unique_id = self.entity_id
 
     @property
     def available(self) -> bool:

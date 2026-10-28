@@ -67,3 +67,71 @@ async def test_deterministic_entity_id(
     assert entities
     for e in entities:
         assert ":" not in e.entity_id
+
+
+async def test_legacy_unique_id_without_colon_is_not_duplicated(
+    hass: HomeAssistant, mock_config_entry_uninitialized: MockConfigEntry
+) -> None:
+    """Issue #216: v1.1.1 registry entries (unique_id == entity_id, no colon)."""
+    from homeassistant.helpers import entity_registry as er  # noqa: PLC0415
+
+    registry = er.async_get(hass)
+    entry = mock_config_entry_uninitialized
+    entry.add_to_hass(hass)
+
+    old_entity_id = "switch.test_emergency_mode"
+    registry.async_get_or_create(
+        domain="switch",
+        platform=DOMAIN,
+        unique_id=old_entity_id,  # v1.1.1: unique_id was the full entity_id
+        config_entry=entry,
+        suggested_object_id="test_emergency_mode",
+    )
+
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    ids = [
+        e.entity_id
+        for e in registry.entities.values()
+        if e.config_entry_id == entry.entry_id
+        and e.entity_id in (old_entity_id, f"{old_entity_id}_2")
+    ]
+    assert not any(i.endswith("_2") for i in ids), ids
+    assert ids == [old_entity_id], ids
+
+
+async def test_existing_v120_duplicates_are_removed(
+    hass: HomeAssistant, mock_config_entry_uninitialized: MockConfigEntry
+) -> None:
+    """Issue #216: installs already on v1.2.0 hold an old entry plus a `_2` copy."""
+    from homeassistant.helpers import entity_registry as er  # noqa: PLC0415
+
+    registry = er.async_get(hass)
+    entry = mock_config_entry_uninitialized
+    entry.add_to_hass(hass)
+
+    registry.async_get_or_create(
+        "switch",
+        DOMAIN,
+        "switch.test_emergency_mode",
+        config_entry=entry,
+        suggested_object_id="test_emergency_mode",
+    )
+    registry.async_get_or_create(
+        "switch",
+        DOMAIN,
+        "test_emergency_mode",  # created by v1.2.0
+        config_entry=entry,
+        suggested_object_id="test_emergency_mode",
+    )
+    assert registry.async_get("switch.test_emergency_mode_2")
+
+    await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert registry.async_get("switch.test_emergency_mode_2") is None
+    original = registry.async_get("switch.test_emergency_mode")
+    assert original is not None
+    assert original.unique_id == "switch.test_emergency_mode"
+    assert hass.states.get("switch.test_emergency_mode") is not None

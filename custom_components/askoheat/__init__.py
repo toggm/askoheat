@@ -56,6 +56,42 @@ PLATFORMS: list[Platform] = [
 ]
 
 
+def _migrate_unprefixed_unique_ids(
+    hass: HomeAssistant, entry: AskoheatConfigEntry
+) -> None:
+    """
+    Repair registry entries created by v1.2.0 with unique_ids lacking the domain.
+
+    Up to v1.1.1 the unique_id was `<domain>.<device>_<key>`; v1.2.0 dropped the
+    prefix, so Home Assistant created duplicates (`..._2`) next to the existing
+    entries. If the original entry still exists, the duplicate is removed so the
+    original (and its entity_id/history) is used again, otherwise the unique_id
+    is prefixed in place.
+    """
+    registry = er.async_get(hass)
+    for entity_entry in list(registry.entities.values()):
+        if (
+            entity_entry.config_entry_id != entry.entry_id
+            or entity_entry.platform != DOMAIN
+        ):
+            continue
+        uid = entity_entry.unique_id or ""
+        prefix = f"{entity_entry.domain}."
+        if uid.startswith(prefix) or ":" in uid:
+            continue
+        new_uid = f"{prefix}{uid}"
+        original_id = registry.async_get_entity_id(entity_entry.domain, DOMAIN, new_uid)
+        if original_id is not None and original_id != entity_entry.entity_id:
+            LOGGER.info(
+                "Removing duplicate entity %s, keeping %s",
+                entity_entry.entity_id,
+                original_id,
+            )
+            registry.async_remove(entity_entry.entity_id)
+        else:
+            registry.async_update_entity(entity_entry.entity_id, new_unique_id=new_uid)
+
+
 def _migrate_entity_registry(hass: HomeAssistant, entry: AskoheatConfigEntry) -> None:
     """
     Migrate entity registry entries for this config entry to slugified ids.
@@ -105,7 +141,8 @@ def _migrate_entity_registry(hass: HomeAssistant, entry: AskoheatConfigEntry) ->
                 if key_part
                 else f"{domain}.{slug_device}"
             )
-            new_unique_id = f"{slug_device}_{key_part}" if key_part else slug_device
+            # unique_id keeps the domain prefix, identical to the entity_id
+            new_unique_id = new_entity_id
 
             if new_entity_id == old_entity_id and new_unique_id == old_uid:
                 continue
@@ -212,6 +249,7 @@ async def async_setup_entry(
 
     # perform entity registry migration in a small helper to reduce complexity
     _migrate_entity_registry(hass, entry)
+    _migrate_unprefixed_unique_ids(hass, entry)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
