@@ -2,6 +2,6 @@
 pytest-homeassistant-custom-component
 respx
 
-# pin test versions
-aiodns>=4.0.4
+# pin test versions (aiodns 4.x requires pycares>=5, which is not compatible with the tests)
+aiodns>=3.5.0,<4
 pycares<5
