@@ -123,7 +123,7 @@ def read_ema_input_registers_response() -> ReadInputRegistersResponse:
 
 
 @pytest.fixture
-def conf_feedin() -> None | dict[str, Any]:
+def conf_feedin() -> dict[str, Any] | None:
     """Fixture returning object feedin configuration."""
     return None
 
@@ -208,7 +208,7 @@ def mock_device_infos() -> Any:
 async def mock_config_entry_uninitialized(
     mock_api_client: AskoheatModbusApiClient,
     hass: HomeAssistant,
-    conf_feedin: None | dict[str, Any],
+    conf_feedin: dict[str, Any] | None,
 ) -> MockConfigEntry:
     """Fixture to mock an uninitialized config entry."""
     entry = MockConfigEntry(
