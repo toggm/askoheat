@@ -52,7 +52,7 @@ switch_entity_id = f"switch.test_{SwitchAttrKey.EMA_AUTO_FEEDIN_SWITCH}"
         for invert in [True, False]
     ],
 )
-async def test_auto_feed_in_switch_sensor_state(  # noqa: PLR0913, PLR0915
+async def test_auto_feed_in_switch_sensor_state(  # noqa: PLR0913, PLR0915, PLR0917
     mock_config_entry_uninitialized: MockConfigEntry,
     hass: HomeAssistant,
     power_entity_id: str,
