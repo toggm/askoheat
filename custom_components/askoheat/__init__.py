@@ -29,6 +29,7 @@ from .const import (
     CONF_HEATPUMP_UNIT,
     CONF_LEGIONELLA_PROTECTION_UNIT,
     CONF_MODBUS_MASTER_UNIT,
+    CONFIG_ENTRY_VERSION,
     DOMAIN,
     LOGGER,
 )
@@ -56,31 +57,39 @@ PLATFORMS: list[Platform] = [
 ]
 
 
-def _migrate_unprefixed_unique_ids(
-    hass: HomeAssistant, entry: AskoheatConfigEntry
-) -> None:
+def _restore_legacy_unique_ids(hass: HomeAssistant, entry: AskoheatConfigEntry) -> None:
     """
-    Repair registry entries created by v1.2.0 with unique_ids lacking the domain.
+    Restore the unique_ids registered up to v1.1.1.
 
-    Up to v1.1.1 the unique_id was `<domain>.<device>_<key>`; v1.2.0 dropped the
-    prefix, so Home Assistant created duplicates (`..._2`) next to the existing
-    entries. If the original entry still exists, the duplicate is removed so the
-    original (and its entity_id/history) is used again, otherwise the unique_id
-    is prefixed in place.
+    Up to v1.1.1 the unique_id was `<domain>.<entry unique_id>_<key>`, built from
+    the raw (possibly MAC based, with colons) config entry unique_id. v1.2.0
+    rewrote it to a slugified form without the domain prefix, which made Home
+    Assistant register every entity a second time (`..._2`).
+
+    Entities that still carry the 1.2.0 form get their legacy unique_id back. If
+    the original entry still exists next to it, the duplicate is removed so the
+    original (entity_id, history, customizations) is used again. The entity_id
+    is never changed here.
     """
     registry = er.async_get(hass)
+    raw_device = entry.unique_id or "unknown"
+    slug_device = slugify(raw_device)
     for entity_entry in list(registry.entities.values()):
         if (
             entity_entry.config_entry_id != entry.entry_id
             or entity_entry.platform != DOMAIN
         ):
             continue
+        domain = entity_entry.domain
+        legacy_prefix = f"{domain}.{raw_device}_"
         uid = entity_entry.unique_id or ""
-        prefix = f"{entity_entry.domain}."
-        if uid.startswith(prefix) or ":" in uid:
+        if uid.startswith(legacy_prefix):
             continue
-        new_uid = f"{prefix}{uid}"
-        original_id = registry.async_get_entity_id(entity_entry.domain, DOMAIN, new_uid)
+        rest = uid.removeprefix(f"{domain}.")
+        if not rest.startswith(f"{slug_device}_"):
+            continue
+        legacy_uid = f"{legacy_prefix}{rest.removeprefix(f'{slug_device}_')}"
+        original_id = registry.async_get_entity_id(domain, DOMAIN, legacy_uid)
         if original_id is not None and original_id != entity_entry.entity_id:
             LOGGER.info(
                 "Removing duplicate entity %s, keeping %s",
@@ -89,88 +98,61 @@ def _migrate_unprefixed_unique_ids(
             )
             registry.async_remove(entity_entry.entity_id)
         else:
-            registry.async_update_entity(entity_entry.entity_id, new_unique_id=new_uid)
-
-
-def _migrate_entity_registry(hass: HomeAssistant, entry: AskoheatConfigEntry) -> None:
-    """
-    Migrate entity registry entries for this config entry to slugified ids.
-
-    This is synchronous on purpose — the entity registry APIs used here are
-    synchronous. Keep the function small to reduce complexity in
-    `async_setup_entry`.
-    """
-    try:
-        registry = er.async_get(hass)
-        for entity_entry in list(registry.entities.values()):
-            if entity_entry.config_entry_id != entry.entry_id:
-                continue
-            old_entity_id = entity_entry.entity_id
-            old_uid = entity_entry.unique_id or ""
-            # Only migrate if old unique id contains colons (raw MAC) or the
-            # entity_id contains colons
-            if ":" not in old_uid and ":" not in (old_entity_id or ""):
-                continue
-
-            # Derive parts from the existing unique_id if possible, otherwise
-            # fall back to parsing the entity_id.
-            after = None
-            if "." in old_uid:
-                after = old_uid.split(".", 1)[1]
-            elif "." in old_entity_id:
-                after = old_entity_id.split(".", 1)[1]
-            else:
-                after = old_uid or old_entity_id
-
-            idx = after.rfind("_")
-            if idx == -1:
-                device_part = after
-                key_part = ""
-            else:
-                device_part = after[:idx]
-                key_part = after[idx + 1 :]
-
-            slug_device = slugify(device_part)
-            domain = (
-                old_entity_id.split(".", 1)[0]
-                if old_entity_id and "." in old_entity_id
-                else entry.domain
+            registry.async_update_entity(
+                entity_entry.entity_id, new_unique_id=legacy_uid
             )
-            new_entity_id = (
-                f"{domain}.{slug_device}_{key_part}"
-                if key_part
-                else f"{domain}.{slug_device}"
-            )
-            # unique_id keeps the domain prefix, identical to the entity_id
-            new_unique_id = new_entity_id
 
-            if new_entity_id == old_entity_id and new_unique_id == old_uid:
-                continue
 
-            try:
-                registry.async_update_entity(
-                    old_entity_id,
-                    new_entity_id=new_entity_id,
-                    new_unique_id=new_unique_id,
-                )
-                LOGGER.info("Migrated entity_id %s -> %s", old_entity_id, new_entity_id)
-                # record mapping to a file in HA config directory so users can
-                # apply YAML replacements easily. Use entry_id to avoid
-                # collisions when multiple config entries exist.
-                try:
-                    mapping_path = hass.config.path(
-                        f"mappings_askoheat_{entry.entry_id}.txt"
-                    )
-                    with Path(mapping_path).open("a", encoding="utf-8") as mf:
-                        mf.write(f"{old_entity_id} {new_entity_id}\n")
-                except OSError as err:
-                    LOGGER.exception(
-                        "Unable to write mapping file %s: %s", mapping_path, err
-                    )
-            except (ValueError, KeyError) as err:
-                LOGGER.exception("Failed to migrate entity %s: %s", old_entity_id, err)
-    except (AttributeError, RuntimeError, KeyError, ValueError) as err:
-        LOGGER.exception("Entity registry migration failed: %s", err)
+def _read_mapping_file(path: Path) -> list[tuple[str, str]]:
+    """Read `old_entity_id new_entity_id` pairs written by v1.2.0."""
+    if not path.is_file():
+        return []
+    pairs = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        parts = line.split()
+        if len(parts) == 2 and parts[0] != parts[1]:  # noqa: PLR2004
+            pairs.append((parts[0], parts[1]))
+    return pairs
+
+
+def _restore_renamed_entity_ids(
+    hass: HomeAssistant,
+    entry: AskoheatConfigEntry,
+    pairs: list[tuple[str, str]],
+) -> None:
+    """Undo entity_id renames done by the v1.2.0 migration, where possible."""
+    registry = er.async_get(hass)
+    for old_id, new_id in pairs:
+        current = registry.async_get(new_id)
+        # old ids with colons are invalid and cannot be restored
+        if (
+            ":" in old_id
+            or current is None
+            or current.config_entry_id != entry.entry_id
+            or registry.async_get(old_id) is not None
+        ):
+            continue
+        registry.async_update_entity(new_id, new_entity_id=old_id)
+        LOGGER.info("Restored entity_id %s -> %s", new_id, old_id)
+
+
+async def async_migrate_entry(hass: HomeAssistant, entry: AskoheatConfigEntry) -> bool:
+    """
+    Migrate the config entry to the current version.
+
+    Version 2: the registry is brought back to the unique_ids used up to v1.1.1
+    (see `_restore_legacy_unique_ids`) and entity_ids renamed by v1.2.0 are
+    restored from the mapping file it wrote.
+    """
+    if entry.version > CONFIG_ENTRY_VERSION:
+        return False
+    if entry.version < CONFIG_ENTRY_VERSION:
+        mapping_path = Path(hass.config.path(f"mappings_askoheat_{entry.entry_id}.txt"))
+        pairs = await hass.async_add_executor_job(_read_mapping_file, mapping_path)
+        _restore_legacy_unique_ids(hass, entry)
+        _restore_renamed_entity_ids(hass, entry, pairs)
+        hass.config_entries.async_update_entry(entry, version=CONFIG_ENTRY_VERSION)
+    return True
 
 
 # https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry
@@ -246,10 +228,6 @@ async def async_setup_entry(
         serial_number=entry.runtime_data.device_info.serial_number,
     )
     entry.runtime_data.parent_device_id = parent_device.id
-
-    # perform entity registry migration in a small helper to reduce complexity
-    _migrate_entity_registry(hass, entry)
-    _migrate_unprefixed_unique_ids(hass, entry)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))

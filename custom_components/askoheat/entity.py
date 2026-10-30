@@ -31,8 +31,12 @@ class AskoheatBaseEntity[D: AskoheatEntityDescription[Any, Any]](Entity):
 
     def __init__(self, entry: AskoheatConfigEntry, entity_description: D) -> None:
         """Initialize."""
-        # store a slugified device unique id to ensure it is valid for entity ids
-        self._device_unique_id = slugify(entry.unique_id or "unknown")
+        # slugified device id: only for entity_ids, which must be valid
+        self._safe_device_unique_id = slugify(entry.unique_id or "unknown")
+        # raw device id as stored in the config entry: unique_ids must stay
+        # identical to the ones registered by <= v1.1.1, otherwise the entity
+        # registry creates duplicates (<entity>_2). May contain colons (MAC).
+        self._raw_device_id = entry.unique_id or "unknown"
         self.entry = entry
         parent_identifier = f"{DeviceKey.WATER_HEATER_CONTROL_UNIT}.{entry.entry_id}"
         device_identifier = f"{entity_description.device_key}.{entry.entry_id}"
@@ -90,7 +94,7 @@ class AskoheatEntity[D: AskoheatEntityDescription[Any, Any]](
             self=self, entry=entry, entity_description=entity_description
         )
         # Ensure slugified id is used here as well
-        self._device_unique_id = slugify(entry.unique_id or "unknown")
+        self._safe_device_unique_id = slugify(entry.unique_id or "unknown")
         self._attr_extra_state_attributes = {
             AttributeKeys.API_DESCRIPTOR: f"{entity_description.api_descriptor}"
         }

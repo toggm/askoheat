@@ -147,33 +147,71 @@ More information are available [here](https://github.com/toggm/askoheat/discussi
 ### Share your examples
 Share your examples in the [discussion](https://github.com/toggm/askoheat/discussions/categories/show-and-tell) section
 
-## Migration: entity_id / unique_id change
+## Entity ids and migration (v1.2.1 and later)
 
-As of version 1.2 (slugified entity ids), the integration changes how entity IDs and unique IDs are generated. Previously the integration used raw device identifiers (MAC addresses) which contained colons; these are invalid in Home Assistant and will stop working in future core releases.
+### How entity ids are built
+- Every entity gets an `entity_id` of the form `domain.<device id>_<entity key>`, e.g. `sensor.askoheat_xxc32t_heater1_power`. `<device id>` is the unique id of the config entry, which is `askoheat_` plus the serial number the device reports when it is added. Some devices report their MAC address (`a8:42:e3:da:a3:a0`) as serial number; it is slugified for the `entity_id` (`askoheat_a8_42_e3_da_a3_a0`).
+- The `unique_id` of an entity (what Home Assistant uses to recognise it) is built from the *raw* device id, as in versions up to 1.1.1, and may therefore contain colons. This is valid. It must not change between versions, otherwise Home Assistant registers every entity a second time (`..._2`).
+- The `entity_id` is only used when an entity is registered for the first time. Entities which exist already keep their `entity_id`, including ones you renamed yourself.
 
-What changed
-- Device identifiers are now slugified (colons removed), and the integration sets deterministic entity IDs using the pattern `domain.<slug_device>_<entity_key>`.
+### What the integration migrates automatically
+On the first start with v1.2.1 or later each config entry is migrated once (config entry version 2):
+- **Coming from 1.1.1 or earlier:** nothing is renamed or removed.
+- **Coming from 1.2.0 or 1.2.1-beta1** (entities duplicated with `_2`, or `unique_id`s rewritten): the `unique_id`s are restored to the original format. If the original entity still exists, the `_2` duplicate is removed and the original is used again, including its `entity_id`, history and customizations. The history the duplicate collected in between is lost.
+- **Entities renamed by v1.2.0:** the mapping file `mappings_askoheat_<entry_id>.txt` in your configuration directory lists `old_entity_id new_entity_id`. Where possible the old `entity_id` is restored. Ids containing colons are invalid and cannot be restored.
 
-Automatic migration
-- On startup the integration will attempt to migrate existing entity registry entries for this config entry. It renames the `entity_id` and `unique_id` where necessary and logs each rename, for example:
+Entries migrated to version 2 cannot be loaded by v1.2.0 or older. If you want to go back, restore a backup.
 
-   INFO Migrated entity_id number.askoheat_08:d1:f9:c4:6b:48_relay_switch_on_inhibit_seconds -> number.askoheat_08d1f9c46b48_relay_switch_on_inhibit_seconds
+### If you still have duplicated or renamed entities
+This happens if the device was removed and added again (it then gets a new device id, e.g. the MAC address instead of a readable name), or if the automatic migration cannot decide. You have three options.
 
-- If the migration fails for an entry it will be logged as an error; you can safely reach out for help.
+**1. Rename the entities in the UI**
+Settings -> Devices & services -> Askoheat -> select the device -> pencil icon -> enter the old name -> *Recreate entity IDs*. Home Assistant derives the ids from the device and entity names (in your language, e.g. `sensor.boiler_eg_stromverbrauch`). These differ from the ids used in the documentation, which are the English entity keys.
 
-YAML automations and scripts
-- Automations or scripts stored in YAML files will not be updated automatically. After upgrading, search your configuration for any occurrences of old entity IDs and replace them with the new IDs. Example quick replacement using a mapping file `mappings.txt` with lines `old_entity_id new_entity_id`:
+**2. Remove the new entities and keep the old ones**
+Delete the unavailable (old) or duplicated (`_2`) entities in the UI, then rename the remaining ones, or use the script below.
+
+**3. Batch clean-up and rename with the helper script**
+[scripts/askoheat-registry](scripts/askoheat-registry) edits the Home Assistant registry files and only touches Askoheat entries. It needs [`jq`](https://jqlang.org/download/); check with `jq --version` and install it if it is missing:
+
+| Where you run the script | Install `jq` |
+| --- | --- |
+| Home Assistant OS, in the *Terminal & SSH* / *Advanced SSH & Web Terminal* add-on (Alpine based) | `apk add jq` (for *Advanced SSH & Web Terminal* you can also list `jq` under *Packages* in the add-on configuration so it survives restarts) |
+| Debian / Ubuntu / Raspberry Pi OS (Home Assistant Supervised or Container host) | `sudo apt install jq` |
+| macOS (e.g. working on a copy of your configuration) | `brew install jq` |
+| Anything else | download a binary from the [jq download page](https://jqlang.org/download/) |
+
+**Stop Home Assistant before using `--apply`**, otherwise your changes are overwritten when it shuts down. Without `--apply` every command only prints what would change; with `--apply` a backup (`<file>.bak.<timestamp>`) is created first.
+
+```bash
+# show entities / devices (without a prefix all Askoheat entities are listed)
+scripts/askoheat-registry -c /config list-entities
+scripts/askoheat-registry -c /config list-entities askoheat_a8_42_e3_da_a3_a0
+scripts/askoheat-registry -c /config list-devices "Boiler"
+
+# remove entities with a given id prefix (dry run, add --apply to write)
+scripts/askoheat-registry -c /config remove-entities askoheat_a8_42_e3_da_a3_a0
+
+# remove a device including all its entities (e.g. a duplicated device)
+scripts/askoheat-registry -c /config --apply remove-devices "Legionellen"
+
+# rename the id prefix of all entities, e.g. back to the legacy name
+scripts/askoheat-registry -c /config --apply rename-entities askoheat_a8_42_e3_da_a3_a0 boiler_eg
+
+# rename devices
+scripts/askoheat-registry -c /config --apply rename-devices "Boiler Einheit" "Boiler EG"
+```
+
+The prefix has to match the part of the id after the domain from its start, and you must give the complete prefix you want to replace (`askoheat_a8` would leave `_42_e3_...` behind). `rename-entities` stops if a target id already exists, so remove the duplicates first. It writes `askoheat_renames_<timestamp>.txt` into the configuration directory (`old new` per line).
+
+### YAML automations, scripts and dashboards
+Automations and dashboards created in the UI follow renames in the entity registry. Files in YAML are not changed. Use a mapping file with lines `old_entity_id new_entity_id` (written by the integration or by the script above) to replace the ids:
 
 ```bash
 while read -r old new; do
-   grep -RIl "$old" | xargs -r sed -i "s/$old/$new/g"
+   grep -RIl "$old" /config | xargs -r sed -i "s/$old/$new/g"
 done < mappings.txt
 ```
-
-Frontend automations and Lovelace
-- Automations and Lovelace entries created via the UI are updated automatically when the entity registry entry is renamed.
-
-If you prefer the integration not to rename your entities automatically, revert to the previous release and perform manual migration later.
 
 ---
 

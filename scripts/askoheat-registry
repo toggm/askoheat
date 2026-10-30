@@ -1,0 +1,168 @@
+#!/usr/bin/env bash
+# Offline clean-up / batch rename of askoheat entities and devices.
+#
+# Edits Home Assistant's registry files (.storage/core.entity_registry and
+# .storage/core.device_registry). Only entries of the askoheat integration are
+# ever touched. Home Assistant MUST be stopped while using --apply, otherwise
+# it overwrites the changes on shutdown.
+#
+# Without --apply every command is a dry run that only prints what would change.
+# With --apply a timestamped backup (<file>.bak.<ts>) is created first.
+
+set -euo pipefail
+
+CONFIG_DIR="${HA_CONFIG:-/config}"
+APPLY=0
+
+usage() {
+  cat <<'EOF'
+Usage: askoheat-registry [-c CONFIG_DIR] [--apply] <command> <args>
+
+Prefixes refer to the object id, i.e. the part of the entity_id after the
+domain ("sensor.askoheat_a8_42_heater1_power" -> "askoheat_a8_42_heater1_power").
+
+Commands:
+  list-entities    [<prefix>]            show askoheat entities (all if no prefix)
+  remove-entities  <prefix>              remove them from the entity registry
+  rename-entities  <old> <new>           replace the object id prefix
+  list-devices     <name-prefix>         show askoheat devices whose name starts with ...
+  remove-devices   <name-prefix>         remove devices and all their entities
+  rename-devices   <old> <new>           replace the device name prefix (name_by_user)
+
+Options:
+  -c DIR     Home Assistant config directory (default: $HA_CONFIG or /config)
+  --apply    write the changes (default: dry run)
+
+Examples:
+  # find the duplicates created by v1.2.0
+  askoheat-registry list-entities askoheat_a8_42_e3_da_a3_a0
+  # move every entity from the MAC based id to the legacy name
+  askoheat-registry --apply rename-entities askoheat_a8_42_e3_da_a3_a0 boiler_eg
+EOF
+}
+
+die() { echo "error: $*" >&2; exit 1; }
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -c) CONFIG_DIR="$2"; shift 2 ;;
+    --apply) APPLY=1; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) break ;;
+  esac
+done
+
+[[ $# -ge 1 ]] || { usage; exit 1; }
+command -v jq >/dev/null || die "jq is required"
+
+CMD="$1"; shift
+ENT="$CONFIG_DIR/.storage/core.entity_registry"
+DEV="$CONFIG_DIR/.storage/core.device_registry"
+[[ -f "$ENT" && -f "$DEV" ]] || die "no registry files in $CONFIG_DIR/.storage"
+TS="$(date +%Y%m%d_%H%M%S)"
+
+# askoheat entities whose object id starts with $p
+SEL_ENT='select(.platform == "askoheat")
+         | select((.entity_id | split(".")[1:] | join(".")) | startswith($p))'
+# askoheat devices whose (user) name starts with $p
+SEL_DEV='select(any(.identifiers[]; .[0] == "askoheat"))
+         | select(((.name_by_user // .name // "") | ascii_downcase) | startswith($p | ascii_downcase))'
+
+# write_json <file> <jq filter> [jq args...]
+write_json() {
+  local file="$1" filter="$2"; shift 2
+  if [[ $APPLY -eq 1 ]]; then
+    cp -a "$file" "$file.bak.$TS"
+    jq "$@" "$filter" "$file" > "$file.new" && mv "$file.new" "$file"
+    echo "written $file (backup: $file.bak.$TS)"
+  else
+    echo "dry run: pass --apply to change $file (stop Home Assistant first)"
+  fi
+}
+
+confirm_stopped() {
+  [[ $APPLY -eq 1 ]] || return 0
+  read -r -p "Is Home Assistant stopped? [y/N] " answer
+  [[ "$answer" == [yY]* ]] || die "stop Home Assistant first"
+}
+
+case "$CMD" in
+  list-entities)
+    [[ $# -le 1 ]] || { usage; exit 1; }
+    OUT="$(jq -r --arg p "${1:-}" '.data.entities[] | '"$SEL_ENT"' | "\(.entity_id)\t\(.unique_id)"' "$ENT")"
+    if [[ -n "$OUT" ]]; then
+      echo "$OUT"
+    else
+      echo "no askoheat entity id starts with '${1:-}'." >&2
+      echo "The prefix is matched against the part after the domain. Run without a prefix to list all." >&2
+    fi
+    ;;
+
+  remove-entities)
+    [[ $# -eq 1 ]] || { usage; exit 1; }
+    jq -r --arg p "$1" '.data.entities[] | '"$SEL_ENT"' | "remove \(.entity_id)"' "$ENT"
+    confirm_stopped
+    write_json "$ENT" '.data.entities |= map(select(any(. | '"$SEL_ENT"'; true) | not))' --arg p "$1"
+    ;;
+
+  rename-entities)
+    [[ $# -eq 2 ]] || { usage; exit 1; }
+    OLD="$1"; NEW="$2"
+    # old/new pairs, refuse to run if a target id already exists
+    MAP="$(jq -r --arg p "$OLD" --arg n "$NEW" '
+      [.data.entities[] | .entity_id] as $all
+      | .data.entities[] | '"$SEL_ENT"'
+      | (.entity_id | split(".")[0]) as $d
+      | (.entity_id | split(".")[1:] | join(".")) as $o
+      | "\(.entity_id) \($d).\($n)\($o | ltrimstr($p))"' "$ENT")"
+    [[ -n "$MAP" ]] || { echo "nothing to rename"; exit 0; }
+    echo "$MAP"
+    CLASH="$(jq -r --argjson pairs "$(echo "$MAP" | jq -R 'split(" ")' | jq -s .)" '
+      [.data.entities[].entity_id] as $ids
+      | [$pairs[] | .[1]] | map(select(. as $t | $ids | index($t))) | .[]' "$ENT")"
+    [[ -z "$CLASH" ]] || die "target ids already exist:"$'\n'"$CLASH"
+    confirm_stopped
+    write_json "$ENT" '
+      .data.entities |= map(
+        if any(. | '"$SEL_ENT"'; true) then
+          (.entity_id | split(".")[0]) as $d
+          | (.entity_id | split(".")[1:] | join(".")) as $o
+          | .entity_id = "\($d).\($n)\($o | ltrimstr($p))"
+        else . end)' --arg p "$OLD" --arg n "$NEW"
+    if [[ $APPLY -eq 1 ]]; then
+      echo "$MAP" > "$CONFIG_DIR/askoheat_renames_$TS.txt"
+      echo "mapping saved to $CONFIG_DIR/askoheat_renames_$TS.txt (old new per line)."
+      echo "Replace the old ids in YAML automations/scripts/dashboards with it, e.g.:"
+      echo '  while read -r old new; do grep -RIl "$old" "$CONFIG_DIR" | xargs -r sed -i "s/$old/$new/g"; done < file'
+    fi
+    ;;
+
+  list-devices)
+    [[ $# -eq 1 ]] || { usage; exit 1; }
+    jq -r --arg p "$1" '.data.devices[] | '"$SEL_DEV"' | "\(.id)\t\(.name_by_user // .name)\t\(.identifiers[0][1])"' "$DEV"
+    ;;
+
+  remove-devices)
+    [[ $# -eq 1 ]] || { usage; exit 1; }
+    IDS="$(jq -c --arg p "$1" '[.data.devices[] | '"$SEL_DEV"' | .id]' "$DEV")"
+    jq -r --arg p "$1" '.data.devices[] | '"$SEL_DEV"' | "remove device \(.name_by_user // .name) (\(.id))"' "$DEV"
+    jq -r --argjson ids "$IDS" '.data.entities[] | select(.device_id as $d | $ids | index($d)) | "remove entity \(.entity_id)"' "$ENT"
+    confirm_stopped
+    write_json "$ENT" '.data.entities |= map(select((.device_id as $d | $ids | index($d)) | not))' --argjson ids "$IDS"
+    write_json "$DEV" '.data.devices |= map(select((.id as $i | $ids | index($i)) | not))' --argjson ids "$IDS"
+    ;;
+
+  rename-devices)
+    [[ $# -eq 2 ]] || { usage; exit 1; }
+    jq -r --arg p "$1" --arg n "$2" '.data.devices[] | '"$SEL_DEV"'
+      | (.name_by_user // .name) as $cur | "\($cur) -> \($n)\($cur | .[($p | length):])"' "$DEV"
+    confirm_stopped
+    write_json "$DEV" '
+      .data.devices |= map(
+        if any(. | '"$SEL_DEV"'; true) then
+          (.name_by_user // .name) as $cur | .name_by_user = "\($n)\($cur | .[($p | length):])"
+        else . end)' --arg p "$1" --arg n "$2"
+    ;;
+
+  *) usage; exit 1 ;;
+esac
