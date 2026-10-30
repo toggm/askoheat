@@ -17,5 +17,5 @@
   "integration_type": "hub",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/toggm/askoheat/issues",
-  "version": "1.2.1-beta2"
+  "version": "1.2.1"
 }
