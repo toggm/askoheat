@@ -39,6 +39,7 @@ from .const import (
     CONF_MODBUS_MASTER_UNIT,
     CONF_POWER_ENTITY_ID,
     CONF_POWER_INVERT,
+    CONFIG_ENTRY_VERSION,
     DEFAULT_HOST,
     DEFAULT_PORT,
     DOMAIN,
@@ -47,7 +48,7 @@ from .const import (
 )
 
 if TYPE_CHECKING:
-    from homeassistant.components.dhcp import DhcpServiceInfo
+    from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
     from .data import AskoheatConfigEntry
 
@@ -99,7 +100,7 @@ def _step_user_data_schema(
                     {
                         power_entity_field: selector.EntitySelector(
                             selector.EntitySelectorConfig(
-                                filter=selector.EntityFilterSelectorConfig(
+                                filter=selector.EntityWithDeviceFilterSelectorConfig(
                                     domain=Platform.SENSOR,
                                     device_class=SensorDeviceClass.POWER,
                                 ),
@@ -202,7 +203,7 @@ STEP_USER_DATA_SCHEMA = _step_user_data_schema()
 class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
     """Config flow for Blueprint."""
 
-    VERSION = 1
+    VERSION = CONFIG_ENTRY_VERSION
 
     async def async_step_user(
         self,

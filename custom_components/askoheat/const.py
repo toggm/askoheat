@@ -477,3 +477,7 @@ class AttributeKeys(StrEnum):
 
 
 HTTP_RESPONSE_CODE_OK = 200
+
+# Version of the config entry (and registry) layout; bump together with a step in
+# `async_migrate_entry`.
+CONFIG_ENTRY_VERSION = 2

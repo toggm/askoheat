@@ -63,8 +63,12 @@ class AskoheatSelect(AskoheatEntity[AskoheatSelectEntityDescription], SelectEnti
     ) -> None:
         """Initialize the select class."""
         super().__init__(entry, coordinator, entity_description)
-        self._attr_unique_id = f"{self._device_unique_id}_{entity_description.key}"
-        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
+        self.entity_id = ENTITY_ID_FORMAT.format(
+            f"{self._safe_device_unique_id}_{entity_description.key}"
+        )
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(
+            f"{self._raw_device_id}_{entity_description.key}"
+        )
         self.current_option = None
 
     @cached_property

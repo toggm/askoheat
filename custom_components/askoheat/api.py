@@ -40,7 +40,7 @@ from custom_components.askoheat.const import DOMAIN, LOGGER
 from custom_components.askoheat.data import AskoheatDataBlock
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Coroutine
+    from collections.abc import Callable, Coroutine, Sequence
 
     from pymodbus.pdu import ModbusPDU
 
@@ -540,7 +540,7 @@ def _prepare_time(value: object) -> list[int]:
     return _prepare_uint16(time_value.hour).__add__(_prepare_uint16(time_value.minute))
 
 
-def _read_str(register_values: list[int]) -> str:
+def _read_str(register_values: Sequence[int]) -> str:
     """Read register values as str."""
     # custom implementation as strings are represented with little endian
     byte_list = bytearray()
@@ -660,7 +660,7 @@ def _prepare_uint16(value: object) -> list[int]:
     )
 
 
-def _read_uint32(register_values: list[int]) -> int | None:
+def _read_uint32(register_values: Sequence[int]) -> int | None:
     """Read register value as uint32."""
     value = AsyncModbusTcpClient.convert_from_registers(
         register_values, AsyncModbusTcpClient.DATATYPE.UINT32
@@ -690,7 +690,7 @@ def _prepare_uint32(value: object) -> list[int]:
     )
 
 
-def _read_float32(register_values: list[int]) -> float | None:
+def _read_float32(register_values: Sequence[int]) -> float | None:
     """Read register value as uint16."""
     value = AsyncModbusTcpClient.convert_from_registers(
         register_values, AsyncModbusTcpClient.DATATYPE.FLOAT32
@@ -741,7 +741,7 @@ def _prepare_flag(register_value: int, flag: object, index: int) -> list[int]:
     return [register_value & (0xFFFF ^ (True << index))]
 
 
-def _read_struct(register_values: list[int], structure: str | bytes) -> Any | None:
+def _read_struct(register_values: Sequence[int], structure: str | bytes) -> Any | None:
     """Read register values and unpack using python struct."""
     byte_string = b"".join([x.to_bytes(2, byteorder="big") for x in register_values])
     if byte_string == b"nan\x00":

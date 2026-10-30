@@ -149,9 +149,12 @@ class AskoheatSwitch(AskoheatEntity[AskoheatSwitchEntityDescription], SwitchEnti
     ) -> None:
         """Initialize the switch class."""
         super().__init__(entry, coordinator, entity_description)
-        # set deterministic entity_id using slugified device id
-        self._attr_unique_id = f"{self._device_unique_id}_{entity_description.key}"
-        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
+        self.entity_id = ENTITY_ID_FORMAT.format(
+            f"{self._safe_device_unique_id}_{entity_description.key}"
+        )
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(
+            f"{self._raw_device_id}_{entity_description.key}"
+        )
 
     @property
     def available(self) -> bool:
@@ -223,14 +226,20 @@ class AskoheatAutoFeedInSwitch(
     ) -> None:
         """Initialize the auto feed-in switch class."""
         super().__init__(entry, conf_coordinator, entity_description)
-        self._attr_unique_id = f"{self._device_unique_id}_{entity_description.key}"
-        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
+        # unique_id keeps the domain prefix (as in <= v1.1.1) to stay stable
+        self.entity_id = ENTITY_ID_FORMAT.format(
+            f"{self._safe_device_unique_id}_{entity_description.key}"
+        )
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(
+            f"{self._raw_device_id}_{entity_description.key}"
+        )
         self._entry = entry
         self._buffer = 0
         # buffer entity reference may still point to the old entity id format;
         # construct the expected entity_id using slugified device id
         self._buffer_entity_id = (
-            f"number.{self._device_unique_id}_{NumberAttrKey.EMA_AUTO_FEEDIN_BUFFER}"
+            f"number.{self._safe_device_unique_id}"
+            f"_{NumberAttrKey.EMA_AUTO_FEEDIN_BUFFER}"
         )
         self._power_entity_id = power_entity_id
         self._invert_power = invert_power

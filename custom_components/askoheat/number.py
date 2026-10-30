@@ -94,9 +94,12 @@ class AskoheatNumber(AskoheatEntity[AskoheatNumberEntityDescription], NumberEnti
     ) -> None:
         """Initialize the number class."""
         super().__init__(entry, coordinator, entity_description)
-        # use slugified device id from base entity and set deterministic entity_id
-        self._attr_unique_id = f"{self._device_unique_id}_{entity_description.key}"
-        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
+        self.entity_id = ENTITY_ID_FORMAT.format(
+            f"{self._safe_device_unique_id}_{entity_description.key}"
+        )
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(
+            f"{self._raw_device_id}_{entity_description.key}"
+        )
 
     @property
     def available(self) -> bool:
@@ -158,8 +161,13 @@ class AskoheatAutoFeedInBufferNumber(
     ) -> None:
         """Initialize auto-feed-in buffer entity."""
         super().__init__(entry=entry, entity_description=entity_description)
-        self._attr_unique_id = f"{self._device_unique_id}_{entity_description.key}"
-        self.entity_id = ENTITY_ID_FORMAT.format(self._attr_unique_id)
+        # unique_id keeps the domain prefix (as in <= v1.1.1) to stay stable
+        self.entity_id = ENTITY_ID_FORMAT.format(
+            f"{self._safe_device_unique_id}_{entity_description.key}"
+        )
+        self._attr_unique_id = ENTITY_ID_FORMAT.format(
+            f"{self._raw_device_id}_{entity_description.key}"
+        )
 
     async def async_added_to_hass(self) -> None:
         """Call when entity about to be added to hass."""
