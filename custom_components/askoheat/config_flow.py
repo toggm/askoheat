@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, cast
 
@@ -10,6 +11,7 @@ import voluptuous as vol
 from homeassistant import data_entry_flow
 from homeassistant.components.sensor.const import SensorDeviceClass
 from homeassistant.config_entries import (
+    ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
     OptionsFlow,
@@ -18,6 +20,7 @@ from homeassistant.config_entries import (
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 from homeassistant.core import callback
 from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import selector
 from homeassistant.helpers.update_coordinator import UpdateFailed
 
@@ -48,6 +51,7 @@ from .const import (
 )
 
 if TYPE_CHECKING:
+    from homeassistant.core import HomeAssistant
     from homeassistant.helpers.service_info.dhcp import DhcpServiceInfo
 
     from .data import AskoheatConfigEntry
@@ -200,6 +204,30 @@ def _step_user_data_schema(
 STEP_USER_DATA_SCHEMA = _step_user_data_schema()
 
 
+def _normalize_serial(value: object) -> str:
+    """Return a comparable form of a serial number or MAC address."""
+    return re.sub(r"[^0-9a-z]", "", str(value or "").lower())
+
+
+def _entry_serials(hass: HomeAssistant, entry: ConfigEntry) -> set[str]:
+    """
+    Return the normalized serial numbers a config entry is known under.
+
+    The serial the entry was created with (its unique_id never changes) and the
+    serial the device reports now (written to the device registry on every
+    start). They differ if the device firmware changed the reported serial.
+    """
+    serials = {_normalize_serial((entry.unique_id or "").removeprefix(f"{DOMAIN}_"))}
+    registry = dr.async_get(hass)
+    serials.update(
+        _normalize_serial(device.serial_number)
+        for device in dr.async_entries_for_config_entry(registry, entry.entry_id)
+        if device.serial_number
+    )
+    serials.discard("")
+    return serials
+
+
 class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
     """Config flow for Blueprint."""
 
@@ -213,14 +241,9 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
         _errors = {}
         if user_input is not None:
             try:
-                client = AskoheatModbusApiClient(
-                    host=user_input[CONF_HOST], port=user_input[CONF_PORT]
+                device_infos = await self._async_read_device_infos(
+                    user_input[CONF_HOST], user_input[CONF_PORT]
                 )
-                await client.connect()
-                coordinator = AskoheatParameterDataUpdateCoordinator(self.hass, client)
-                parameters = await coordinator.load_parameters(client)
-
-                client.close()
             except UpdateFailed as exception:
                 LOGGER.exception("Connection failed", exception)
                 _errors["base"] = "connection"
@@ -229,11 +252,9 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
                 _errors["base"] = "unknown"
             else:
                 LOGGER.debug(
-                    "Successfully connected to askoheat instance, "
-                    "received parameters: %s",
-                    parameters,
+                    "Successfully connected to askoheat instance with serial %s",
+                    device_infos.serial_number,
                 )
-                device_infos = AskoheatDeviceInfos(parameters)
                 cleaned_serial_number = (
                     device_infos.serial_number.lower()
                     .replace("-", "_")
@@ -248,6 +269,16 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
                     "Try to register new device with unique id: %s",
                     unique_id,
                 )
+
+                # The unique_id of an existing entry is frozen at creation time,
+                # but the device may report a different serial since (firmware).
+                # Compare with the serials the entries are known under.
+                known_entry = self._find_configured_entry(device_infos.serial_number)
+                if known_entry is not None and known_entry.unique_id != unique_id:
+                    self._update_host(
+                        known_entry, user_input[CONF_HOST], user_input[CONF_PORT]
+                    )
+                    return self.async_abort(reason="already_configured")
 
                 await self.async_set_unique_id(unique_id)
                 self._abort_if_unique_id_configured(updates=user_input)
@@ -270,15 +301,43 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
     async def async_step_dhcp(
         self, discovery_info: DhcpServiceInfo
     ) -> ConfigFlowResult:
-        """Prepare configuration for a DHCP discovered Askoheat device."""
+        """
+        Prepare configuration for a DHCP discovered Askoheat device.
+
+        A device is identified by its MAC address or serial number, never by its
+        IP address or hostname: an address may be handed to another device.
+        """
         LOGGER.info(
             "Found device with hostname '%s' IP '%s'",
             discovery_info.hostname,
             discovery_info.ip,
         )
-        # Validate dhcp result with socket broadcast:
+        host = discovery_info.ip
+        mac = _normalize_serial(discovery_info.macaddress)
+
+        # 1. the MAC address is known: only the address may have changed
+        known_entry = self._find_configured_entry(mac)
+        if known_entry is not None:
+            self._update_host(known_entry, host)
+            return self.async_abort(reason="already_configured")
+
+        # 2. stable id so the flow is deduplicated and can be ignored
+        await self.async_set_unique_id(f"{DOMAIN}_{mac}")
+        self._abort_if_unique_id_configured()
+
+        # 3. ask the device for its serial and compare it with known devices
+        try:
+            device_infos = await self._async_read_device_infos(host, DEFAULT_PORT)
+        except (UpdateFailed, HomeAssistantError, TimeoutError, OSError):
+            LOGGER.debug("Cannot read serial number from discovered device %s", host)
+        else:
+            known_entry = self._find_configured_entry(device_infos.serial_number)
+            if known_entry is not None:
+                self._update_host(known_entry, host)
+                return self.async_abort(reason="already_configured")
+
         config = dict[str, Any]()
-        config[CONF_HOST] = discovery_info.ip
+        config[CONF_HOST] = host
         config[CONF_PORT] = DEFAULT_PORT
 
         return self.async_show_form(
@@ -287,6 +346,44 @@ class AskoheatFlowHandler(ConfigFlow, domain=DOMAIN):
             data_schema=_step_user_data_schema(MappingProxyType(config)),
             errors={},
         )
+
+    async def _async_read_device_infos(
+        self, host: str, port: int
+    ) -> AskoheatDeviceInfos:
+        """Connect to the device and read its parameters."""
+        client = AskoheatModbusApiClient(host=host, port=port)
+        try:
+            await client.connect()
+            coordinator = AskoheatParameterDataUpdateCoordinator(self.hass, client)
+            parameters = await coordinator.load_parameters(client)
+        finally:
+            client.close()
+        return AskoheatDeviceInfos(parameters)
+
+    def _find_configured_entry(self, serial: str) -> ConfigEntry | None:
+        """Return the configured entry of the device with this serial or MAC."""
+        wanted = _normalize_serial(serial)
+        if not wanted:
+            return None
+        return next(
+            (
+                entry
+                for entry in self._async_current_entries(include_ignore=False)
+                if wanted in _entry_serials(self.hass, entry)
+            ),
+            None,
+        )
+
+    def _update_host(
+        self, entry: ConfigEntry, host: str, port: int | None = None
+    ) -> None:
+        """Update the address of an already identified device."""
+        data = {**entry.data, CONF_HOST: host}
+        if port is not None:
+            data[CONF_PORT] = port
+        if data != dict(entry.data):
+            LOGGER.info("Askoheat device moved to %s, updating entry", host)
+            self.hass.config_entries.async_update_entry(entry, data=data)
 
     @staticmethod
     @callback

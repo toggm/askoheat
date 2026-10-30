@@ -19,6 +19,7 @@ from custom_components.askoheat.api_desc import (
     FlagRegisterInputDescriptor,
 )
 from custom_components.askoheat.const import (
+    CONF_POWER_INVERT,
     DOMAIN,
     SwitchAttrKey,
 )
@@ -135,3 +136,27 @@ async def test_update_switch_sensor_states(
     state = hass.states.get(entity_id)
     assert state
     assert state.state == STATE_OFF
+
+
+@pytest.mark.parametrize(
+    "conf_feedin",
+    [
+        None,
+        {},
+        # shape saved by the config flow of v1.2.0 if no power sensor is selected
+        {CONF_POWER_INVERT: False},
+        {CONF_POWER_INVERT: True},
+    ],
+)
+async def test_switches_load_without_power_entity(
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,  # noqa: ARG001
+) -> None:
+    """Without a feed-in power sensor all switches load, but no auto feed-in."""
+    assert (
+        hass.states.get(f"switch.test_{SwitchAttrKey.CONTROL_EMERGENCY_MODE}")
+        is not None
+    )
+    assert (
+        hass.states.get(f"switch.test_{SwitchAttrKey.EMA_AUTO_FEEDIN_SWITCH}") is None
+    )
