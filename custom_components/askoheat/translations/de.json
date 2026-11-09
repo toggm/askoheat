@@ -32,6 +32,9 @@
         "error": {
             "connection": "Es konnte keine Verbindung zum Askoheat+ Heizstab hergestellt werden.",
             "unknown": "Es trat ein unerwarter Fehler auf."
+        },
+        "abort": {
+            "already_configured": "Das Gerät ist bereits konfiguriert. Die Adresse wurde aktualisiert, falls sie sich geändert hat."
         }
     },
     "options":{

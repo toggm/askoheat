@@ -67,7 +67,7 @@ async def async_setup_entry(
 
     def config_power_entity() -> str | None:
         dev = entry.data.get(CONF_FEED_IN)
-        return dev[CONF_POWER_ENTITY_ID] if dev else None
+        return dev.get(CONF_POWER_ENTITY_ID) if dev else None
 
     power_entity_id = config_power_entity()
     async_add_entities(
@@ -100,7 +100,7 @@ async def async_setup_entry(
 
         def config_power_invert() -> bool:
             dev = entry.data.get(CONF_FEED_IN)
-            return dev[CONF_POWER_INVERT] if dev else False
+            return dev.get(CONF_POWER_INVERT, False) if dev else False
 
         async_add_entities(
             [
