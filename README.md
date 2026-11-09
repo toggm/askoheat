@@ -98,6 +98,8 @@ Your askoheat device should be autodiscovered only if the device is using it's s
 
 Press `Configure` and follow the steps to the end by selecting the additional device units you want to be created and monitored through this integration.
 
+A discovered device is recognised by its MAC address or serial number, never by its IP address or hostname. If it is already configured, the discovery is dropped and only the address of the existing device is updated if it changed. Devices which are not yet configured can be ignored with the `Ignore` button.
+
 #### Manual
 
 If you are using multiple askoheat devices, you're using a different hostname or work with static ip addresses you have to add your device manually.
